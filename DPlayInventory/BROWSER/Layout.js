@@ -7,8 +7,8 @@ DPlayInventory.Layout = OBJECT({
 		DIV({
 			style : {
 				margin : 'auto',
-				width : 360,
-				height : 600,
+				width : 376,
+				height : 568,
 				backgroundImage : '/DPlayInventory/R/background.png',
 				backgroundSize : 'cover'
 			},
@@ -43,9 +43,9 @@ DPlayInventory.Layout = OBJECT({
 			// 내용
 			contentWrapper = DIV({
 				style : {
-					width : 544 / 2,
-					height : 680 / 2,
-					backgroundImage : '/DPlayInventory/R/inventory.png',
+					width : 364,
+					height : 454,
+					backgroundImage : '/DPlayInventory/R/wallet.png',
 					backgroundSize : 'cover'
 				}
 			})
