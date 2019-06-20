@@ -2,5 +2,8 @@
 	"manifest_version" : 2,
 	"name" : "DPlay Inventory",
 	"version" : "0.1",
-	"description" : "DPlay Inventory"
+	"description" : "DPlay Inventory",
+	"browser_action" : {
+		"default_popup" : "index.html"
+	}
 }
