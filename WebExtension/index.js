@@ -1,5 +1,7 @@
 RUN(() => {
 	
+	CONFIG.defaultBoxName = 'DPlayInventory';
+	
 	FOR_BOX((box) => {
 		if (box.OVERRIDE !== undefined) {
 			box.OVERRIDE();

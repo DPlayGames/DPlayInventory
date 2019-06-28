@@ -6,9 +6,13 @@ DPlayInventory.Home = CLASS({
 
 	init : (inner, self) => {
 		
+		let web3 = new Web3('ws://175.207.29.151:8546');
+		
 		let content = DIV({
 			c : ['test']
 		});
+		
+		console.log('test');
 		
 		DPlayInventory.Layout.setContent(content);
 		
