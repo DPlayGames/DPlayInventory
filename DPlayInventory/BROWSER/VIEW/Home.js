@@ -12,8 +12,6 @@ DPlayInventory.Home = CLASS({
 			c : ['test']
 		});
 		
-		console.log('test');
-		
 		DPlayInventory.Layout.setContent(content);
 		
 		inner.on('close', () => {
