@@ -1,4 +1,4 @@
-DPlayInventory.Item = CLASS({
+DPlayInventory.Money = CLASS({
 
 	preset : () => {
 		return VIEW;
@@ -9,15 +9,15 @@ DPlayInventory.Item = CLASS({
 		let inventoryStore = DPlayInventory.STORE('inventoryStore');
 		
 		let content = DIV({
-			c : ['item']
+			c : ['money']
 		});
 		
-		DPlayInventory.Layout.turnOnItemTab();
+		DPlayInventory.Layout.turnOnMoneyTab();
 		DPlayInventory.Layout.setContent(content);
 		
 		inventoryStore.save({
 			name : 'lastTab',
-			value : 'item'
+			value : 'money'
 		});
 		
 		inner.on('close', () => {

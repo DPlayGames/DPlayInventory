@@ -2,18 +2,23 @@ DPlayInventory.Layout = OBJECT({
 	
 	init : (inner, self) => {
 		
+		let tabWrapper;
+		let gameTab;
+		let moneyTab;
+		let itemTab;
 		let contentWrapper;
 		
-		DIV({
+		let wrapper = DIV({
 			style : {
+				position : 'relative',
 				margin : 'auto',
-				width : 376,
-				height : 568,
-				backgroundImage : '/DPlayInventory/R/background.png',
-				backgroundSize : 'cover'
+				width : 370,
+				height : 550,
+				backgroundColor : '#000'
 			},
 			c : [
-			// 상단
+			
+			// 상단 바
 			DIV({
 				style : {
 					padding : 0
@@ -21,58 +26,152 @@ DPlayInventory.Layout = OBJECT({
 				c : [
 				
 				// 로고
-				IMG({
+				A({
 					style : {
-						marginLeft : 10,
-						marginTop : 12,
 						flt : 'left',
-						color : '#707474',
-						fontWeight : 'bold',
-						width : 102 / 2,
-						height : 41 / 2
+						padding : 10,
+						color : '#707474'
 					},
-					src : '/DPlayInventory/R/dplaylogo.png'
-				}),
-				SPAN({
-					style : {
-						marginLeft : 5,
-						marginTop : 13,
-						flt : 'left',
-						color : '#707474',
-						fontWeight : 'bold'
-					},
-					c : '보관함'
+					c : [SPAN({
+						style : {
+							color : '#980100',
+							fontWeight : 'bold',
+						},
+						c : 'DPlay'
+					}), ' 보관함'],
+					on : {
+						tap : () => {
+							DPlayInventory.GO('');
+						}
+					}
 				}),
 				
 				// 메뉴 버튼
 				A({
 					style : {
-						padding : 14,
-						flt : 'right'
+						padding : 12,
+						paddingBottom : 10,
+						flt : 'right',
+						color : '#980100'
 					},
-					c : IMG({
-						width : 33 / 2,
-						height : 25 / 2,
-						src : '/DPlayInventory/R/menu.png'
-					})
+					c : FontAwesome.GetIcon('user'),
+					on : {
+						tap : () => {
+							DPlayInventory.GO('account');
+						}
+					}
 				}),
 				
 				CLEAR_BOTH()]
 			}),
 			
+			// 탭
+			tabWrapper = DIV({
+				c : [gameTab = A({
+					style : {
+						flt : 'left',
+						width : 120,
+						padding : '5px 0',
+						textAlign : 'center',
+						backgroundColor : '#151515',
+						borderRadius : '5px 5px 0 0'
+					},
+					c : '게임',
+					on : {
+						tap : () => {
+							DPlayInventory.GO('game');
+						}
+					}
+				}), moneyTab = A({
+					style : {
+						marginLeft : 5,
+						flt : 'left',
+						width : 120,
+						padding : '5px 0',
+						textAlign : 'center',
+						backgroundColor : '#151515',
+						borderRadius : '5px 5px 0 0'
+					},
+					c : '재화',
+					on : {
+						tap : () => {
+							DPlayInventory.GO('money');
+						}
+					}
+				}), itemTab = A({
+					style : {
+						marginLeft : 5,
+						flt : 'left',
+						width : 120,
+						padding : '5px 0',
+						textAlign : 'center',
+						backgroundColor : '#151515',
+						borderRadius : '5px 5px 0 0'
+					},
+					c : '아이템',
+					on : {
+						tap : () => {
+							DPlayInventory.GO('item');
+						}
+					}
+				}), CLEAR_BOTH()]
+			}),
+			
 			// 내용
 			contentWrapper = DIV({
 				style : {
-					margin : 'auto',
-					marginTop : -3,
-					width : 364,
-					height : 454,
-					backgroundImage : '/DPlayInventory/R/wallet.png',
-					backgroundSize : 'cover'
+					backgroundColor : '#1e1e1e',
+					height : 483
 				}
-			})
-			]
+			})]
 		}).appendTo(BODY);
+		
+		let hideTabs = self.hideTabs = () => {
+			tabWrapper.hide();
+			contentWrapper.addStyle({
+				height : 512
+			});
+		}
+		
+		let showTabs = () => {
+			tabWrapper.show();
+			contentWrapper.addStyle({
+				height : 483
+			});
+		}
+		
+		let onTab = (tab) => {
+			tab.addStyle({
+				backgroundColor : '#1e1e1e'
+			});
+		}
+		
+		let offTab = (tab) => {
+			tab.addStyle({
+				backgroundColor : '#151515'
+			});
+		}
+		
+		let turnOnGameTab = self.turnOnGameTab = () => {
+			showTabs();
+			onTab(gameTab);
+			offTab(moneyTab);
+			offTab(itemTab);
+		};
+		
+		let turnOnMoneyTab = self.turnOnMoneyTab = () => {
+			showTabs();
+			offTab(gameTab);
+			onTab(moneyTab);
+			offTab(itemTab);
+		};
+		
+		let turnOnItemTab = self.turnOnItemTab = () => {
+			showTabs();
+			offTab(gameTab);
+			offTab(moneyTab);
+			onTab(itemTab);
+		};
 		
 		// 내용을 등록합니다.
 		let setContent = self.setContent = (content) => {

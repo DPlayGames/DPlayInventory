@@ -6,16 +6,12 @@ DPlayInventory.Home = CLASS({
 
 	init : (inner, self) => {
 		
-		let web3 = new Web3('ws://175.207.29.151:8546');
+		let inventoryStore = DPlayInventory.STORE('inventoryStore');
 		
-		let content = DIV({
-			c : ['test']
-		});
+		let lastTab = inventoryStore.get('lastTab');
 		
-		DPlayInventory.Layout.setContent(content);
-		
-		inner.on('close', () => {
-			content.remove();
+		DELAY(() => {
+			GO(lastTab === undefined ? 'game' : lastTab);
 		});
 	}
 });
