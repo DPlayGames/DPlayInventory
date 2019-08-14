@@ -67,7 +67,7 @@ DPlayInventory.CreateAccount = CLASS({
 						tap : () => {
 							
 							DPlayInventory.Confirm({
-								msg : '정말 백업 했어요? 백업을 하지 않아, 당신이 모든 자산을 잃어버려도 저희는 일체 책임지지 않습니다!'
+								msg : '정말 백업을 하셨습니까? 백업을 하지 않아, 당신이 모든 자산을 잃어버려도 저희는 일체 책임지지 않습니다!'
 							}, () => {
 								DPlayInventory.GO('restoreaccount');
 							});

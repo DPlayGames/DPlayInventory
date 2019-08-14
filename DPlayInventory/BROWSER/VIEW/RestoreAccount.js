@@ -66,6 +66,7 @@ DPlayInventory.RestoreAccount = CLASS({
 							borderRadius : 5
 						},
 						name : 'password',
+						type : 'password',
 						placeholder : '이 기기에서 사용할 비밀번호'
 					}), P({
 						c : '위 비밀번호는 매번 12개의 비밀 단어를 입력하지 않도록 하는 단순한 편의 기능으로, 비밀번호와 무관하게 12개의 비밀 단어들은 반드시 백업해야합니다.'
@@ -84,38 +85,69 @@ DPlayInventory.RestoreAccount = CLASS({
 						submit : (e, form) => {
 							
 							let data = form.getData();
+							let mnemonic = data.mnemonic.trim();
+							let password = data.password.trim();
 							
-							let seed = bip39.mnemonicToSeed(data.mnemonic);
+							if (mnemonic === '') {
+								DPlayInventory.Alert({
+									msg : '12개의 비밀 단어를 입력해주세요.'
+								});
+							}
 							
-							let rootKey = ethereumjs.WalletHD.fromMasterSeed(seed);
-							let hardenedKey = rootKey.derivePath('m/44\'/60\'/0\'/0');
-							let childKey = hardenedKey.deriveChild(0);
+							else if (password === '') {
+								DPlayInventory.Alert({
+									msg : '비밀번호를 입력해주세요.'
+								});
+							}
 							
-							let wallet = childKey.getWallet();
+							else if (password.length < 4) {
+								DPlayInventory.Alert({
+									msg : '비밀번호가 너무 짧습니다. 4글자 이상으로 입력해주세요.'
+								});
+							}
 							
-							console.log({
-								address : wallet.getChecksumAddressString(),
-								privateKey : wallet.getPrivateKeyString().substring(2).toUpperCase()
-							});
+							else {
+								
+								let loading = DPlayInventory.Loading();
+								
+								DPlayInventory.WalletManager.setPassword(password);
+								
+								let seed = bip39.mnemonicToSeed(mnemonic);
+								
+								let rootKey = ethereumjs.WalletHD.fromMasterSeed(seed);
+								let hardenedKey = rootKey.derivePath('m/44\'/60\'/0\'/0');
+								let childKey = hardenedKey.deriveChild(0);
+								
+								let wallet = childKey.getWallet();
+								
+								let encryptedWalletAddress;
+								let encryptedPrivateKey;
+								
+								NEXT([
+								(next) => {
+									DPlayInventory.WalletManager.saveWalletAddress(wallet.getChecksumAddressString(), next);
+								},
+								
+								(next) => {
+									return () => {
+										DPlayInventory.WalletManager.savePrivateKey(wallet.getPrivateKeyString().substring(2).toUpperCase(), next);
+									};
+								},
+								
+								() => {
+									return () => {
+										
+										loading.remove();
+										
+										DPlayInventory.GO('login');
+									};
+								}]);
+							}
 						}
 					}
 				})]
 			})]
 		}).appendTo(BODY);
-		
-		DPlayInventory.Crypto.encrypt({
-			text : 'This is me!',
-			password : '1234'
-		}, (encryptedText) => {
-			console.log(encryptedText);
-			
-			DPlayInventory.Crypto.decrypt({
-				encryptedText : encryptedText,
-				password : '1234'
-			}, (text2) => {
-				console.log(text2);
-			});
-		});
 		
 		inner.on('close', () => {
 			wrapper.remove();
