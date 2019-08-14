@@ -11,7 +11,7 @@ DPlayInventory.Home = CLASS({
 		let lastTab = inventoryStore.get('lastTab');
 		
 		DELAY(() => {
-			GO(lastTab === undefined ? 'game' : lastTab);
+			DPlayInventory.GO(lastTab === undefined ? 'game' : lastTab);
 		});
 	}
 });

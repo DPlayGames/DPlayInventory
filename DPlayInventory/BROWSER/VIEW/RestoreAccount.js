@@ -67,9 +67,9 @@ DPlayInventory.RestoreAccount = CLASS({
 						},
 						name : 'password',
 						type : 'password',
-						placeholder : '이 기기에서 사용할 비밀번호'
+						placeholder : '데이터를 저장할 때 사용하는 비밀번호'
 					}), P({
-						c : '위 비밀번호는 매번 12개의 비밀 단어를 입력하지 않도록 하는 단순한 편의 기능으로, 비밀번호와 무관하게 12개의 비밀 단어들은 반드시 백업해야합니다.'
+						c : '위 비밀번호는 데이터를 저장할 때마다 입력해야합니다.'
 					}), UUI.FULL_SUBMIT({
 						style : {
 							marginTop : 10,
@@ -110,8 +110,6 @@ DPlayInventory.RestoreAccount = CLASS({
 								
 								let loading = DPlayInventory.Loading();
 								
-								DPlayInventory.WalletManager.setPassword(password);
-								
 								let seed = bip39.mnemonicToSeed(mnemonic);
 								
 								let rootKey = ethereumjs.WalletHD.fromMasterSeed(seed);
@@ -130,7 +128,10 @@ DPlayInventory.RestoreAccount = CLASS({
 								
 								(next) => {
 									return () => {
-										DPlayInventory.WalletManager.savePrivateKey(wallet.getPrivateKeyString().substring(2).toUpperCase(), next);
+										DPlayInventory.WalletManager.savePrivateKey({
+											password : password,
+											privateKey : wallet.getPrivateKeyString().substring(2).toUpperCase()
+										}, next);
 									};
 								},
 								
@@ -139,7 +140,7 @@ DPlayInventory.RestoreAccount = CLASS({
 										
 										loading.remove();
 										
-										DPlayInventory.GO('login');
+										DPlayInventory.GO('');
 									};
 								}]);
 							}
