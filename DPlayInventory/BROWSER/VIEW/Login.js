@@ -1,4 +1,4 @@
-DPlayInventory.CreateAccount = CLASS({
+DPlayInventory.Login = CLASS({
 
 	preset : () => {
 		return VIEW;

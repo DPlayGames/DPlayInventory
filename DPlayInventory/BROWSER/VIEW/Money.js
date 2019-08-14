@@ -12,7 +12,6 @@ DPlayInventory.Money = CLASS({
 			c : ['money']
 		});
 		
-		DPlayInventory.Layout.turnOnMoneyTab();
 		DPlayInventory.Layout.setContent(content);
 		
 		inventoryStore.save({

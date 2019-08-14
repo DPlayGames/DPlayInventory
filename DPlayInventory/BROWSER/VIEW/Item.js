@@ -12,7 +12,6 @@ DPlayInventory.Item = CLASS({
 			c : ['item']
 		});
 		
-		DPlayInventory.Layout.turnOnItemTab();
 		DPlayInventory.Layout.setContent(content);
 		
 		inventoryStore.save({

@@ -25,7 +25,6 @@ DPlayInventory.Account = CLASS({
 			}), 'user']
 		});
 		
-		DPlayInventory.Layout.hideTabs();
 		DPlayInventory.Layout.setContent(content);
 		
 		inner.on('close', () => {
