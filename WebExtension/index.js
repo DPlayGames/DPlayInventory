@@ -15,4 +15,6 @@ RUN(() => {
 			box.MAIN();
 		}
 	});
+	
+	DPlayInventory.GO('');
 });

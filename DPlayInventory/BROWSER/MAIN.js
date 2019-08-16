@@ -13,14 +13,19 @@ DPlayInventory.MAIN = METHOD({
         });
 		
 		DPlayInventory.MATCH_VIEW({
+            uri : 'login',
+            target : DPlayInventory.Login
+        });
+		
+		DPlayInventory.MATCH_VIEW({
             uri : '**',
-            excludeURI : ['', 'restoreaccount', 'createaccount'],
+            excludeURI : ['', 'restoreaccount', 'createaccount', 'login'],
             target : DPlayInventory.CheckData
         });
 		
 		DPlayInventory.MATCH_VIEW({
 			uri : '**',
-            excludeURI : ['', 'restoreaccount', 'createaccount'],
+            excludeURI : ['restoreaccount', 'createaccount', 'login'],
 			target : DPlayInventory.Layout
 		});
 		

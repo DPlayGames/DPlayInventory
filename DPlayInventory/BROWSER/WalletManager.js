@@ -2,7 +2,19 @@ DPlayInventory.WalletManager = OBJECT({
 
 	init : (inner, self) => {
 		
-		let checkExistsWalletAddress = self.checkExistsWalletAddress = (callback) => {
+		let checkPassword = (callback) => {
+			
+			DPlayInventory.Encryption.checkPasswordExists((passwordExists) => {
+				
+				if (passwordExists !== true) {
+					SHOW_ERROR('DPlayInventory.WalletManager', '비밀번호가 입력되지 않았습니다.');
+				} else {
+					callback();
+				}
+			});
+		};
+		
+		let checkWalletAddressExists = self.checkWalletAddressExists = (callback) => {
 			//REQUIRED: callback
 			
 			DPlayInventory.SecureStore.get('walletAddress', (encryptedWalletAddress) => {
@@ -10,32 +22,11 @@ DPlayInventory.WalletManager = OBJECT({
 			});
 		};
 		
-		let saveWalletAddress = self.saveWalletAddress = (walletAddress, callback) => {
+		let saveWalletAddress = self.saveWalletAddress = (walletAddress, callbackOrHandlers) => {
 			//REQUIRED: walletAddress
-			//REQUIRED: callback
-			
-			DPlayInventory.SecureStore.save({
-				name : 'walletAddress',
-				value : walletAddress
-			}, callback);
-		};
-		
-		let getWalletAddress = self.getWalletAddress = (callback) => {
-			//REQUIRED: callback
-			
-			DPlayInventory.SecureStore.get('walletAddress', callback);
-		};
-		
-		let savePrivateKey = self.savePrivateKey = (params, callbackOrHandlers) => {
-			//REQUIRED: params
-			//REQUIRED: params.privateKey
-			//REQUIRED: params.password
 			//REQUIRED: callbackOrHandlers
 			//OPTIONAL: callbackOrHandlers.error
 			//REQUIRED: callbackOrHandlers.success
-			
-			let privateKey = params.privateKey;
-			let password = params.password;
 			
 			let errorHandler;
 			let callback;
@@ -47,33 +38,77 @@ DPlayInventory.WalletManager = OBJECT({
 				callback = callbackOrHandlers.callback;
 			}
 			
-			DPlayInventory.Crypto.encrypt({
-				text : privateKey,
-				password : password
-			}, {
-				error : errorHandler,
-				success : (encryptedPrivateKey) => {
-					
-					DPlayInventory.SecureStore.save({
-						name : 'privateKey',
-						value : encryptedPrivateKey
-					}, callback);
-				}
+			checkPassword(() => {
+				
+				DPlayInventory.Encryption.encrypt(walletAddress, {
+					error : errorHandler,
+					success : (encryptedWalletAddress) => {
+						
+						DPlayInventory.SecureStore.save({
+							name : 'walletAddress',
+							value : encryptedWalletAddress
+						}, callback);
+					}
+				});
 			});
 		};
 		
-		let getPrivateKey = self.getPrivateKey = (password, callbackOrHandlers) => {
-			//REQUIRED: password
+		let getWalletAddress = self.getWalletAddress = (callbackOrHandlers) => {
 			//REQUIRED: callbackOrHandlers
 			//OPTIONAL: callbackOrHandlers.error
 			//REQUIRED: callbackOrHandlers.success
 			
-			DPlayInventory.SecureStore.get('privateKey', (encryptedPrivateKey) => {
+			checkPassword(() => {
 				
-				DPlayInventory.Crypto.decrypt({
-					encryptedText : encryptedPrivateKey,
-					password : password
-				}, callbackOrHandlers);
+				DPlayInventory.SecureStore.get('walletAddress', (encryptedWalletAddress) => {
+					
+					DPlayInventory.Encryption.decrypt(encryptedWalletAddress, callbackOrHandlers);
+				});
+			});
+		};
+		
+		let savePrivateKey = self.savePrivateKey = (privateKey, callbackOrHandlers) => {
+			//REQUIRED: privateKey
+			//REQUIRED: callbackOrHandlers
+			//OPTIONAL: callbackOrHandlers.error
+			//REQUIRED: callbackOrHandlers.success
+			
+			let errorHandler;
+			let callback;
+			
+			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+				callback = callbackOrHandlers;
+			} else {
+				errorHandler = callbackOrHandlers.error;
+				callback = callbackOrHandlers.callback;
+			}
+			
+			checkPassword(() => {
+				
+				DPlayInventory.Encryption.encrypt(privateKey, {
+					error : errorHandler,
+					success : (encryptedPrivateKey) => {
+						
+						DPlayInventory.SecureStore.save({
+							name : 'privateKey',
+							value : encryptedPrivateKey
+						}, callback);
+					}
+				});
+			});
+		};
+		
+		let getPrivateKey = self.getPrivateKey = (callbackOrHandlers) => {
+			//REQUIRED: callbackOrHandlers
+			//OPTIONAL: callbackOrHandlers.error
+			//REQUIRED: callbackOrHandlers.success
+			
+			checkPassword(() => {
+				
+				DPlayInventory.SecureStore.get('privateKey', (encryptedPrivateKey) => {
+					
+					DPlayInventory.Encryption.decrypt(encryptedPrivateKey, callbackOrHandlers);
+				});
 			});
 		};
 		

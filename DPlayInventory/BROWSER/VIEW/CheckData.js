@@ -6,11 +6,21 @@ DPlayInventory.CheckData = CLASS({
 
 	init : (inner, self) => {
 		
-		DPlayInventory.WalletManager.checkExistsWalletAddress((existsWalletAddress) => {
+		DPlayInventory.WalletManager.checkWalletAddressExists((walletAddressExists) => {
 			
 			// 저장된 지갑 주소가 없다면
-			if (existsWalletAddress !== true) {
+			if (walletAddressExists !== true) {
 				DPlayInventory.GO('restoreaccount');
+			}
+			
+			else {
+				
+				DPlayInventory.Encryption.checkPasswordExists((passwordExists) => {
+					
+					if (passwordExists !== true) {
+						DPlayInventory.GO('login');
+					}
+				});
 			}
 		});
 	}

@@ -22,7 +22,20 @@ DPlayInventory.Account = CLASS({
 						DPlayInventory.GO('');
 					}
 				}
-			}), 'user']
+			}), 'user', A({
+				c : '로그아웃',
+				on : {
+					tap : () => {
+						
+						DPlayInventory.Encryption.removePassword(() => {
+							DPlayInventory.WalletManager.clear(() => {
+								
+								DPlayInventory.GO('');
+							});
+						});
+					}
+				}
+			})]
 		});
 		
 		DPlayInventory.Layout.setContent(content);

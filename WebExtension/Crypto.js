@@ -1,4 +1,4 @@
-DPlayInventory.Crypto = OBJECT({
+global.Crypto = OBJECT({
 
 	init: (inner, self) => {
 
@@ -170,7 +170,7 @@ DPlayInventory.Crypto = OBJECT({
 				if (errorHandler !== undefined) {
 					errorHandler(errorMsg);
 				} else {
-					SHOW_ERROR('DPlayInventory.Crypto', errorMsg);
+					SHOW_ERROR('Crypto', errorMsg);
 				}
 			}, (encryptedObject) => {
 				callback(arrayBufferToBase64(encryptedObject));
@@ -202,7 +202,7 @@ DPlayInventory.Crypto = OBJECT({
 				if (errorHandler !== undefined) {
 					errorHandler(errorMsg);
 				} else {
-					SHOW_ERROR('DPlayInventory.Crypto', errorMsg);
+					SHOW_ERROR('Crypto', errorMsg);
 				}
 			}, (text) => {
 				callback(text);

@@ -8,5 +8,24 @@
 	},
 	"permissions" : [
 		"storage"
-	]
+	],
+	"background" : {
+		"scripts" : [
+			"UPPERCASE-CORE/BROWSER.js",
+			"Crypto.js",
+			"background.js"
+		]
+	},
+	"content_scripts" : [{
+		"js" : [
+			"contentscript.js"
+		],
+		"matches" : [
+			"file://*/*",
+			"http://*/*",
+			"https://*/*"
+		],
+		"run_at": "document_start",
+		"all_frames": true
+	}]
 }

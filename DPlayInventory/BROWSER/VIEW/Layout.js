@@ -66,10 +66,10 @@ DPlayInventory.Layout = CLASS((cls) => {
 							flt : 'right',
 							color : '#980100'
 						},
-						c : FontAwesome.GetIcon('user'),
+						c : FontAwesome.GetIcon('bars'),
 						on : {
 							tap : () => {
-								DPlayInventory.GO('account');
+								openMenu();
 							}
 						}
 					}),
@@ -135,8 +135,70 @@ DPlayInventory.Layout = CLASS((cls) => {
 						backgroundColor : '#1e1e1e',
 						height : 483
 					}
-				})]
+				}),
+				
+				CONFIG.isDevMode === true ? DIV({
+					style : {
+						position : 'fixed',
+						left : 10,
+						top : 10
+					},
+					c : [H3({
+						c : '테스트 메뉴'
+					}), UL({
+						c : [
+						LI({
+							c : ''
+						})]
+					})]
+				}) : undefined]
 			}).appendTo(BODY);
+			
+			let openMenu = self.openMenu = () => {
+				
+				let menu = UL({
+					style : {
+						position : 'absolute',
+						right : 0,
+						top : 38
+					}
+				}).appendTo(wrapper);
+				
+				EACH([{
+					title : '내 계정',
+					uri : 'account'
+				}, {
+					title : '네트워크 변경',
+					uri : 'changenetwork'
+				}], (menuInfo, index) => {
+					
+					menu.append(LI({
+						style : {
+							border : '1px solid #666',
+							backgroundColor : '#333',
+							marginTop : -1
+						},
+						c : A({
+							style : {
+								width : 150,
+								display : 'block',
+								padding : 10,
+								textAlign : 'center'
+							},
+							c : menuInfo.title,
+							on : {
+								touchstart : () => {
+									DPlayInventory.GO(menuInfo.uri);
+								}
+							}
+						})
+					}));
+				});
+				
+				EVENT_ONCE('touchstart', () => {
+					menu.remove();
+				});
+			};
 			
 			let hideTabs = () => {
 				tabWrapper.hide();
