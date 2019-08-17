@@ -2,20 +2,61 @@ DPlayInventory.Ethereum = OBJECT({
 
 	init : (inner, self) => {
 		
-		let web3 = new Web3('ws://175.207.29.151:8546');
+		const NETWORK_ADDRESSES = {
+			Mainnet : 'ws://175.207.29.151:8546',
+			Ropsten : 'wss://ropsten.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
+			Rinkeby : 'wss://rinkeby.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
+			Kovan : 'wss://kovan.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
+			Goerli : 'wss://goerli.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b'
+		};
 		
-		let getEtherBalance = self.getEtherBalance = (callback) => {
-			//REQUIRED: callback
+		let web3 = new Web3(NETWORK_ADDRESSES.Kovan);
+		
+		SmartContract.setWeb3(web3);
+		
+		let dplayCoinContract =  DPlayInventory.DPlayCoinContract({
+			address : '0xD3D2a9C0dA386D0d37573f7D06471DB81cfb3096'
+		});
+		
+		let dplayStoreContract = DPlayInventory.DPlayStoreContract({
+			address : '0xaa13eD0564DF5019E2DD5E09f03b5Abd31bC832D'
+		});
+		
+		let getEtherBalance = self.getEtherBalance = (callbackOrHandlers) => {
+			//REQUIRED: callbackOrHandlers
+			//OPTIONAL: callbackOrHandlers.error
+			//REQUIRED: callbackOrHandlers.success
+			
+			let errorHandler;
+			let callback;
+			
+			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+				callback = callbackOrHandlers;
+			} else {
+				errorHandler = callbackOrHandlers.error;
+				callback = callbackOrHandlers.callback;
+			}
 			
 			DPlayInventory.WalletManager.getWalletAddress((walletAddress) => {
 				
 				web3.eth.getBalance(walletAddress, (error, balance) => {
-					console.log(walletAddress, balance);
+					
+					if (error !== TO_DELETE) {
+						if (errorHandler !== undefined) {
+							errorHandler(error.toString());
+						} else {
+							SHOW_ERROR('DPlayInventory.Ethereum', error.toString());
+						}
+					}
+					
+					else {
+						callback(balance);
+					}
 				});
 				
-				web3.eth.net.getId(console.log);
-				
-				web3.eth.getBlockNumber(console.log)
+				dplayCoinContract.balanceOf(walletAddress, (balance) => {
+					console.log(dplayCoinContract.getDisplayPrice(balance));
+				});
 			});
 		};
 	}
