@@ -12,8 +12,8 @@ DPlayInventory.Money = CLASS({
 			c : ['money']
 		});
 		
-		DPlayInventory.Ethereum.getEtherBalance(() => {
-			
+		DPlayInventory.Ethereum.getEtherBalance((balance) => {
+			console.log(balance);
 		});
 		
 		DPlayInventory.Layout.setContent(content);
