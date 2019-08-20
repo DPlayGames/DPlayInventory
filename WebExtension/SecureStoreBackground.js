@@ -13,6 +13,8 @@ RUN(() => {
 	
 	let password;
 	
+	chrome.storage.sync.set({'foo': 'hello', 'bar': 'hi'});
+	
 	chrome.runtime.onMessage.addListener((params, sender, ret) => {
 		
 		let methodName = params.methodName;
