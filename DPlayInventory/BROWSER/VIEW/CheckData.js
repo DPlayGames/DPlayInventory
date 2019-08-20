@@ -6,7 +6,7 @@ DPlayInventory.CheckData = CLASS({
 
 	init : (inner, self) => {
 		
-		DPlayInventory.WalletManager.checkWalletAddressExists((walletAddressExists) => {
+		DPlayInventory.SecureStore.checkWalletAddressExists((walletAddressExists) => {
 			
 			// 저장된 지갑 주소가 없다면
 			if (walletAddressExists !== true) {
@@ -15,7 +15,7 @@ DPlayInventory.CheckData = CLASS({
 			
 			else {
 				
-				DPlayInventory.Encryption.checkPasswordExists((passwordExists) => {
+				DPlayInventory.SecureStore.checkPasswordExists((passwordExists) => {
 					
 					if (passwordExists !== true) {
 						DPlayInventory.GO('login');

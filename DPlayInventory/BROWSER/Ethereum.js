@@ -37,7 +37,7 @@ DPlayInventory.Ethereum = OBJECT({
 				callback = callbackOrHandlers.callback;
 			}
 			
-			DPlayInventory.WalletManager.getWalletAddress((walletAddress) => {
+			DPlayInventory.SecureStore.getWalletAddress((walletAddress) => {
 				
 				web3.eth.getBalance(walletAddress, (error, balance) => {
 					
@@ -56,6 +56,48 @@ DPlayInventory.Ethereum = OBJECT({
 				
 				dplayCoinContract.balanceOf(walletAddress, (balance) => {
 					console.log(dplayCoinContract.getDisplayPrice(balance));
+				});
+			});
+		};
+		
+		let deploySmartContract = self.deploySmartContract = (params, callbackOrHandlers) => {
+			//REQUIRED: params
+			//REQUIRED: params.abi
+			//REQUIRED: params.bytecode
+			//REQUIRED: callbackOrHandlers
+			//OPTIONAL: callbackOrHandlers.error
+			//REQUIRED: callbackOrHandlers.success
+			
+			let abi = params.abi;
+			let bytecode = params.bytecode;
+			
+			let errorHandler;
+			let callback;
+			
+			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+				callback = callbackOrHandlers;
+			} else {
+				errorHandler = callbackOrHandlers.error;
+				callback = callbackOrHandlers.callback;
+			}
+			
+			DPlayInventory.SecureStore.getWalletAddress((walletAddress) => {
+				
+				let deployData = new web3.eth.Contract(abi).deploy({
+					data : bytecode
+				}).encodeABI();
+				
+				DPlayInventory.SecureStore.signTransaction({
+					from : walletAddress,
+					data : deployData,
+					gas : 2473896,
+					gasPrice : 11000000000
+				}, (rawTransaction) => {
+					
+					web3.eth.sendSignedTransaction(rawTransaction, (error, transactionHash) => {
+						
+						console.log(error, transactionHash);
+					}).on('receipt', console.log);
 				});
 			});
 		};

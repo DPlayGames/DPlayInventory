@@ -11,9 +11,10 @@
 	],
 	"background" : {
 		"scripts" : [
+			"web3.min.js",
 			"UPPERCASE-CORE/BROWSER.js",
 			"Crypto.js",
-			"background.js"
+			"SecureStoreBackground.js"
 		]
 	},
 	"content_scripts" : [{

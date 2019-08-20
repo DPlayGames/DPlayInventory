@@ -110,7 +110,7 @@ DPlayInventory.RestoreAccount = CLASS({
 								
 								let loading = DPlayInventory.Loading();
 								
-								DPlayInventory.Encryption.setPassword(password, () => {
+								DPlayInventory.SecureStore.setPassword(password, () => {
 									
 									let seed = bip39.mnemonicToSeed(mnemonic);
 									
@@ -125,12 +125,12 @@ DPlayInventory.RestoreAccount = CLASS({
 									
 									NEXT([
 									(next) => {
-										DPlayInventory.WalletManager.saveWalletAddress(wallet.getChecksumAddressString(), next);
+										DPlayInventory.SecureStore.saveWalletAddress(wallet.getChecksumAddressString(), next);
 									},
 									
 									(next) => {
 										return () => {
-											DPlayInventory.WalletManager.savePrivateKey(wallet.getPrivateKeyString().substring(2).toUpperCase(), next);
+											DPlayInventory.SecureStore.savePrivateKey(wallet.getPrivateKeyString().substring(2).toUpperCase(), next);
 										};
 									},
 									

@@ -27,8 +27,8 @@ DPlayInventory.Account = CLASS({
 				on : {
 					tap : () => {
 						
-						DPlayInventory.Encryption.removePassword(() => {
-							DPlayInventory.WalletManager.clear(() => {
+						DPlayInventory.SecureStore.removePassword(() => {
+							DPlayInventory.SecureStore.clear(() => {
 								
 								DPlayInventory.GO('');
 							});
