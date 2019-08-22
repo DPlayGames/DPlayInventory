@@ -17,14 +17,15 @@ DPlayInventory.Layout = CLASS((cls) => {
 			
 			let tabWrapper;
 			let gameTab;
-			let moneyTab;
 			let itemTab;
+			let moneyTab;
+			let signRecordTab;
 			
 			let wrapper = DIV({
 				style : {
 					position : 'relative',
 					margin : 'auto',
-					width : 370,
+					width : 415,
 					height : 550,
 					backgroundColor : '#000'
 				},
@@ -82,7 +83,7 @@ DPlayInventory.Layout = CLASS((cls) => {
 					c : [gameTab = A({
 						style : {
 							flt : 'left',
-							width : 120,
+							width : 100,
 							padding : '5px 0',
 							textAlign : 'center',
 							backgroundColor : '#151515',
@@ -94,11 +95,27 @@ DPlayInventory.Layout = CLASS((cls) => {
 								DPlayInventory.GO('game');
 							}
 						}
+					}), itemTab = A({
+						style : {
+							marginLeft : 5,
+							flt : 'left',
+							width : 100,
+							padding : '5px 0',
+							textAlign : 'center',
+							backgroundColor : '#151515',
+							borderRadius : '5px 5px 0 0'
+						},
+						c : '아이템',
+						on : {
+							tap : () => {
+								DPlayInventory.GO('item');
+							}
+						}
 					}), moneyTab = A({
 						style : {
 							marginLeft : 5,
 							flt : 'left',
-							width : 120,
+							width : 100,
 							padding : '5px 0',
 							textAlign : 'center',
 							backgroundColor : '#151515',
@@ -110,20 +127,20 @@ DPlayInventory.Layout = CLASS((cls) => {
 								DPlayInventory.GO('money');
 							}
 						}
-					}), itemTab = A({
+					}), signRecordTab = A({
 						style : {
 							marginLeft : 5,
 							flt : 'left',
-							width : 120,
+							width : 100,
 							padding : '5px 0',
 							textAlign : 'center',
 							backgroundColor : '#151515',
 							borderRadius : '5px 5px 0 0'
 						},
-						c : '아이템',
+						c : '서명 이력',
 						on : {
 							tap : () => {
-								DPlayInventory.GO('item');
+								DPlayInventory.GO('signrecord');
 							}
 						}
 					}), CLEAR_BOTH()]
@@ -240,22 +257,33 @@ DPlayInventory.Layout = CLASS((cls) => {
 				if (uri === 'game') {
 					showTabs();
 					onTab(gameTab);
+					offTab(itemTab);
 					offTab(moneyTab);
-					offTab(itemTab);
-				}
-				
-				else if (uri === 'money') {
-					showTabs();
-					offTab(gameTab);
-					onTab(moneyTab);
-					offTab(itemTab);
+					offTab(signRecordTab);
 				}
 				
 				else if (uri === 'item') {
 					showTabs();
 					offTab(gameTab);
-					offTab(moneyTab);
 					onTab(itemTab);
+					offTab(moneyTab);
+					offTab(signRecordTab);
+				}
+				
+				else if (uri === 'money') {
+					showTabs();
+					offTab(gameTab);
+					offTab(itemTab);
+					onTab(moneyTab);
+					offTab(signRecordTab);
+				}
+				
+				else if (uri === 'signrecord') {
+					showTabs();
+					offTab(gameTab);
+					offTab(itemTab);
+					offTab(moneyTab);
+					onTab(signRecordTab);
 				}
 				
 				else {
