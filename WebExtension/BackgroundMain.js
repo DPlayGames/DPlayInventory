@@ -1,7 +1,7 @@
 RUN(() => {
 	
 	const NETWORK_ADDRESSES = {
-		Mainnet : 'ws://175.207.29.151:8546',
+		Mainnet : 'wss://mainnet.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
 		Ropsten : 'wss://ropsten.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
 		Rinkeby : 'wss://rinkeby.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
 		Kovan : 'wss://kovan.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',

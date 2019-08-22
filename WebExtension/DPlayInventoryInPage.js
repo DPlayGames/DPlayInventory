@@ -98,13 +98,22 @@
 		
 	};
 	
-	// 스마트 계약 인터페이스를 생성합니다.
-	let createContractInterface = self.createContractInterface = () => {
+	// 스마트 계약을 배포합니다.
+	let deploySmartContract = self.deploySmartContract = () => {
 		
 	};
 	
+	// 스마트 계약 인터페이스를 생성합니다.
+	let createSmartContractInterface = self.createSmartContractInterface = (params, callback) => {
+		//REQUIRED: params
+		//REQUIRED: params.abi
+		//REQUIRED: params.address
+		
+		send('createSmartContractInterface', params, callback);
+	};
+	
 	// 스마트 계약의 메소드를 실행합니다.
-	let runContractMethod = self.runContractMethod = () => {
+	let runSmartContractMethod = self.runSmartContractMethod = () => {
 		
 	};
 })();
