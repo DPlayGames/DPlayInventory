@@ -34,6 +34,7 @@
 		"all_frames": true
 	}],
 	"web_accessible_resources" : [
-		"DPlayInventoryInPage.js"
+		"DPlayInventoryInPage.js",
+		"login-popup.html"
 	]
 }

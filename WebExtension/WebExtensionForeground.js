@@ -1,4 +1,4 @@
-global.WebExtensionBackground = OBJECT({
+global.WebExtensionForeground = OBJECT({
 
 	init : (inner, self, params) => {
 		
@@ -14,11 +14,11 @@ global.WebExtensionBackground = OBJECT({
 			let realMethodName = backgroundName + '/' + methodName;
 			
 			let methods = methodMap[realMethodName];
-			
+	
 			if (methods === undefined) {
 				methods = methodMap[realMethodName] = [];
 			}
-			
+	
 			methods.push(method);
 		};
 		

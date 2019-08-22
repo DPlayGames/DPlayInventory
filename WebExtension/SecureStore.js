@@ -1,14 +1,24 @@
 OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 	
 	DPlayInventory.SecureStore = OBJECT({
-	
+		
+		preset : () => {
+			return WebExtensionForeground;
+		},
+		
+		params : () => {
+			return {
+				backgroundName : 'SecureStoreBackground'
+			};
+		},
+		
 		init : (inner, self) => {
 			
 			let setPassword = self.setPassword = (password, callback) => {
 				//REQUIRED: password
 				//REQUIRED: callback
 				
-				chrome.runtime.sendMessage({
+				inner.send({
 					methodName : 'setPassword',
 					data : password
 				}, callback);
@@ -17,7 +27,7 @@ OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 			let checkPasswordExists = self.checkPasswordExists = (callback) => {
 				//REQUIRED: callback
 				
-				chrome.runtime.sendMessage({
+				inner.send({
 					methodName : 'checkPasswordExists'
 				}, callback);
 			};
@@ -25,7 +35,7 @@ OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 			let removePassword = self.removePassword = (callback) => {
 				//REQUIRED: callback
 				
-				chrome.runtime.sendMessage({
+				inner.send({
 					methodName : 'removePassword'
 				}, callback);
 			};
@@ -46,7 +56,7 @@ OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 					callback = callbackOrHandlers.success;
 				}
 				
-				chrome.runtime.sendMessage({
+				inner.send({
 					methodName : 'saveWalletAddress',
 					data : walletAddress
 				}, (result) => {
@@ -68,7 +78,7 @@ OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 			let checkWalletAddressExists = self.checkWalletAddressExists = (callback) => {
 				//REQUIRED: callback
 				
-				chrome.runtime.sendMessage({
+				inner.send({
 					methodName : 'checkWalletAddressExists'
 				}, callback);
 			};
@@ -88,8 +98,8 @@ OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 					callback = callbackOrHandlers.success;
 				}
 				
-				chrome.runtime.sendMessage({
-					methodName : 'getWalletAddress'
+				inner.send({
+					methodName : 'getWalletAddress',
 				}, (result) => {
 					
 					if (result.errorMsg !== undefined) {
@@ -122,7 +132,7 @@ OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 					callback = callbackOrHandlers.success;
 				}
 				
-				chrome.runtime.sendMessage({
+				inner.send({
 					methodName : 'savePrivateKey',
 					data : privateKey
 				}, (result) => {
@@ -156,7 +166,7 @@ OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 					callback = callbackOrHandlers.success;
 				}
 				
-				chrome.runtime.sendMessage({
+				inner.send({
 					methodName : 'getPrivateKey'
 				}, (result) => {
 					
@@ -190,7 +200,7 @@ OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 					callback = callbackOrHandlers.success;
 				}
 				
-				chrome.runtime.sendMessage({
+				inner.send({
 					methodName : 'signTransaction',
 					data : transactionData
 				}, (result) => {
@@ -225,7 +235,7 @@ OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 					callback = callbackOrHandlers.success;
 				}
 				
-				chrome.runtime.sendMessage({
+				inner.send({
 					methodName : 'sign',
 					data : text
 				}, (result) => {
@@ -247,7 +257,7 @@ OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 			let clear = self.clear = (callback) => {
 				//REQUIRED: callback
 				
-				chrome.runtime.sendMessage({
+				inner.send({
 					methodName : 'clear'
 				}, callback);
 			};

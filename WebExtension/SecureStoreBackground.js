@@ -21,12 +21,12 @@ global.SecureStoreBackground = OBJECT({
 		});
 		
 		// 비밀번호가 존재하는지 확인합니다.
-		inner.on('checkPasswordExists', (callback) => {
+		inner.on('checkPasswordExists', (notUsing, callback) => {
 			callback(password !== undefined);
 		});
 		
 		// 비밀번호를 삭제합니다.
-		inner.on('removePassword', (callback) => {
+		inner.on('removePassword', (notUsing, callback) => {
 			password = undefined;
 			callback();
 		});
@@ -37,18 +37,27 @@ global.SecureStoreBackground = OBJECT({
 			Crypto.encrypt({
 				text : walletAddress,
 				password : password
-			}, (encryptedWalletAddress) => {
-				
-				chrome.storage.local.set({
-					walletAddress : encryptedWalletAddress
-				}, () => {
-					callback();
-				});
+			}, {
+				error : (errorMsg) => {
+					callback({
+						errorMsg : errorMsg
+					});
+				},
+				success : (encryptedWalletAddress) => {
+					
+					chrome.storage.local.set({
+						walletAddress : encryptedWalletAddress
+					}, () => {
+						callback({
+							isDone : true
+						});
+					});
+				}
 			});
 		});
 		
 		// 저장된 갑 주소가 존재하는지 확인합니다.
-		inner.on('checkWalletAddressExists', (callback) => {
+		inner.on('checkWalletAddressExists', (notUsing, callback) => {
 			
 			chrome.storage.local.get(['walletAddress'], (result) => {
 				callback(result.walletAddress !== undefined);
@@ -56,16 +65,25 @@ global.SecureStoreBackground = OBJECT({
 		});
 		
 		// 지갑 주소를 반환합니다.
-		inner.on('getWalletAddress', (callback) => {
+		inner.on('getWalletAddress', (notUsing, callback) => {
 			
 			chrome.storage.local.get(['walletAddress'], (result) => {
 				
 				Crypto.decrypt({
 					encryptedText : result.walletAddress,
 					password : password
-				}, (walletAddress) => {
-					
-					callback(walletAddress);
+				}, {
+					error : (errorMsg) => {
+						callback({
+							errorMsg : errorMsg
+						});
+					},
+					success : (walletAddress) => {
+						
+						callback({
+							walletAddress : walletAddress
+						});
+					}
 				});
 			});
 		});
@@ -76,26 +94,39 @@ global.SecureStoreBackground = OBJECT({
 			Crypto.encrypt({
 				text : privateKey,
 				password : password
-			}, (encryptedPrivateKey) => {
-				
-				chrome.storage.local.set({
-					privateKey : encryptedPrivateKey
-				}, () => {
-					callback();
-				});
+			}, {
+				error : (errorMsg) => {
+					callback({
+						errorMsg : errorMsg
+					});
+				},
+				success : (encryptedPrivateKey) => {
+					
+					chrome.storage.local.set({
+						privateKey : encryptedPrivateKey
+					}, () => {
+						callback({
+							isDone : true
+						});
+					});
+				}
 			});
 		});
 		
-		let getPrivateKey = (callback) => {
+		let getPrivateKey = (ret, callback) => {
 			
 			chrome.storage.local.get(['privateKey'], (result) => {
 				
 				Crypto.decrypt({
 					encryptedText : result.privateKey,
 					password : password
-				}, (privateKey) => {
-					
-					callback(privateKey);
+				}, {
+					error : (errorMsg) => {
+						ret({
+							errorMsg : errorMsg
+						});
+					},
+					success : callback
 				});
 			});
 		};
@@ -103,7 +134,7 @@ global.SecureStoreBackground = OBJECT({
 		// 트랜잭션에 서명합니다.
 		inner.on('signTransaction', (transactionData, callback) => {
 			
-			getPrivateKey((privateKey) => {
+			getPrivateKey(callback, (privateKey) => {
 				
 				web3.eth.accounts.signTransaction(transactionData, '0x' + privateKey, (error, result) => {
 					
@@ -125,7 +156,7 @@ global.SecureStoreBackground = OBJECT({
 		// 문자열에 서명합니다.
 		inner.on('sign', (transactionData, callback) => {
 			
-			getPrivateKey((privateKey) => {
+			getPrivateKey(callback, (privateKey) => {
 				
 				callback({
 					signature : web3.eth.accounts.sign(data, '0x' + privateKey).signature

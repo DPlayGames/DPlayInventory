@@ -65,7 +65,7 @@
 		sendKey += 1;
 	};
 	
-	window.addEventListener("message", (e) => {
+	window.addEventListener('message', (e) => {
 		if (e.source === window) {
 			
 			let methodName = e.data.methodName;
@@ -75,7 +75,7 @@
 			let methods = methodMap[methodName];
 			
 			if (methods !== undefined) {
-				methods.forEech((method) => {
+				methods.forEach((method) => {
 					method(data, (retData) => {
 						
 						send({
@@ -90,7 +90,7 @@
 	
 	// 보관함에 로그인합니다.
 	let login = self.login = () => {
-		
+		send('login');
 	};
 	
 	// 계정의 ID를 가져옵니다.
