@@ -11,19 +11,12 @@
 	],
 	"background" : {
 		"scripts" : [
-			"web3.min.js",
-			"UPPERCASE-CORE/BROWSER.js",
-			"Crypto.js",
-			"WebExtensionBackground.js",
-			"SecureStoreBackground.js",
-			"ViewControllerBackground.js",
-			"BackgroundMain.js"
+			"BACKGROUND.js"
 		]
 	},
 	"content_scripts" : [{
 		"js" : [
-			"UPPERCASE-CORE/BROWSER.js",
-			"DPlayInventoryContentScript.js"
+			"CONTENT.js"
 		],
 		"matches" : [
 			"file://*/*",
@@ -34,7 +27,8 @@
 		"all_frames": true
 	}],
 	"web_accessible_resources" : [
-		"DPlayInventoryInPage.js",
-		"login-popup.html"
+		"popup/login.html",
+		"popup/sign-text.html",
+		"popup/sign-transaction.html"
 	]
 }

@@ -1,4 +1,4 @@
-global.WebExtensionBackground = OBJECT({
+global.WebExtensionBackground = CLASS({
 
 	init : (inner, self, params) => {
 		
