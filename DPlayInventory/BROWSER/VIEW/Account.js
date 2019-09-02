@@ -6,6 +6,8 @@ DPlayInventory.Account = CLASS({
 
 	init : (inner, self) => {
 		
+		let namePanel;
+		let introducePanel;
 		let content = DIV({
 			style : {
 				position : 'relative'
@@ -22,7 +24,20 @@ DPlayInventory.Account = CLASS({
 						DPlayInventory.GO('');
 					}
 				}
-			}), 'user', A({
+			}), namePanel = DIV(), introducePanel = DIV(), A({
+				style : {
+					display : 'block'
+				},
+				c : '정보 수정',
+				on : {
+					tap : () => {
+						DPlayInventory.GO('updateaccount');
+					}
+				}
+			}), A({
+				style : {
+					display : 'block'
+				},
 				c : '로그아웃',
 				on : {
 					tap : () => {
@@ -36,6 +51,17 @@ DPlayInventory.Account = CLASS({
 					}
 				}
 			})]
+		});
+		
+		DPlayInventory.SecureStore.getAccountId((accountId) => {
+			DPlayInventory.DSide.getAccountDetail(accountId, (accountDetail) => {
+				
+				if (accountDetail !== undefined) {
+					
+					namePanel.append(accountDetail.name);
+					introducePanel.append(accountDetail.introduce);
+				}
+			});
 		});
 		
 		DPlayInventory.Layout.setContent(content);

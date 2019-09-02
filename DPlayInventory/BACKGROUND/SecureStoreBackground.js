@@ -31,11 +31,11 @@ global.SecureStoreBackground = OBJECT({
 			callback();
 		});
 		
-		// 지갑 주소를 저장합니다.
-		inner.on('saveWalletAddress', (walletAddress, callback) => {
+		// 계정 ID를 저장합니다.
+		inner.on('saveAccountId', (accountId, callback) => {
 			
 			Crypto.encrypt({
-				text : walletAddress,
+				text : accountId,
 				password : password
 			}, {
 				error : (errorMsg) => {
@@ -43,10 +43,10 @@ global.SecureStoreBackground = OBJECT({
 						errorMsg : errorMsg
 					});
 				},
-				success : (encryptedWalletAddress) => {
+				success : (encryptedAccountId) => {
 					
 					chrome.storage.local.set({
-						walletAddress : encryptedWalletAddress
+						accountId : encryptedAccountId
 					}, () => {
 						callback({
 							isDone : true
@@ -57,20 +57,20 @@ global.SecureStoreBackground = OBJECT({
 		});
 		
 		// 저장된 갑 주소가 존재하는지 확인합니다.
-		inner.on('checkWalletAddressExists', (notUsing, callback) => {
+		inner.on('checkAccountIdExists', (notUsing, callback) => {
 			
-			chrome.storage.local.get(['walletAddress'], (result) => {
-				callback(result.walletAddress !== undefined);
+			chrome.storage.local.get(['accountId'], (result) => {
+				callback(result.accountId !== undefined);
 			});
 		});
 		
-		// 지갑 주소를 반환합니다.
-		inner.on('getWalletAddress', (notUsing, callback) => {
+		// 계정 ID를 반환합니다.
+		inner.on('getAccountId', (notUsing, callback) => {
 			
-			chrome.storage.local.get(['walletAddress'], (result) => {
+			chrome.storage.local.get(['accountId'], (result) => {
 				
 				Crypto.decrypt({
-					encryptedText : result.walletAddress,
+					encryptedText : result.accountId,
 					password : password
 				}, {
 					error : (errorMsg) => {
@@ -78,10 +78,10 @@ global.SecureStoreBackground = OBJECT({
 							errorMsg : errorMsg
 						});
 					},
-					success : (walletAddress) => {
+					success : (accountId) => {
 						
 						callback({
-							walletAddress : walletAddress
+							accountId : accountId
 						});
 					}
 				});

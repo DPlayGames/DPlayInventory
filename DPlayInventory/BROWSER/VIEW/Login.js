@@ -67,7 +67,7 @@ DPlayInventory.Login = CLASS({
 							
 							DPlayInventory.SecureStore.setPassword(password, () => {
 								
-								DPlayInventory.SecureStore.getWalletAddress({
+								DPlayInventory.SecureStore.getAccountId({
 									
 									error : () => {
 										

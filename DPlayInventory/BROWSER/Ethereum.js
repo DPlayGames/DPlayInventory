@@ -16,7 +16,7 @@ DPlayInventory.Ethereum = OBJECT({
 		
 		SmartContract.setWeb3(web3);
 		
-		let dplayCoinContract =  DPlayInventory.DPlayCoinContract({
+		let dplayCoinContract = DPlayInventory.DPlayCoinContract({
 			address : '0xD3D2a9C0dA386D0d37573f7D06471DB81cfb3096'
 		});
 		
@@ -39,9 +39,9 @@ DPlayInventory.Ethereum = OBJECT({
 				callback = callbackOrHandlers.callback;
 			}
 			
-			DPlayInventory.SecureStore.getWalletAddress((walletAddress) => {
+			DPlayInventory.SecureStore.getAccountId((accountId) => {
 				
-				web3.eth.getBalance(walletAddress, (error, balance) => {
+				web3.eth.getBalance(accountId, (error, balance) => {
 					
 					if (error !== TO_DELETE) {
 						if (errorHandler !== undefined) {
@@ -56,7 +56,7 @@ DPlayInventory.Ethereum = OBJECT({
 					}
 				});
 				
-				dplayCoinContract.balanceOf(walletAddress, (balance) => {
+				dplayCoinContract.balanceOf(accountId, (balance) => {
 					console.log(dplayCoinContract.getDisplayPrice(balance));
 				});
 			});
@@ -83,14 +83,14 @@ DPlayInventory.Ethereum = OBJECT({
 				callback = callbackOrHandlers.callback;
 			}
 			
-			DPlayInventory.SecureStore.getWalletAddress((walletAddress) => {
+			DPlayInventory.SecureStore.getAccountId((accountId) => {
 				
 				let deployData = new web3.eth.Contract(abi).deploy({
 					data : bytecode
 				}).encodeABI();
 				
 				DPlayInventory.SecureStore.signTransaction({
-					from : walletAddress,
+					from : accountId,
 					data : deployData,
 					gas : 2473896,
 					gasPrice : 11000000000

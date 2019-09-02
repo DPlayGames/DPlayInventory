@@ -42,8 +42,8 @@ DPlayInventory.SecureStore = OBJECT({
 			callback();
 		};
 		
-		let saveWalletAddress = self.saveWalletAddress = (walletAddress, callbackOrHandlers) => {
-			//REQUIRED: walletAddress
+		let saveAccountId = self.saveAccountId = (accountId, callbackOrHandlers) => {
+			//REQUIRED: accountId
 			//REQUIRED: callbackOrHandlers
 			//OPTIONAL: callbackOrHandlers.error
 			//REQUIRED: callbackOrHandlers.success
@@ -59,15 +59,15 @@ DPlayInventory.SecureStore = OBJECT({
 			}
 			
 			DPlayInventory.Crypto.encrypt({
-				text : walletAddress,
+				text : accountId,
 				password : testSessionStore.get('password')
 			}, {
 				error : errorHandler,
-				success : (encryptedWalletAddress) => {
+				success : (encryptedAccountId) => {
 					
 					testSecureStore.save({
-						name : 'walletAddress',
-						value : encryptedWalletAddress
+						name : 'accountId',
+						value : encryptedAccountId
 					});
 					
 					callback();
@@ -75,13 +75,13 @@ DPlayInventory.SecureStore = OBJECT({
 			});
 		};
 		
-		let checkWalletAddressExists = self.checkWalletAddressExists = (callback) => {
+		let checkAccountIdExists = self.checkAccountIdExists = (callback) => {
 			//REQUIRED: callback
 			
-			callback(testSecureStore.get('walletAddress') !== undefined);
+			callback(testSecureStore.get('accountId') !== undefined);
 		};
 		
-		let getWalletAddress = self.getWalletAddress = (callbackOrHandlers) => {
+		let getAccountId = self.getAccountId = (callbackOrHandlers) => {
 			//REQUIRED: callbackOrHandlers
 			//OPTIONAL: callbackOrHandlers.error
 			//REQUIRED: callbackOrHandlers.success
@@ -97,7 +97,7 @@ DPlayInventory.SecureStore = OBJECT({
 			}
 			
 			DPlayInventory.Crypto.decrypt({
-				encryptedText : testSecureStore.get('walletAddress'),
+				encryptedText : testSecureStore.get('accountId'),
 				password : testSessionStore.get('password')
 			}, callbackOrHandlers);
 		};
@@ -123,11 +123,11 @@ DPlayInventory.SecureStore = OBJECT({
 				password : testSessionStore.get('password')
 			}, {
 				error : errorHandler,
-				success : (encryptedWalletAddress) => {
+				success : (encryptedAccountId) => {
 					
 					testSecureStore.save({
 						name : 'privateKey',
-						value : encryptedWalletAddress
+						value : encryptedAccountId
 					});
 					
 					callback();
@@ -156,45 +156,7 @@ DPlayInventory.SecureStore = OBJECT({
 			}, callbackOrHandlers);
 		};
 		
-		let signTransaction = self.signTransaction = (transactionData, callbackOrHandlers) => {
-			//REQUIRED: transactionData
-			//REQUIRED: callbackOrHandlers
-			//OPTIONAL: callbackOrHandlers.error
-			//REQUIRED: callbackOrHandlers.success
-			
-			let errorHandler;
-			let callback;
-			
-			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
-				callback = callbackOrHandlers;
-			} else {
-				errorHandler = callbackOrHandlers.error;
-				callback = callbackOrHandlers.success;
-			}
-			
-			getPrivateKey({
-				error : errorHandler,
-				success : (privateKey) => {
-					
-					web3.eth.accounts.signTransaction(transactionData, '0x' + privateKey, (error, result) => {
-						
-						if (error !== TO_DELETE) {
-							if (errorHandler !== undefined) {
-								errorHandler(error.toString());
-							} else {
-								SHOW_ERROR('DPlayInventory.SecureStore', error.toString());
-							}
-						}
-						
-						else {
-							callback(result.rawTransaction);
-						}
-					});
-				}
-			});
-		};
-		
-		let sign = self.sign = (text, callbackOrHandlers) => {
+		let signText = self.signText = (text, callbackOrHandlers) => {
 			//REQUIRED: text
 			//REQUIRED: callbackOrHandlers
 			//OPTIONAL: callbackOrHandlers.error
@@ -214,9 +176,23 @@ DPlayInventory.SecureStore = OBJECT({
 				error : errorHandler,
 				success : (privateKey) => {
 					
-					callback(web3.eth.accounts.sign(text, '0x' + privateKey).signature);
+					callback(web3.eth.accounts.sign(web3.utils.utf8ToHex(text), '0x' + privateKey).signature);
 				}
 			});
+		};
+		
+		let signData = self.signData = (data, callbackOrHandlers) => {
+			//REQUIRED: data
+			//REQUIRED: callbackOrHandlers
+			//OPTIONAL: callbackOrHandlers.error
+			//REQUIRED: callbackOrHandlers.success
+			
+			let sortedData = {};
+			Object.keys(data).sort().forEach((key) => {
+				sortedData[key] = data[key];
+			});
+			
+			signText(STRINGIFY(sortedData), callbackOrHandlers);
 		};
 		
 		let clear = self.clear = (callback) => {

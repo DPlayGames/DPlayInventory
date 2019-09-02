@@ -6,10 +6,10 @@ DPlayInventory.CheckData = CLASS({
 
 	init : (inner, self) => {
 		
-		DPlayInventory.SecureStore.checkWalletAddressExists((walletAddressExists) => {
+		DPlayInventory.SecureStore.checkAccountIdExists((accountIdExists) => {
 			
-			// 저장된 지갑 주소가 없다면
-			if (walletAddressExists !== true) {
+			// 저장된 계정 ID가 없다면
+			if (accountIdExists !== true) {
 				DPlayInventory.GO('restoreaccount');
 			}
 			

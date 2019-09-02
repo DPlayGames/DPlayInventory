@@ -40,6 +40,11 @@ DPlayInventory.MAIN = METHOD({
 		});
 		
 		DPlayInventory.MATCH_VIEW({
+			uri : 'updateaccount',
+			target : DPlayInventory.UpdateAccount
+		});
+		
+		DPlayInventory.MATCH_VIEW({
 			uri : 'game',
 			target : DPlayInventory.Game
 		});

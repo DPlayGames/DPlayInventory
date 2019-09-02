@@ -40,8 +40,8 @@ OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 				}, callback);
 			};
 			
-			let saveWalletAddress = self.saveWalletAddress = (walletAddress, callbackOrHandlers) => {
-				//REQUIRED: walletAddress
+			let saveAccountId = self.saveAccountId = (accountId, callbackOrHandlers) => {
+				//REQUIRED: accountId
 				//REQUIRED: callbackOrHandlers
 				//OPTIONAL: callbackOrHandlers.error
 				//REQUIRED: callbackOrHandlers.success
@@ -57,8 +57,8 @@ OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 				}
 				
 				inner.send({
-					methodName : 'saveWalletAddress',
-					data : walletAddress
+					methodName : 'saveAccountId',
+					data : accountId
 				}, (result) => {
 					
 					if (result.errorMsg !== undefined) {
@@ -75,15 +75,15 @@ OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 				});
 			};
 			
-			let checkWalletAddressExists = self.checkWalletAddressExists = (callback) => {
+			let checkAccountIdExists = self.checkAccountIdExists = (callback) => {
 				//REQUIRED: callback
 				
 				inner.send({
-					methodName : 'checkWalletAddressExists'
+					methodName : 'checkAccountIdExists'
 				}, callback);
 			};
 			
-			let getWalletAddress = self.getWalletAddress = (callbackOrHandlers) => {
+			let getAccountId = self.getAccountId = (callbackOrHandlers) => {
 				//REQUIRED: callbackOrHandlers
 				//OPTIONAL: callbackOrHandlers.error
 				//REQUIRED: callbackOrHandlers.success
@@ -99,7 +99,7 @@ OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 				}
 				
 				inner.send({
-					methodName : 'getWalletAddress',
+					methodName : 'getAccountId',
 				}, (result) => {
 					
 					if (result.errorMsg !== undefined) {
@@ -111,7 +111,7 @@ OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 					}
 					
 					else {
-						callback(result.walletAddress);
+						callback(result.accountId);
 					}
 				});
 			};
@@ -184,42 +184,7 @@ OVERRIDE(DPlayInventory.SecureStore, (origin) => {
 				});
 			};
 			
-			let signTransaction = self.signTransaction = (transactionData, callbackOrHandlers) => {
-				//REQUIRED: transactionData
-				//REQUIRED: callbackOrHandlers
-				//OPTIONAL: callbackOrHandlers.error
-				//REQUIRED: callbackOrHandlers.success
-				
-				let errorHandler;
-				let callback;
-				
-				if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
-					callback = callbackOrHandlers;
-				} else {
-					errorHandler = callbackOrHandlers.error;
-					callback = callbackOrHandlers.success;
-				}
-				
-				inner.send({
-					methodName : 'signTransaction',
-					data : transactionData
-				}, (result) => {
-					
-					if (result.errorMsg !== undefined) {
-						if (errorHandler !== undefined) {
-							errorHandler(result.errorMsg);
-						} else {
-							SHOW_ERROR('DPlayInventory.SecureStore', result.errorMsg);
-						}
-					}
-					
-					else {
-						callback(result.rawTransaction);
-					}
-				});
-			};
-			
-			let sign = self.sign = (text, callbackOrHandlers) => {
+			let signText = self.signText = (text, callbackOrHandlers) => {
 				//REQUIRED: text
 				//REQUIRED: callbackOrHandlers
 				//OPTIONAL: callbackOrHandlers.error
