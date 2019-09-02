@@ -8,14 +8,15 @@ DPlayInventory.Money = CLASS({
 		
 		let inventoryStore = DPlayInventory.STORE('inventoryStore');
 		
+		let dPanel;
 		let content = DIV({
-			c : ['money']
+			c : ['money', dPanel = DIV()]
 		});
 		
 		DPlayInventory.SecureStore.getAccountId((accountId) => {
 			
-			DPlayInventory.DSide.getDBalance(accountId, (balance) => {
-				console.log(balance);
+			DPlayInventory.DSide.getDBalance(accountId, (dBalance) => {
+				dPanel.append('d: ' + dBalance);
 			});
 		});
 		
