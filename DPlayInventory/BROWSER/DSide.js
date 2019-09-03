@@ -194,6 +194,7 @@ DPlayInventory.DSide = OBJECT({
 			return new Date(date.getTime() - timeDiffWithNode);
 		};
 		
+		// 특정 계정의 d 잔고를 가져옵니다.
 		let getDBalance = self.getDBalance = (accountId, callback) => {
 			//REQUIRED: accountId
 			//REQUIRED: callback
@@ -201,6 +202,7 @@ DPlayInventory.DSide = OBJECT({
 			sendToNode('getDBalance', accountId, callback);
 		};
 		
+		// 계정 상세 정보를 저장합니다.
 		let saveAccountDetail = self.saveAccountDetail = (params, callback) => {
 			//REQUIRED: params
 			//REQUIRED: params.hash
@@ -213,11 +215,59 @@ DPlayInventory.DSide = OBJECT({
 			sendToNode('saveAccountDetail', params, callback);
 		};
 		
+		// 계정 상세 정보를 가져옵니다.
 		let getAccountDetail = self.getAccountDetail = (accountId, callback) => {
 			//REQUIRED: accountId
 			//REQUIRED: callback
 			
 			sendToNode('getAccountDetail', accountId, callback);
+		};
+		
+		// 길드를 생성합니다.
+		let createGuild = self.createGuild = (params, callback) => {
+			//REQUIRED: params
+			//REQUIRED: params.hash
+			//REQUIRED: params.data
+			//REQUIRED: params.data.accountId
+			//REQUIRED: params.data.id
+			//OPTIONAL: params.data.name
+			//OPTIONAL: params.data.introduce
+			//REQUIRED: params.data.memberIds
+			//REQUIRED: params.data.createTime
+			
+			sendToNode('createGuild', params, callback);
+		};
+		
+		// 길드의 해시를 가져옵니다.
+		let getGuildHash = self.getGuildHash = (guildId, callback) => {
+			//REQUIRED: guildId
+			//REQUIRED: callback
+			
+			sendToNode('getGuildHash', guildId, callback);
+		};
+		
+		// 길드 정보를 수정합니다.
+		let updateGuildInfo = self.updateGuildInfo = (params, callback) => {
+			//REQUIRED: params
+			//REQUIRED: params.hash
+			//REQUIRED: params.data
+			//REQUIRED: params.data.accountId
+			//REQUIRED: params.data.id
+			//OPTIONAL: params.data.name
+			//OPTIONAL: params.data.introduce
+			//REQUIRED: params.data.memberIds
+			//REQUIRED: params.data.createTime
+			//REQUIRED: params.data.lastUpdateTime
+			
+			sendToNode('updateGuildInfo', params, callback);
+		};
+		
+		// 특정 계정이 가입한 길드 정보를 가져옵니다.
+		let getAccountGuildInfo = self.getAccountGuildInfo = (accountId, callback) => {
+			//REQUIRED: accountId
+			//REQUIRED: callback
+			
+			sendToNode('getAccountGuildInfo', accountId, callback);
 		};
 	}
 });

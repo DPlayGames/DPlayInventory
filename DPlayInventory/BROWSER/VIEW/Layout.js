@@ -194,6 +194,9 @@ DPlayInventory.Layout = CLASS((cls) => {
 					title : '내 계정',
 					uri : 'account'
 				}, {
+					title : '길드 정보',
+					uri : 'guild'
+				}, {
 					title : '네트워크 변경',
 					uri : 'changenetwork'
 				}], (menuInfo, index) => {

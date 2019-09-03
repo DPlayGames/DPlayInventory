@@ -45,6 +45,21 @@ DPlayInventory.MAIN = METHOD({
 		});
 		
 		DPlayInventory.MATCH_VIEW({
+			uri : 'createguild',
+			target : DPlayInventory.CreateGuild
+		});
+		
+		DPlayInventory.MATCH_VIEW({
+			uri : 'updateguild',
+			target : DPlayInventory.UpdateGuild
+		});
+		
+		DPlayInventory.MATCH_VIEW({
+			uri : 'guild',
+			target : DPlayInventory.Guild
+		});
+		
+		DPlayInventory.MATCH_VIEW({
 			uri : 'game',
 			target : DPlayInventory.Game
 		});
