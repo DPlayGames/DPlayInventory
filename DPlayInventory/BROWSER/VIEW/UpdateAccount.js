@@ -68,25 +68,25 @@ DPlayInventory.UpdateAccount = CLASS({
 									DPlayInventory.DSide.saveAccountDetail({
 										hash : hash,
 										data : data
-									}, (result) => {
+									}, {
 										
-										if (result.isNotEnoughD === true) {
-											DPlayInventory.Alert({
-												msg : 'd가 부족합니다.'
-											});
-										}
+										notValid : (validErrors) => {
+											form.showErrors(validErrors);
+										},
 										
-										else if (result.validErrors !== undefined) {
-											form.showErrors(result.validErrors);
-										}
-										
-										else if (result.isNotVerified === true) {
+										notVerified : () => {
 											DPlayInventory.Alert({
 												msg : '유효하지 않은 데이터입니다.'
 											});
-										}
+										},
 										
-										else {
+										notEnoughD : () => {
+											DPlayInventory.Alert({
+												msg : 'd가 부족합니다.'
+											});
+										},
+										
+										success : () => {
 											DPlayInventory.GO('account');
 										}
 									});

@@ -202,8 +202,67 @@ DPlayInventory.DSide = OBJECT({
 			sendToNode('getDBalance', accountId, callback);
 		};
 		
+		let seperateHandler = (callbackOrHandlers) => {
+			//REQUIRED: callbackOrHandlers
+			//OPTIONAL: callbackOrHandlers.notValid
+			//OPTIONAL: callbackOrHandlers.notVerified
+			//OPTIONAL: callbackOrHandlers.notEnoughD
+			//REQUIRED: callbackOrHandlers.success
+			
+			let notValidHandler;
+			let notVerifiedHandler;
+			let notEnoughDHandler;
+			let callback;
+			
+			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+				callback = callbackOrHandlers;
+			} else {
+				notValidHandler = callbackOrHandlers.notValid;
+				notVerifiedHandler = callbackOrHandlers.notVerified;
+				notEnoughDHandler = callbackOrHandlers.notEnoughD;
+				callback = callbackOrHandlers.success;
+			}
+			
+			return (result) => {
+				
+				if (result.validErrors !== undefined) {
+					if (notValidHandler !== undefined) {
+						notValidHandler(result.validErrors);
+					} else {
+						SHOW_ERROR('DSide.saveAccountDetail', MSG({
+							ko : '데이터가 유효하지 않습니다.'
+						}), result.validErrors);
+					}
+				}
+				
+				else if (result.isNotVerified === true) {
+					if (notVerifiedHandler !== undefined) {
+						notVerifiedHandler();
+					} else {
+						SHOW_ERROR('DSide.saveAccountDetail', MSG({
+							ko : '데이터가 유효하지 않습니다.'
+						}));
+					}
+				}
+				
+				else if (result.isNotEnoughD === true) {
+					if (notEnoughDHandler !== undefined) {
+						notEnoughDHandler();
+					} else {
+						SHOW_ERROR('DSide.saveAccountDetail', MSG({
+							ko : 'd가 부족합니다.'
+						}));
+					}
+				}
+				
+				else {
+					callback();
+				}
+			};
+		};
+		
 		// 계정 상세 정보를 저장합니다.
-		let saveAccountDetail = self.saveAccountDetail = (params, callback) => {
+		let saveAccountDetail = self.saveAccountDetail = (params, callbackOrHandlers) => {
 			//REQUIRED: params
 			//REQUIRED: params.hash
 			//REQUIRED: params.data
@@ -211,8 +270,13 @@ DPlayInventory.DSide = OBJECT({
 			//OPTIONAL: params.data.name
 			//OPTIONAL: params.data.introduce
 			//REQUIRED: params.data.createTime
+			//REQUIRED: callbackOrHandlers
+			//OPTIONAL: callbackOrHandlers.notValid
+			//OPTIONAL: callbackOrHandlers.notVerified
+			//OPTIONAL: callbackOrHandlers.notEnoughD
+			//REQUIRED: callbackOrHandlers.success
 			
-			sendToNode('saveAccountDetail', params, callback);
+			sendToNode('saveAccountDetail', params, seperateHandler(callbackOrHandlers));
 		};
 		
 		// 계정 상세 정보를 가져옵니다.
