@@ -14,10 +14,10 @@ DPlayInventory.Guild = CLASS({
 		});
 		
 		DPlayInventory.SecureStore.getAccountId((accountId) => {
-			DPlayInventory.DSide.getAccountGuildInfo(accountId, (guildInfo) => {
+			DPlayInventory.DSide.getAccountGuild(accountId, (guildData) => {
 				
 				// 가입한 길드가 없는 경우
-				if (guildInfo === undefined) {
+				if (guildData === undefined) {
 					content.append(DIV({
 						c : [P({
 							c : '가입한 길드가 없습니다. 길드를 생성하시겠습니까?'
@@ -36,13 +36,13 @@ DPlayInventory.Guild = CLASS({
 					
 					content.append(DIV({
 						c : [H3({
-							c : guildInfo.name
+							c : guildData.name
 						}), P({
-							c : guildInfo.introduce
+							c : guildData.introduce
 						}),
 						
 						// 길드장인 경우 메뉴 생성
-						guildInfo.accountId !== accountId ? undefined : DIV({
+						guildData.accountId !== accountId ? undefined : DIV({
 							c : [UUI.BUTTON({
 								c : '길드 정보 수정',
 								on : {

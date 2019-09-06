@@ -6,7 +6,7 @@ DPlayInventory.UpdateGuild = CLASS({
 
 	init : (inner, self) => {
 		
-		let guildInfo;
+		let guildData;
 		
 		let form;
 		let content = DIV({
@@ -65,17 +65,17 @@ DPlayInventory.UpdateGuild = CLASS({
 							
 							let data = form.getData();
 							
-							guildInfo.name = data.name;
-							guildInfo.introduce = data.introduce;
-							guildInfo.lastUpdateTime = DPlayInventory.DSide.getNodeTime(new Date());
+							guildData.name = data.name;
+							guildData.introduce = data.introduce;
+							guildData.lastUpdateTime = DPlayInventory.DSide.getNodeTime(new Date());
 							
-							DPlayInventory.SecureStore.signData(guildInfo, (hash) => {
+							DPlayInventory.SecureStore.signData(guildData, (hash) => {
 								
-								DPlayInventory.DSide.getGuildHash(guildInfo.id, (guildHash) => {
+								DPlayInventory.DSide.getGuildHash(guildData.id, (guildHash) => {
 									
-									DPlayInventory.DSide.updateGuildInfo({
+									DPlayInventory.DSide.updateGuild({
 										originHash : guildHash,
-										data : guildInfo,
+										data : guildData,
 										hash : hash
 									}, (result) => {
 										
@@ -109,10 +109,10 @@ DPlayInventory.UpdateGuild = CLASS({
 		
 		// 기존 데이터를 가져옵니다.
 		DPlayInventory.SecureStore.getAccountId((accountId) => {
-			DPlayInventory.DSide.getAccountGuildInfo(accountId, (_guildInfo) => {
-				if (_guildInfo !== undefined) {
-					guildInfo = _guildInfo;
-					form.setData(guildInfo);
+			DPlayInventory.DSide.getAccountGuild(accountId, (_guildData) => {
+				if (_guildData !== undefined) {
+					guildData = _guildData;
+					form.setData(guildData);
 				}
 			});
 		});

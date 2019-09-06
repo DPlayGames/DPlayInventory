@@ -311,7 +311,7 @@ DPlayInventory.DSide = OBJECT({
 		};
 		
 		// 길드 정보를 수정합니다.
-		let updateGuildInfo = self.updateGuildInfo = (params, callback) => {
+		let updateGuild = self.updateGuild = (params, callback) => {
 			//REQUIRED: params
 			//REQUIRED: params.hash
 			//REQUIRED: params.data
@@ -323,15 +323,15 @@ DPlayInventory.DSide = OBJECT({
 			//REQUIRED: params.data.createTime
 			//REQUIRED: params.data.lastUpdateTime
 			
-			sendToNode('updateGuildInfo', params, callback);
+			sendToNode('updateGuild', params, callback);
 		};
 		
 		// 특정 계정이 가입한 길드 정보를 가져옵니다.
-		let getAccountGuildInfo = self.getAccountGuildInfo = (accountId, callback) => {
+		let getAccountGuild = self.getAccountGuild = (accountId, callback) => {
 			//REQUIRED: accountId
 			//REQUIRED: callback
 			
-			sendToNode('getAccountGuildInfo', accountId, callback);
+			sendToNode('getAccountGuild', accountId, callback);
 		};
 	}
 });
