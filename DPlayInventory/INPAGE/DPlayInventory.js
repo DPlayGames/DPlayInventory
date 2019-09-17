@@ -111,12 +111,18 @@ window.DPlayInventory = () => {
 		//REQUIRED: params
 		//REQUIRED: params.abi
 		//REQUIRED: params.address
+		//REQUIRED: callback
 		
 		send('createSmartContractInterface', params, callback);
 	};
 	
 	// 스마트 계약의 메소드를 실행합니다.
-	let runSmartContractMethod = self.runSmartContractMethod = () => {
+	let runSmartContractMethod = self.runSmartContractMethod = (params, callback) => {
+		//REQUIRED: params
+		//REQUIRED: params.address
+		//REQUIRED: params.methodName
+		//REQUIRED: params.params
+		//REQUIRED: callback
 		
 	};
 	
