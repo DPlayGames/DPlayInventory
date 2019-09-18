@@ -15,3 +15,6 @@
 ```
 ubm wefullpack DPlayInventory.js WebExtension
 ```
+
+## TODO
+멀티 트랜잭션 처리
