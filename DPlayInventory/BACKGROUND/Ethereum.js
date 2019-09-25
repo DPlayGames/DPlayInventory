@@ -1,5 +1,13 @@
-DPlayInventory.Ethereum = OBJECT({
+global.Ethereum = OBJECT({
+
+	preset : () => {
+		return Connector;
+	},
 	
+	params : () => {
+		return 'Ethereum';
+	},
+
 	init : (inner, self) => {
 		
 		const NETWORK_ADDRESSES = {
@@ -9,9 +17,12 @@ DPlayInventory.Ethereum = OBJECT({
 			Rinkeby : 'wss://rinkeby.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b'
 		};
 		
-		let networkStore = DPlayInventory.SESSION_STORE('__NETWORK_STORE');
+		//let networkName = 'Mainnet';
+		let networkName = 'Kovan';
 		
-		let networkName = networkStore.get('networkName') !== undefined ? networkStore.get('networkName') : 'Mainnet';
+		let getNetworkName = self.getNetworkName = () => {
+			return networkName;
+		};
 		
 		let getProvider = () => {
 			
@@ -26,15 +37,12 @@ DPlayInventory.Ethereum = OBJECT({
 		
 		let web3;
 		
-		let changeNetwork = self.changeNetwork = (_networkName) => {
-			//REQUIRED: networkName
+		let changeNetwork;
+		
+		// 비밀번호를 지정합니다.
+		inner.on('changeNetwork', changeNetwork = (_networkName) => {
 			
 			networkName = _networkName;
-			
-			networkStore.save({
-				name : 'networkName',
-				value : networkName
-			});
 			
 			web3 = new Web3(getProvider());
 			
@@ -43,13 +51,12 @@ DPlayInventory.Ethereum = OBJECT({
 				DPlayStoreContract.init();
 				DPlayStoreSearchContract.init();
 			});
-		};
+		});
 		
 		changeNetwork(networkName);
 		
 		// 이더리움 네트워크 이름을 가져옵니다.
-		let getNetworkName = self.getNetworkName = (callback) => {
-			//REQUIRED: callback
+		inner.on('changeNetwork', (notUsing, callback) => {
 			
 			web3.eth.net.getId((error, netId) => {
 				
@@ -65,45 +72,36 @@ DPlayInventory.Ethereum = OBJECT({
 					callback('Unknown');
 				}
 			});
-		};
+		});
 		
 		let contracts = {};
 		let methodMap = {};
 		
 		// 스마트 계약 인터페이스를 생성합니다.
-		let createSmartContractInterface = self.createSmartContractInterface = (params, callback) => {
-			//REQUIRED: params
-			//REQUIRED: params.abi
-			//REQUIRED: params.address
-			//OPTIONAL: params.onEvent
-			//REQUIRED: callback
+		inner.on('changeNetwork', (params, callback) => {
 			
 			let abi = params.abi;
 			let address = params.address;
-			let onEvent = params.onEvent;
 			
 			let contract = contracts[address] = new web3.eth.Contract(abi, address);
 			
-			if (onEvent !== undefined) {
-				
-				// 계약의 이벤트 핸들링
-				contract.events.allEvents((error, info) => {
-					if (error === TO_DELETE) {
+			// 계약의 이벤트 핸들링
+			contract.events.allEvents((error, info) => {
+				if (error === TO_DELETE) {
+					
+					let args = info.returnValues;
+					
+					EACH(info.args, (value, name) => {
 						
-						let args = info.returnValues;
-						
-						EACH(info.args, (value, name) => {
-							
-							// 숫자인 경우
-							if (value.toNumber !== undefined) {
-								args[name] = value.toNumber();
-							}
-						});
-						
-						onEvent(info.event, args);
-					}
-				});
-			}
+						// 숫자인 경우
+						if (value.toNumber !== undefined) {
+							args[name] = value.toNumber();
+						}
+					});
+					
+					console.log(info.event, args);
+				}
+			});
 			
 			let methods = methodMap[address] = {};
 			
@@ -115,7 +113,7 @@ DPlayInventory.Ethereum = OBJECT({
 			});
 			
 			callback();
-		};
+		});
 		
 		// 트랜잭션이 완료될 때 까지 확인합니다.
 		let watchTransaction = (transactionHash, callbackOrHandlers) => {
@@ -327,31 +325,11 @@ DPlayInventory.Ethereum = OBJECT({
 			}
 		};
 		
-		// 스마트 계약의 메소드를 실행합니다.
-		let runSmartContractMethod = self.runSmartContractMethod = (_params, callbackOrHandlers) => {
-			//REQUIRED: params
-			//REQUIRED: params.address
-			//REQUIRED: params.methodName
-			//REQUIRED: params.params
-			//REQUIRED: callbackOrHandlers
-			//OPTIONAL: callbackOrHandlers.error
-			//REQUIRED: callbackOrHandlers.success
+		let runSmartContractMethod = self.runSmartContractMethod = (_params, callback) => {
 			
 			let address = _params.address;
 			let methodName = _params.methodName;
 			let params = _params.params;
-			
-			let errorHandler;
-			let transactionHashCallback;
-			let callback;
-			
-			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
-				callback = callbackOrHandlers;
-			} else {
-				errorHandler = callbackOrHandlers.error;
-				transactionHashCallback = callbackOrHandlers.transactionHash;
-				callback = callbackOrHandlers.success;
-			}
 			
 			let contract = contracts[address];
 			let methods = methodMap[address];
@@ -391,11 +369,9 @@ DPlayInventory.Ethereum = OBJECT({
 					
 					// 계약 실행 오류 발생
 					if (error !== TO_DELETE) {
-						if (errorHandler !== undefined) {
-							errorHandler(error.toString());
-						} else {
-							SHOW_ERROR(methodInfo.name, error.toString(), params);
-						}
+						callback({
+							errorMsg : error.toString()
+						});
 					}
 					
 					// 정상 작동
@@ -408,102 +384,71 @@ DPlayInventory.Ethereum = OBJECT({
 								
 								// output이 없는 경우
 								if (methodInfo.outputs.length === 0) {
-									callback();
+									callback({});
 								}
 								
 								// output이 1개인 경우
 								else if (methodInfo.outputs.length === 1) {
 									result = cleanResult(methodInfo.outputs, result);
-									callback(result.value, result.str);
+									callback(result);
 								}
 								
 								// output이 여러개인 경우
 								else if (methodInfo.outputs.length > 1) {
 									result = cleanResult(methodInfo.outputs, result);
-									callback.apply(TO_DELETE, result.array);
+									callback(result);
 								}
 							}
 						}
 						
 						// 트랜잭션이 필요한 함수인 경우
-						else {
+						else if (callback !== undefined) {
 							
-							if (transactionHashCallback !== undefined) {
-								transactionHashCallback(result);
-							}
-							
-							if (callback !== undefined) {
-								watchTransaction(result, {
-									error : errorHandler,
-									success : callback
-								});
-							}
+							watchTransaction(result, {
+								error : (errorMsg) => {
+									callback({
+										errorMsg : errorMsg
+									});
+								},
+								success : () => {
+									callback({});
+								}
+							});
 						}
 					}
 				});
 			}
 		};
 		
-		let getEtherBalance = self.getEtherBalance = (callbackOrHandlers) => {
-			//REQUIRED: callbackOrHandlers
-			//OPTIONAL: callbackOrHandlers.error
-			//REQUIRED: callbackOrHandlers.success
+		// 스마트 계약의 메소드를 실행합니다.
+		inner.on('runSmartContractMethod', runSmartContractMethod);
+		
+		inner.on('getEtherBalance', (notUsing, callback) => {
 			
-			let callback;
-			let errorHandler;
-			
-			// 콜백 정리
-			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
-				callback = callbackOrHandlers;
-			} else {
-				callback = callbackOrHandlers.success;
-				errorHandler = callbackOrHandlers.error;
-			}
-			
-			DPlayInventory.SecureStore.getAccountId((accountId) => {
+			SecureStore.getAccountId((result) => {
 				
-				web3.eth.getBalance(accountId, (error, balance) => {
+				if (result.accountId !== undefined) {
 					
-					// 오류 발생
-					if (error !== TO_DELETE) {
-						if (errorHandler !== undefined) {
-							errorHandler(error.toString());
-						} else {
-							SHOW_ERROR('Ethereum.getEtherBalance', error.toString());
+					web3.eth.getBalance(result.accountId, (error, balance) => {
+						
+						// 오류 발생
+						if (error !== TO_DELETE) {
+							callback({
+								errorMsg : error.toString()
+							});
 						}
-					}
-					
-					else {
-						callback(balance);
-					}
-				});
+						
+						else {
+							callback({
+								balance : balance
+							});
+						}
+					});
+				}
 			});
-		};
+		});
 		
-		let getDisplayPrice = self.getDisplayPrice = (actualPrice) => {
-			return web3.utils.fromWei(actualPrice, 'ether');
-		};
-		
-		let getActualPrice = self.getActualPrice = (displayPrice) => {
-			return web3.utils.toWei(displayPrice, 'ether');
-		};
-		
-		let getERC20Balance = self.getERC20Balance = (addresses, callbackOrHandlers) => {
-			//REQUIRED: addresses
-			//REQUIRED: callbackOrHandlers
-			//OPTIONAL: callbackOrHandlers.error
-			//REQUIRED: callbackOrHandlers.success
-			
-			let callback;
-			let errorHandler;
-			
-			// 콜백 정리
-			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
-				callback = callbackOrHandlers;
-			} else {
-				callback = callbackOrHandlers.success;
-				errorHandler = callbackOrHandlers.error;
-			}
+		inner.on('getERC20Balance', (addresses, callback) => {
 			
 			let erc20 = OBJECT({
 				preset : () => {
@@ -518,39 +463,26 @@ DPlayInventory.Ethereum = OBJECT({
 			});
 			erc20.init();
 			
-			DPlayInventory.SecureStore.getAccountId((accountId) => {
-				erc20.decimals((decimals) => {
-					erc20.balanceOf(accountId, (balance) => {
-						erc20.getAddress((address) => {
-						
-							callback(+(balance / Math.pow(10, decimals)).toFixed(11), address);
+			SecureStore.getAccountId((result) => {
+				
+				if (result.accountId !== undefined) {
+					
+					erc20.decimals((decimals) => {
+						erc20.balanceOf(result.accountId, (balance) => {
+							erc20.getAddress((address) => {
+							
+								callback({
+									balance : +(balance / Math.pow(10, decimals)).toFixed(11),
+									address : address
+								});
+							});
 						});
 					});
-				});
+				}
 			});
-		};
+		});
 		
-		let getERC721Ids = self.getERC721Ids = (params, callbackOrHandlers) => {
-			//REQUIRED: params
-			//REQUIRED: params.addresses
-			//REQUIRED: params.getItemIdsName
-			//REQUIRED: callbackOrHandlers
-			//OPTIONAL: callbackOrHandlers.error
-			//REQUIRED: callbackOrHandlers.success
-			
-			let addresses = params.addresses;
-			let getItemIdsName = params.getItemIdsName;
-			
-			let callback;
-			let errorHandler;
-			
-			// 콜백 정리
-			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
-				callback = callbackOrHandlers;
-			} else {
-				callback = callbackOrHandlers.success;
-				errorHandler = callbackOrHandlers.error;
-			}
+		inner.on('getERC721Ids', (params, callback) => {
 			
 			let erc721 = OBJECT({
 				preset : () => {
@@ -570,15 +502,22 @@ DPlayInventory.Ethereum = OBJECT({
 			});
 			erc721.init();
 			
-			DPlayInventory.SecureStore.getAccountId((accountId) => {
-				erc721[getItemIdsName](accountId, (ids) => {
+			SecureStore.getAccountId((result) => {
+				
+				if (result.accountId !== undefined) {
 					
-					erc721.getAddress((address) => {
+					erc721[getItemIdsName](result.accountId, (ids) => {
 						
-						callback(ids, address);
+						erc721.getAddress((address) => {
+							
+							callback({
+								ids : ids,
+								address : address
+							});
+						});
 					});
-				});
+				}
 			});
-		};
+		});
 	}
 });

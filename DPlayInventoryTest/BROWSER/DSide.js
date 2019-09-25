@@ -7,14 +7,6 @@ DPlayInventory.DSide = OBJECT({
 			'175.207.29.151:8923'
 		];
 		
-		let networkName = 'Unknown';
-		
-		let setNetworkName = self.setNetworkName = (_networkName) => {
-			//REQUIRED: networkName
-			
-			networkName = _networkName;
-		};
-		
 		let nodeURLs;
 		
 		let innerSendToNode;
@@ -188,12 +180,6 @@ DPlayInventory.DSide = OBJECT({
 				}
 			});
 		});
-		
-		let getNodeTime = self.getNodeTime = (date) => {
-			//REQUIRED: date
-			
-			return new Date(date.getTime() - timeDiffWithNode);
-		};
 		
 		// 특정 계정의 d 잔고를 가져옵니다.
 		let getDBalance = self.getDBalance = (callback) => {

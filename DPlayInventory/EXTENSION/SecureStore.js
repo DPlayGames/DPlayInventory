@@ -197,7 +197,7 @@ DPlayInventory.SecureStore = OBJECT({
 			}
 			
 			inner.send({
-				methodName : 'sign',
+				methodName : 'signText',
 				data : text
 			}, (result) => {
 				
@@ -213,6 +213,20 @@ DPlayInventory.SecureStore = OBJECT({
 					callback(result.signature);
 				}
 			});
+		};
+		
+		let signData = self.signData = (data, callbackOrHandlers) => {
+			//REQUIRED: data
+			//REQUIRED: callbackOrHandlers
+			//OPTIONAL: callbackOrHandlers.error
+			//REQUIRED: callbackOrHandlers.success
+			
+			let sortedData = {};
+			Object.keys(data).sort().forEach((key) => {
+				sortedData[key] = data[key];
+			});
+			
+			signText(STRINGIFY(sortedData), callbackOrHandlers);
 		};
 		
 		let clear = self.clear = (callback) => {

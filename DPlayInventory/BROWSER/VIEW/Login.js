@@ -6,6 +6,7 @@ DPlayInventory.Login = CLASS({
 
 	init : (inner, self) => {
 		
+		let passwordInput;
 		let wrapper = UUI.V_CENTER({
 			style : {
 				position : 'relative',
@@ -20,7 +21,7 @@ DPlayInventory.Login = CLASS({
 					width : 300,
 					margin : 'auto'
 				},
-				c : [UUI.FULL_INPUT({
+				c : [passwordInput = UUI.FULL_INPUT({
 					name : 'password',
 					type : 'password',
 					placeholder : '비밀번호'
@@ -92,6 +93,8 @@ DPlayInventory.Login = CLASS({
 				}
 			})]
 		}).appendTo(BODY);
+		
+		passwordInput.select();
 		
 		inner.on('close', () => {
 			wrapper.remove();

@@ -1,13 +1,11 @@
-global.SecureStoreBackground = OBJECT({
+global.SecureStore = OBJECT({
 
 	preset : () => {
-		return WebExtensionBackground;
+		return Connector;
 	},
 	
 	params : () => {
-		return {
-			backgroundName : 'SecureStoreBackground'
-		};
+		return 'SecureStore';
 	},
 
 	init : (inner, self) => {
@@ -64,8 +62,7 @@ global.SecureStoreBackground = OBJECT({
 			});
 		});
 		
-		// 계정 ID를 반환합니다.
-		inner.on('getAccountId', (notUsing, callback) => {
+		let getAccountId = self.getAccountId = (callback) => {
 			
 			chrome.storage.local.get(['accountId'], (result) => {
 				
@@ -79,13 +76,17 @@ global.SecureStoreBackground = OBJECT({
 						});
 					},
 					success : (accountId) => {
-						
 						callback({
 							accountId : accountId
 						});
 					}
 				});
 			});
+		};
+		
+		// 계정 ID를 반환합니다.
+		inner.on('getAccountId', (notUsing, callback) => {
+			getAccountId(callback);
 		});
 		
 		// 비밀키를 저장합니다.
@@ -153,13 +154,27 @@ global.SecureStoreBackground = OBJECT({
 			});
 		});
 		
-		// 문자열에 서명합니다.
-		inner.on('sign', (transactionData, callback) => {
+		let signText = self.signText = (data, callback) => {
 			
 			getPrivateKey(callback, (privateKey) => {
 				
+				let i, length, c;
+				for(length = i = 0; c = text.charCodeAt(i++); length += c >> 11 ? 3 : c >> 7 ? 2 : 1);
+				
+				let prefixedMessage = ethereumjs.Util.sha3('\x19Ethereum Signed Message:\n' + length + text);
+				let signedMessage = ethereumjs.Util.ecsign(prefixedMessage, ethereumjs.Util.toBuffer('0x' + privateKey));
+				
+				callback(ethereumjs.Util.toRpcSig(signedMessage.v, signedMessage.r, signedMessage.s).toString('hex'));
+			});
+		};
+		
+		// 문자열에 서명합니다.
+		inner.on('signText', (data, callback) => {
+			
+			signText(data, (signature) => {
+				
 				callback({
-					signature : web3.eth.accounts.sign(data, '0x' + privateKey).signature
+					signature : signature
 				});
 			});
 		});

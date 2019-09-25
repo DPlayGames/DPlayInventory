@@ -43,7 +43,7 @@ global.DPlaySmartContract = CLASS({
 			//REQUIRED: callback
 			
 			if (address === undefined) {
-				DPlayInventory.getNetworkName((networkName) => {
+				Ethereum.getNetworkName((networkName) => {
 					address = addresses[networkName];
 					callback(address);
 				});
@@ -54,37 +54,40 @@ global.DPlaySmartContract = CLASS({
 			}
 		};
 		
-		getAddress((address) => {
+		let init = self.init = () => {
 			
-			// 스마트 계약 인터페이스 생성
-			DPlayInventory.createSmartContractInterface({
-				abi : abi,
-				address : address,
-				onEvent : (eventName, args) => {
-					
-					let eventHandlers = eventMap[eventName];
-					
-					if (eventHandlers !== undefined) {
-						EACH(eventHandlers, (eventHandler) => {
-							eventHandler(args);
-						});
+			getAddress((address) => {
+				
+				// 스마트 계약 인터페이스 생성
+				Ethereum.createSmartContractInterface({
+					abi : abi,
+					address : address,
+					onEvent : (eventName, args) => {
+						
+						let eventHandlers = eventMap[eventName];
+						
+						if (eventHandlers !== undefined) {
+							EACH(eventHandlers, (eventHandler) => {
+								eventHandler(args);
+							});
+						}
 					}
-				}
-			}, () => {
-				
-				innerRunSmartContractMethod = DPlayInventory.runSmartContractMethod;
-				
-				// 대기중인 내용 실행
-				EACH(waitingRunSmartContractMethodInfos, (info) => {
+				}, () => {
 					
-					innerRunSmartContractMethod({
-						address : address,
-						methodName : info.methodName,
-						params : info.params
-					}, info.callback);
+					innerRunSmartContractMethod = Ethereum.runSmartContractMethod;
+					
+					// 대기중인 내용 실행
+					EACH(waitingRunSmartContractMethodInfos, (info) => {
+						
+						innerRunSmartContractMethod({
+							address : address,
+							methodName : info.methodName,
+							params : info.params
+						}, info.callbackOrHandlers);
+					});
 				});
 			});
-		});
+		};
 		
 		// 메소드 분석 및 생성
 		EACH(abi, (methodInfo) => {
