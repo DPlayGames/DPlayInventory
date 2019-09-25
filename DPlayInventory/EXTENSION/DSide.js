@@ -1,19 +1,14 @@
-OVERRIDE(DPlayInventory.DSide, (origin) => {
+DPlayInventory.DSide = OBJECT({
 	
-	DPlayInventory.DSide = OBJECT({
+	preset : () => {
+		return Connector;
+	},
+	
+	params : () => {
+		return 'DSide';
+	},
+	
+	init : (inner, self) => {
 		
-		preset : () => {
-			return WebExtensionForeground;
-		},
-		
-		params : () => {
-			return {
-				backgroundName : 'DSideBackground'
-			};
-		},
-		
-		init : (inner, self) => {
-			
-		}
-	});
+	}
 });

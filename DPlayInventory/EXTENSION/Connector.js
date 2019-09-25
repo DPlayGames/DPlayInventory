@@ -1,8 +1,8 @@
-global.WebExtensionForeground = OBJECT({
+// Background Script와 연결되는 커넥터
+global.Connector = CLASS({
 
-	init : (inner, self, params) => {
-		
-		let backgroundName = params.backgroundName;
+	init : (inner, self, pack) => {
+		//REQUIRED: pack
 		
 		let methodMap = {};
 		let sendKey = 0;
@@ -11,7 +11,7 @@ global.WebExtensionForeground = OBJECT({
 			//REQUIRED: methodName
 			//REQUIRED: method
 			
-			let realMethodName = backgroundName + '/' + methodName;
+			let realMethodName = pack + '/' + methodName;
 			
 			let methods = methodMap[realMethodName];
 	
@@ -26,7 +26,7 @@ global.WebExtensionForeground = OBJECT({
 			//REQUIRED: methodName
 			//OPTIONAL: method
 			
-			let realMethodName = backgroundName + '/' + methodName;
+			let realMethodName = pack + '/' + methodName;
 			
 			let methods = methodMap[realMethodName];
 	
@@ -55,7 +55,7 @@ global.WebExtensionForeground = OBJECT({
 			let data = params.data;
 			
 			chrome.runtime.sendMessage({
-				methodName : backgroundName + '/' + methodName,
+				methodName : pack + '/' + methodName,
 				data : data
 			}, callback);
 		};

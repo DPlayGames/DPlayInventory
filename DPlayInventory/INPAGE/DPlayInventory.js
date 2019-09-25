@@ -139,13 +139,14 @@ window.DPlayInventory = (() => {
 		}
 	};
 	
-	let self = Connector('DPlayInventory');
+	let inner = Connector('DPlayInventory');
+	let self = {};
 	
 	// 이더리움 네트워크 이름을 가져옵니다.
 	let getNetworkName = self.getNetworkName = (callback) => {
 		//REQUIRED: callback
 		
-		//TODO:
+		inner.send('getNetworkName', undefined, callback);
 	};
 	
 	// 이더리움 네트워크를 변경합니다.

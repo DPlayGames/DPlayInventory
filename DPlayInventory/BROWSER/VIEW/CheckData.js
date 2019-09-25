@@ -20,6 +20,11 @@ DPlayInventory.CheckData = CLASS({
 					if (passwordExists !== true) {
 						DPlayInventory.GO('login');
 					}
+					
+					// DSide에 로그인
+					else {
+						DPlayInventory.DSide.login();
+					}
 				});
 			}
 		});

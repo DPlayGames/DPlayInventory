@@ -120,9 +120,6 @@ DPlayInventory.RestoreAccount = CLASS({
 									
 									let wallet = childKey.getWallet();
 									
-									let encryptedAccountId;
-									let encryptedPrivateKey;
-									
 									NEXT([
 									(next) => {
 										DPlayInventory.SecureStore.saveAccountId(wallet.getChecksumAddressString(), next);

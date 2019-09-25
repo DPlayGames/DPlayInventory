@@ -311,7 +311,8 @@ window.DSide = (() => {
 		};
 	};
 	
-	let self = Connector();
+	let inner = Connector('DSide');
+	let self = {};
 	
 	const HARD_CODED_URLS = [
 		'218.38.19.34:8923',
@@ -400,7 +401,7 @@ window.DSide = (() => {
 			
 			CONNECT_TO_WEB_SOCKET_SERVER({
 				host : splits[0],
-				port : INTEGER(splits[1])
+				port : parseInt(splits[1])
 			}, {
 				error : () => {
 					// 연결 오류를 무시합니다.
@@ -468,7 +469,7 @@ window.DSide = (() => {
 		
 		CONNECT_TO_WEB_SOCKET_SERVER({
 			host : splits[0],
-			port : INTEGER(splits[1])
+			port : parseInt(splits[1])
 		}, {
 			error : () => {
 				// 연결 오류를 무시합니다.

@@ -1,18 +1,6 @@
-//!! 테스트용 보안 스토어
-//!! 절대 이를 이용해 배포하면 안됩니다.
 DPlayInventory.SecureStore = OBJECT({
-
+	
 	init : (inner, self) => {
-		
-		const NETWORK_ADDRESSES = {
-			Mainnet : 'ws://175.207.29.151:8546',
-			Ropsten : 'wss://ropsten.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
-			Rinkeby : 'wss://rinkeby.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
-			Kovan : 'wss://kovan.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
-			Goerli : 'wss://goerli.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b'
-		};
-		
-		let web3 = new Web3(NETWORK_ADDRESSES.Kovan);
 		
 		let testSessionStore = DPlayInventory.SESSION_STORE('__TEST_SESSION_STORE');
 		let testSecureStore = DPlayInventory.STORE('__TEST_SECURE_STORE');
@@ -58,7 +46,7 @@ DPlayInventory.SecureStore = OBJECT({
 				callback = callbackOrHandlers.success;
 			}
 			
-			DPlayInventory.Crypto.encrypt({
+			DPlayInventoryTest.Crypto.encrypt({
 				text : accountId,
 				password : testSessionStore.get('password')
 			}, {
@@ -96,7 +84,7 @@ DPlayInventory.SecureStore = OBJECT({
 				callback = callbackOrHandlers.success;
 			}
 			
-			DPlayInventory.Crypto.decrypt({
+			DPlayInventoryTest.Crypto.decrypt({
 				encryptedText : testSecureStore.get('accountId'),
 				password : testSessionStore.get('password')
 			}, callbackOrHandlers);
@@ -118,7 +106,7 @@ DPlayInventory.SecureStore = OBJECT({
 				callback = callbackOrHandlers.success;
 			}
 			
-			DPlayInventory.Crypto.encrypt({
+			DPlayInventoryTest.Crypto.encrypt({
 				text : privateKey,
 				password : testSessionStore.get('password')
 			}, {
@@ -150,7 +138,7 @@ DPlayInventory.SecureStore = OBJECT({
 				callback = callbackOrHandlers.success;
 			}
 			
-			DPlayInventory.Crypto.decrypt({
+			DPlayInventoryTest.Crypto.decrypt({
 				encryptedText : testSecureStore.get('privateKey'),
 				password : testSessionStore.get('password')
 			}, callbackOrHandlers);
@@ -176,7 +164,10 @@ DPlayInventory.SecureStore = OBJECT({
 				error : errorHandler,
 				success : (privateKey) => {
 					
-					callback(web3.eth.accounts.sign(web3.utils.utf8ToHex(text), '0x' + privateKey).signature);
+					let prefixedMessage = ethereumjs.Util.sha3('\x19Ethereum Signed Message:\n' + text.length + text);
+					let signedMessage = ethereumjs.Util.ecsign(prefixedMessage, ethereumjs.Util.toBuffer('0x' + privateKey));
+					
+					callback(ethereumjs.Util.toRpcSig(signedMessage.v, signedMessage.r, signedMessage.s).toString('hex'));
 				}
 			});
 		};

@@ -1,10 +1,11 @@
-//!! 테스트용 DSide 컨트롤러
-//!! 절대 이를 이용해 배포하면 안됩니다.
 DPlayInventory.DSide = OBJECT({
-
+	
 	init : (inner, self) => {
 		
-		const HARD_CODED_URLS = ['localhost:8814'];
+		const HARD_CODED_URLS = [
+			'218.38.19.34:8923',
+			'175.207.29.151:8923'
+		];
 		
 		let networkName = 'Unknown';
 		
@@ -88,7 +89,7 @@ DPlayInventory.DSide = OBJECT({
 				
 				CONNECT_TO_WEB_SOCKET_SERVER({
 					host : splits[0],
-					port : INTEGER(splits[1])
+					port : parseInt(splits[1])
 				}, {
 					error : () => {
 						// 연결 오류를 무시합니다.
@@ -156,7 +157,7 @@ DPlayInventory.DSide = OBJECT({
 			
 			CONNECT_TO_WEB_SOCKET_SERVER({
 				host : splits[0],
-				port : INTEGER(splits[1])
+				port : parseInt(splits[1])
 			}, {
 				error : () => {
 					// 연결 오류를 무시합니다.
@@ -195,11 +196,18 @@ DPlayInventory.DSide = OBJECT({
 		};
 		
 		// 특정 계정의 d 잔고를 가져옵니다.
-		let getDBalance = self.getDBalance = (accountId, callback) => {
-			//REQUIRED: accountId
+		let getDBalance = self.getDBalance = (callback) => {
 			//REQUIRED: callback
 			
-			sendToNode('getDBalance', accountId, callback);
+			DPlayInventory.SecureStore.getAccountId((accountId) => {
+				sendToNode('getDBalance', accountId, callback);
+			});
+		};
+		
+		let isAccountSigned = false;
+		
+		let checkAccountIsSigned = self.checkAccountIsSigned = () => {
+			return isAccountSigned;
 		};
 		
 		let seperateHandler = (callbackOrHandlers) => {
@@ -332,6 +340,33 @@ DPlayInventory.DSide = OBJECT({
 			//REQUIRED: callback
 			
 			sendToNode('getAccountGuild', accountId, callback);
+		};
+		
+		let login = self.login = (callback) => {
+			//OPTIONAL: callback
+			
+			DPlayInventory.SecureStore.getAccountId((accountId) => {
+				
+				sendToNode('generateLoginToken', undefined, (loginToken) => {
+					
+					DPlayInventory.SecureStore.signText(loginToken, (hash) => {
+						
+						sendToNode('login', {
+							hash : hash,
+							accountId : accountId
+						}, (isSucceed) => {
+							
+							if (isSucceed === true) {
+								isAccountSigned = true;
+								
+								if (callback !== undefined) {
+									callback();
+								}
+							}
+						});
+					});
+				});
+			});
 		};
 	}
 });

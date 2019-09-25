@@ -1,4 +1,4 @@
-DPlayInventory.Crypto = OBJECT({
+DPlayInventoryTest.Crypto = OBJECT({
 
 	init: (inner, self) => {
 

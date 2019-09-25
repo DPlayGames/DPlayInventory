@@ -8,8 +8,13 @@ DPlayInventory.Game = CLASS({
 		
 		let inventoryStore = DPlayInventory.STORE('inventoryStore');
 		
+		let webGameList;
 		let content = DIV({
-			c : ['game']
+			c : ['구매하신 게임이 없습니다.', H3({
+				c : '웹 게임 목록'
+			}), webGameList = DIV({
+				c : '아직 웹 게임이 없습니다.'
+			})]
 		});
 		
 		DPlayInventory.Layout.setContent(content);

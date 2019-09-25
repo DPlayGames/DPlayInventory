@@ -2,12 +2,12 @@
 window.Connector = (pack) => {
 	//REQUIRED: pack
 	
-	let self = {};
+	let inner = {};
 	
 	let methodMap = {};
 	let sendKey = 0;
 	
-	let on = (methodName, method) => {
+	let on = inner.on = (methodName, method) => {
 		
 		let realMethodName = pack = '/' + methodName;
 	
@@ -20,7 +20,7 @@ window.Connector = (pack) => {
 		methods.push(method);
 	};
 	
-	let off = (methodName, method) => {
+	let off = inner.off = (methodName, method) => {
 		
 		let realMethodName = pack + '/' + methodName;
 		
@@ -41,14 +41,12 @@ window.Connector = (pack) => {
 		}
 	};
 	
-	let send = (methodName, data, callback) => {
-		
-		let realMethodName = pack + '/' + methodName;
+	let send = inner.send = (methodName, data, callback) => {
 		
 		let callbackName;
 		
 		window.postMessage({
-			methodName : realMethodName,
+			methodName : pack + '/' + methodName,
 			data : data,
 			sendKey : sendKey
 		}, '*');
@@ -94,5 +92,5 @@ window.Connector = (pack) => {
 		}
 	}, false);
 	
-	return self;
+	return inner;
 };
