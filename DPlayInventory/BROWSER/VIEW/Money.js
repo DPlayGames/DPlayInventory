@@ -13,12 +13,28 @@ DPlayInventory.Money = CLASS({
 		let etherPanel;
 		
 		let content = DIV({
-			c : ['money', dcPanel = DIV({
-				c : 'DC: ...'
+			c : [dcPanel = DIV({
+				c : 'DC: ...', 
+			}), A({
+				c : '충전하기',
+				target : '_blank',
+				href : 'http://faucet.dplay.games'
+			}), A({
+				c : '보내기'
 			}), dPanel = DIV({
-				c : 'd: ...'
+				c : ['d: ...', A({
+					c : '충전하기'
+				}), A({
+					c : '보내기'
+				})]
 			}), etherPanel = DIV({
 				c : 'Ether: ...'
+			}), A({
+				c : '충전하기',
+				target : '_blank',
+				href : 'https://faucet.kovan.network'
+			}), A({
+				c : '보내기'
 			})]
 		});
 		

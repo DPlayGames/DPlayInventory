@@ -1,4 +1,4 @@
-global.DPlayStoreContract = OBJECT({
+global.DPlayStoreSearchContract = OBJECT({
 	
 	preset : () => {
 		return DPlaySmartContract;

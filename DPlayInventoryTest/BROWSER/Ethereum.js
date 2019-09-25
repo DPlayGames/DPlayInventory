@@ -3,16 +3,19 @@ DPlayInventory.Ethereum = OBJECT({
 	init : (inner, self) => {
 		
 		const NETWORK_ADDRESSES = {
-			Mainnet : 'ws://175.207.29.151:8546',
-			Ropsten : 'wss://ropsten.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
-			Rinkeby : 'wss://rinkeby.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
+			Mainnet : 'wss://mainnet.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
 			Kovan : 'wss://kovan.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
-			Goerli : 'wss://goerli.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b'
+			Ropsten : 'wss://ropsten.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
+			Rinkeby : 'wss://rinkeby.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b'
 		};
+		
+		let networkStore = DPlayInventory.SESSION_STORE('__NETWORK_STORE');
+		
+		let networkName = networkStore.get('networkName') !== undefined ? networkStore.get('networkName') : 'Mainnet';
 		
 		let getProvider = () => {
 			
-			let provider = new Web3.providers.WebsocketProvider(NETWORK_ADDRESSES.Kovan);
+			let provider = new Web3.providers.WebsocketProvider(NETWORK_ADDRESSES[networkName]);
 			provider.on('end', (e) => {
 				SHOW_ERROR('SmartContract', 'WebsocketProvider의 접속이 끊어졌습니다. 재접속합니다.');
 				web3.setProvider(getProvider());
@@ -21,7 +24,27 @@ DPlayInventory.Ethereum = OBJECT({
 			return provider;
 		};
 		
-		let web3 = new Web3(getProvider());
+		let web3;
+		
+		let changeNetwork = self.changeNetwork = (_networkName) => {
+			
+			networkName = _networkName;
+			
+			networkStore.save({
+				name : 'networkName',
+				value : networkName
+			});
+			
+			web3 = new Web3(getProvider());
+			
+			DELAY(() => {
+				DPlayCoinContract.init();
+				DPlayStoreContract.init();
+				DPlayStoreSearchContract.init();
+			});
+		};
+		
+		changeNetwork(networkName);
 		
 		// 이더리움 네트워크 이름을 가져옵니다.
 		let getNetworkName = self.getNetworkName = (callback) => {
@@ -462,6 +485,99 @@ DPlayInventory.Ethereum = OBJECT({
 		
 		let getActualPrice = self.getActualPrice = (displayPrice) => {
 			return web3.utils.toWei(displayPrice, 'ether');
+		};
+		
+		let getERC20Balance = self.getERC20Balance = (addresses, callbackOrHandlers) => {
+			//REQUIRED: addresses
+			//REQUIRED: callbackOrHandlers
+			//OPTIONAL: callbackOrHandlers.error
+			//REQUIRED: callbackOrHandlers.success
+			
+			let callback;
+			let errorHandler;
+			
+			// 콜백 정리
+			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+				callback = callbackOrHandlers;
+			} else {
+				callback = callbackOrHandlers.success;
+				errorHandler = callbackOrHandlers.error;
+			}
+			
+			let erc20 = OBJECT({
+				preset : () => {
+					return DPlaySmartContract;
+				},
+				params : () => {
+					return {
+						abi : [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"remaining","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}],
+						addresses : addresses
+					};
+				}
+			});
+			erc20.init();
+			
+			DPlayInventory.SecureStore.getAccountId((accountId) => {
+				erc20.decimals((decimals) => {
+					erc20.balanceOf(accountId, (balance) => {
+						erc20.getAddress((address) => {
+						
+							callback(+(balance / Math.pow(10, decimals)).toFixed(11), address);
+						});
+					});
+				});
+			});
+		};
+		
+		let getERC721Ids = self.getERC721Ids = (params, callbackOrHandlers) => {
+			//REQUIRED: params
+			//REQUIRED: params.addresses
+			//REQUIRED: params.getItemIdsName
+			//REQUIRED: callbackOrHandlers
+			//OPTIONAL: callbackOrHandlers.error
+			//REQUIRED: callbackOrHandlers.success
+			
+			let addresses = params.addresses;
+			let getItemIdsName = params.getItemIdsName;
+			
+			let callback;
+			let errorHandler;
+			
+			// 콜백 정리
+			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+				callback = callbackOrHandlers;
+			} else {
+				callback = callbackOrHandlers.success;
+				errorHandler = callbackOrHandlers.error;
+			}
+			
+			let erc721 = OBJECT({
+				preset : () => {
+					return DPlaySmartContract;
+				},
+				params : () => {
+					
+					let abi = [{"constant":true,"inputs":[{"name":"_tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_approved","type":"address"},{"name":"_tokenId","type":"uint256"}],"name":"approve","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_operator","type":"address"},{"name":"_approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_tokenId","type":"uint256"},{"name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":true,"name":"_tokenId","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_approved","type":"address"},{"indexed":true,"name":"_tokenId","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_operator","type":"address"},{"indexed":false,"name":"_approved","type":"bool"}],"name":"ApprovalForAll","type":"event"}];
+					
+					abi.push({"constant":true,"inputs":[{"name":"owner","type":"address"}],"name":getItemIdsName,"outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"});
+					
+					return {
+						abi : abi,
+						addresses : addresses
+					};
+				}
+			});
+			erc721.init();
+			
+			DPlayInventory.SecureStore.getAccountId((accountId) => {
+				erc721[getItemIdsName](accountId, (ids) => {
+					
+					erc721.getAddress((address) => {
+						
+						callback(ids, address);
+					});
+				});
+			});
 		};
 	}
 });

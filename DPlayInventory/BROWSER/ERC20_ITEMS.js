@@ -1,4 +1,4 @@
-DPlayInventory.ERC20 = {
+DPlayInventory.ERC20_ITEMS = {
 	
 	Delight : {
 		

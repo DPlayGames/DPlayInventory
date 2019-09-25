@@ -55,6 +55,11 @@ DPlayInventory.MAIN = METHOD({
 		});
 		
 		DPlayInventory.MATCH_VIEW({
+			uri : 'changenetwork',
+			target : DPlayInventory.ChangeNetwork
+		});
+		
+		DPlayInventory.MATCH_VIEW({
 			uri : 'guild',
 			target : DPlayInventory.Guild
 		});

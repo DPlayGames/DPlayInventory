@@ -164,7 +164,10 @@ DPlayInventory.SecureStore = OBJECT({
 				error : errorHandler,
 				success : (privateKey) => {
 					
-					let prefixedMessage = ethereumjs.Util.sha3('\x19Ethereum Signed Message:\n' + text.length + text);
+					let i, length, c;
+					for(length = i = 0; c = text.charCodeAt(i++); length += c >> 11 ? 3 : c >> 7 ? 2 : 1);
+					
+					let prefixedMessage = ethereumjs.Util.sha3('\x19Ethereum Signed Message:\n' + length + text);
 					let signedMessage = ethereumjs.Util.ecsign(prefixedMessage, ethereumjs.Util.toBuffer('0x' + privateKey));
 					
 					callback(ethereumjs.Util.toRpcSig(signedMessage.v, signedMessage.r, signedMessage.s).toString('hex'));
