@@ -30,10 +30,14 @@ DPlayInventory.CreateAccount = CLASS({
 					margin : 'auto'
 				},
 				c : [
+				H1({
+					c : MSG('CREATE_ACCOUNT_TITLE')
+				}),
+				
 				DIV({
 					c : [
 					H2({
-						c : '당신의 계정 주소'
+						c : MSG('CREATED_ACCOUNT_ID')
 					}),
 					P({
 						c : wallet.getChecksumAddressString()
@@ -43,13 +47,13 @@ DPlayInventory.CreateAccount = CLASS({
 				DIV({
 					c : [
 					H2({
-						c : '12개의 비밀 단어'
+						c : MSG('MNEMONIC')
 					}),
 					P({
 						c : mnemonic
 					}),
 					P({
-						c : '절대! 결코! 반드시! 위 비밀 단어들을 백업하세요. 그리고 아무에게도 공개하지 마세요. 위 비밀 단어들을 아는 사람은 당신의 모든 디지털 자산을 훔쳐갈 수 있습니다.\n\n비밀 단어만 알고 있으면 계정 주소도 다시 알아낼 수 있습니다. 계정 주소는 백업 안해도 돼요.'
+						c : MSG('BACKUP_NOTICE_1') + '\n\n' + MSG('BACKUP_NOTICE_2')
 					})]
 				}),
 				
@@ -62,12 +66,12 @@ DPlayInventory.CreateAccount = CLASS({
 						borderRadius : 10,
 						textAlign : 'center'
 					},
-					c : '백업을 완료했습니다.',
+					c : MSG('DONE_BACKUP_BUTTON'),
 					on : {
 						tap : () => {
 							
 							DPlayInventory.Confirm({
-								msg : '정말 백업을 하셨습니까? 백업을 하지 않아, 당신이 모든 자산을 잃어버려도 저희는 일체 책임지지 않습니다!'
+								msg : MSG('REALLY_BACKUP_CONFIRM')
 							}, () => {
 								DPlayInventory.GO('restoreaccount');
 							});
@@ -84,7 +88,7 @@ DPlayInventory.CreateAccount = CLASS({
 						borderRadius : 10,
 						textAlign : 'center'
 					},
-					c : '다시 생성하기',
+					c : MSG('REGENERATE_ACCOUNT_BUTTON'),
 					on : {
 						tap : () => {
 							REFRESH();

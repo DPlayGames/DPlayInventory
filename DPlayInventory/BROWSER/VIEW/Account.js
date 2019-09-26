@@ -28,7 +28,7 @@ DPlayInventory.Account = CLASS({
 				style : {
 					display : 'block'
 				},
-				c : '정보 수정',
+				c : MSG('UPDATE_ACCOUNT_BUTTON'),
 				on : {
 					tap : () => {
 						DPlayInventory.GO('updateaccount');
@@ -38,7 +38,7 @@ DPlayInventory.Account = CLASS({
 				style : {
 					display : 'block'
 				},
-				c : '로그아웃',
+				c : MSG('LOGOUT_BUTTON'),
 				on : {
 					tap : () => {
 						

@@ -44,13 +44,13 @@ DPlayInventory.Layout = CLASS((cls) => {
 							padding : 10,
 							color : '#707474'
 						},
-						c : [SPAN({
+						c : [MSG('TITLE').substring(0, MSG('TITLE').indexOf('DPlay')), SPAN({
 							style : {
 								color : '#980100',
 								fontWeight : 'bold',
 							},
 							c : 'DPlay'
-						}), ' 보관함'],
+						}), MSG('TITLE').substring(MSG('TITLE').indexOf('DPlay') + 5)],
 						on : {
 							tap : () => {
 								DPlayInventory.GO('');
@@ -88,7 +88,7 @@ DPlayInventory.Layout = CLASS((cls) => {
 							backgroundColor : '#151515',
 							borderRadius : '5px 5px 0 0'
 						},
-						c : '게임',
+						c : MSG('GAME_TAB'),
 						on : {
 							tap : () => {
 								DPlayInventory.GO('game');
@@ -104,7 +104,7 @@ DPlayInventory.Layout = CLASS((cls) => {
 							backgroundColor : '#151515',
 							borderRadius : '5px 5px 0 0'
 						},
-						c : '아이템',
+						c : MSG('ITEM_TAB'),
 						on : {
 							tap : () => {
 								DPlayInventory.GO('item');
@@ -120,7 +120,7 @@ DPlayInventory.Layout = CLASS((cls) => {
 							backgroundColor : '#151515',
 							borderRadius : '5px 5px 0 0'
 						},
-						c : '재화',
+						c : MSG('MONEY_TAB'),
 						on : {
 							tap : () => {
 								DPlayInventory.GO('money');
@@ -149,13 +149,13 @@ DPlayInventory.Layout = CLASS((cls) => {
 				}).appendTo(wrapper);
 				
 				EACH([{
-					title : '내 계정',
+					title : MSG('MENU_MY_ACCOUNT'),
 					uri : 'account'
 				}, {
-					title : '길드 정보',
+					title : MSG('MENU_GUILD'),
 					uri : 'guild'
 				}, {
-					title : '네트워크 변경',
+					title : MSG('MENU_CHANGE_NETWORK'),
 					uri : 'changenetwork'
 				}], (menuInfo, index) => {
 					

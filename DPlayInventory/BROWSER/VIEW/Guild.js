@@ -20,9 +20,9 @@ DPlayInventory.Guild = CLASS({
 				if (guildData === undefined) {
 					content.append(DIV({
 						c : [P({
-							c : '가입한 길드가 없습니다. 길드를 생성하시겠습니까?'
+							c : MSG('NOT_EXISTS_GUILD_MESSAGE')
 						}), UUI.BUTTON({
-							c : '길드 생성',
+							c : MSG('CREATE_GUILD_BUTTON'),
 							on : {
 								tap : () => {
 									DPlayInventory.GO('createguild');
@@ -44,14 +44,14 @@ DPlayInventory.Guild = CLASS({
 						// 길드장인 경우 메뉴 생성
 						guildData.accountId !== accountId ? undefined : DIV({
 							c : [UUI.BUTTON({
-								c : '길드 정보 수정',
+								c : MSG('UPDATE_GUILD_BUTTON'),
 								on : {
 									tap : () => {
 										DPlayInventory.GO('updateguild');
 									}
 								}
 							}), UUI.BUTTON({
-								c : '길드 폐쇄',
+								c : MSG('REMOVE_GUILD_BUTTON'),
 								on : {
 									tap : () => {
 										DPlayInventory.GO('removeguild');

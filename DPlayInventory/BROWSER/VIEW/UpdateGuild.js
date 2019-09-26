@@ -17,21 +17,21 @@ DPlayInventory.UpdateGuild = CLASS({
 			DPlayInventory.UseDNotice(1),
 			
 			H1({
-				c : '길드 정보 수정'
+				c : MSG('UPDATE_GUILD_TITLE')
 			}),
 			
 			form = UUI.VALID_FORM({
 				
 				errorMsgs : {
 					name : {
-						notEmpty : '길드명을 입력해주세요.',
+						notEmpty : MSG('PLEASE_ENTER_GUILD_NAME_MESSAGE'),
 						size : (validParams) => {
-							return '길드명은 ' + validParams.max + '글자 이하로 입력해주시기 바랍니다.';
+							return MSG('WRONG_SIZE_GUILD_NAME_MESSAGE').replace(/{length}/, validParams.max);
 						}
 					},
 					introduce : {
 						size : (validParams) => {
-							return '길드 소개는 ' + validParams.max + '글자 이하로 입력해주시기 바랍니다.';
+							return MSG('WRONG_SIZE_GUILD_INTRODUCE_MESSAGE').replace(/{length}/, validParams.max);
 						}
 					}
 				},
@@ -44,23 +44,23 @@ DPlayInventory.UpdateGuild = CLASS({
 				// 길드명 입력
 				UUI.FULL_INPUT({
 					name : 'name',
-					placeholder : '길드명'
+					placeholder : MSG('GUILD_NAME_INPUT')
 				}),
 				
 				// 길드 소개 입력
 				UUI.FULL_TEXTAREA({
 					name : 'introduce',
-					placeholder : '길드 소개'
+					placeholder : MSG('GUILD_INTRODUCE_INPUT')
 				}),
 				
 				UUI.FULL_SUBMIT({
-					value : '저장하기'
+					value : MSG('UPDATE_GUILD_SUBMIT')
 				})],
 				on : {
 					submit : (e, form) => {
 						
 						DPlayInventory.Confirm({
-							msg : '1d를 소모하여 길드 정보를 수정하시겠습니까?'
+							msg : MSG('UPDATE_GUILD_CONFIRM')
 						}, () => {
 							
 							let data = form.getData();
@@ -81,7 +81,7 @@ DPlayInventory.UpdateGuild = CLASS({
 										
 										if (result.isNotEnoughD === true) {
 											DPlayInventory.Alert({
-												msg : 'd가 부족합니다.'
+												msg : MSG('NOT_ENOUGH_D_MESSAGE')
 											});
 										}
 										
@@ -91,7 +91,7 @@ DPlayInventory.UpdateGuild = CLASS({
 										
 										else if (result.isNotVerified === true) {
 											DPlayInventory.Alert({
-												msg : '유효하지 않은 데이터입니다.'
+												msg : MSG('NOT_VERIFIED_MESSAGE')
 											});
 										}
 										

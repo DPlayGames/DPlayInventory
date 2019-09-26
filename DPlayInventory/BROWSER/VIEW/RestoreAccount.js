@@ -25,7 +25,7 @@ DPlayInventory.RestoreAccount = CLASS({
 						style : {
 							textAlign : 'center'
 						},
-						c : 'DPlay 보관함을 처음 이용하십니까?'
+						c : MSG('FIRST_USE_CONFIRM')
 					}), A({
 						style : {
 							marginTop : 10,
@@ -35,7 +35,7 @@ DPlayInventory.RestoreAccount = CLASS({
 							borderRadius : 10,
 							textAlign : 'center'
 						},
-						c : '계정 생성',
+						c : MSG('CREATE_ACCOUNT_BUTTON'),
 						on : {
 							tap : () => {
 								DPlayInventory.GO('createaccount');
@@ -52,14 +52,14 @@ DPlayInventory.RestoreAccount = CLASS({
 						style : {
 							textAlign : 'center'
 						},
-						c : '이전에 계정을 생성하신 적이 있습니까?'
+						c : MSG('ALREADY_HAVE_ACCOUNT_CONFIRM')
 					}), UUI.FULL_TEXTAREA({
 						style : {
 							marginTop : 10,
 							borderRadius : 5
 						},
 						name : 'mnemonic',
-						placeholder : '12개의 비밀 단어'
+						placeholder : MSG('MNEMONIC')
 					}), UUI.FULL_INPUT({
 						style : {
 							marginTop : 10,
@@ -67,9 +67,9 @@ DPlayInventory.RestoreAccount = CLASS({
 						},
 						name : 'password',
 						type : 'password',
-						placeholder : '이 기기에서 사용할 비밀번호'
+						placeholder : MSG('THIS_DEVICE_PASSWORD_INPUT')
 					}), P({
-						c : '위 비밀번호는 매번 12개의 비밀 단어를 입력하지 않도록 하는 단순한 편의 기능으로, 비밀번호와 무관하게 12개의 비밀 단어들은 반드시 백업해야합니다.'
+						c : MSG('PASSWORD_NOTICE')
 					}), UUI.FULL_SUBMIT({
 						style : {
 							marginTop : 10,
@@ -79,7 +79,7 @@ DPlayInventory.RestoreAccount = CLASS({
 							borderRadius : 10,
 							textAlign : 'center'
 						},
-						value : '계정 접속'
+						value : MSG('RESTORE_ACCOUNT_SUBMIT')
 					})],
 					on : {
 						submit : (e, form) => {
@@ -90,19 +90,19 @@ DPlayInventory.RestoreAccount = CLASS({
 							
 							if (mnemonic === '') {
 								DPlayInventory.Alert({
-									msg : '12개의 비밀 단어를 입력해주세요.'
+									msg : MSG('PLEASE_ENTER_MNEMONIC_MESSAGE')
 								});
 							}
 							
 							else if (password === '') {
 								DPlayInventory.Alert({
-									msg : '비밀번호를 입력해주세요.'
+									msg : MSG('PLEASE_ENTER_PASSWORD_MESSAGE')
 								});
 							}
 							
 							else if (password.length < 4) {
 								DPlayInventory.Alert({
-									msg : '비밀번호가 너무 짧습니다. 4글자 이상으로 입력해주세요.'
+									msg : MSG('PASSWORD_TOO_SHORT_MESSAGE')
 								});
 							}
 							

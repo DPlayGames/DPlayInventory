@@ -7,7 +7,7 @@ DPlayInventory.ChangeNetwork = CLASS({
 	init : (inner, self) => {
 		
 		let content = UL({
-			c : [LI({
+			c : [/*LI({
 				style : {
 					cursor : 'pointer'
 				},
@@ -17,7 +17,7 @@ DPlayInventory.ChangeNetwork = CLASS({
 						DPlayInventory.Ethereum.changeNetwork('Mainnet');
 					}
 				}
-			}), LI({
+			}), */LI({
 				style : {
 					cursor : 'pointer'
 				},
@@ -27,7 +27,7 @@ DPlayInventory.ChangeNetwork = CLASS({
 						DPlayInventory.Ethereum.changeNetwork('Kovan');
 					}
 				}
-			}), LI({
+			})/*, LI({
 				style : {
 					cursor : 'pointer'
 				},
@@ -47,7 +47,7 @@ DPlayInventory.ChangeNetwork = CLASS({
 						DPlayInventory.Ethereum.changeNetwork('Rinkeby');
 					}
 				}
-			})]
+			})*/]
 		});
 		
 		DPlayInventory.Layout.setContent(content);

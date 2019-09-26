@@ -18,14 +18,14 @@ DPlayInventory.UpdateAccount = CLASS({
 				
 				errorMsgs : {
 					name : {
-						notEmpty : '이름을 입력해주세요.',
+						notEmpty : MSG('PLEASE_ENTER_NAME_MESSAGE'),
 						size : (validParams) => {
-							return '이름은 ' + validParams.max + '글자 이하로 입력해주시기 바랍니다.';
+							return MSG('WRONG_SIZE_NAME_MESSAGE').replace(/{length}/, validParams.max);
 						}
 					},
 					introduce : {
 						size : (validParams) => {
-							return '자기 소개는 ' + validParams.max + '글자 이하로 입력해주시기 바랍니다.';
+							return MSG('WRONG_SIZE_INTRODUCE_MESSAGE').replace(/{length}/, validParams.max);
 						}
 					}
 				},
@@ -38,23 +38,23 @@ DPlayInventory.UpdateAccount = CLASS({
 				// 이름 입력
 				UUI.FULL_INPUT({
 					name : 'name',
-					placeholder : '이름'
+					placeholder : MSG('NAME_INPUT')
 				}),
 				
 				// 자기 소개 입력
 				UUI.FULL_TEXTAREA({
 					name : 'introduce',
-					placeholder : '자기 소개'
+					placeholder : MSG('INTRODUCE_INPUT')
 				}),
 				
 				UUI.FULL_SUBMIT({
-					value : '저장하기'
+					value : MSG('UPDATE_ACCOUNT_SUBMIT')
 				})],
 				on : {
 					submit : (e, form) => {
 						
 						DPlayInventory.Confirm({
-							msg : '1d를 소모하여 계정 정보를 수정하시겠습니까?'
+							msg : MSG('UPDATE_ACCOUNT_CONFIRM')
 						}, () => {
 							
 							let data = form.getData();
@@ -76,13 +76,13 @@ DPlayInventory.UpdateAccount = CLASS({
 										
 										notVerified : () => {
 											DPlayInventory.Alert({
-												msg : '유효하지 않은 데이터입니다.'
+												msg : MSG('NOT_VERIFIED_MESSAGE')
 											});
 										},
 										
 										notEnoughD : () => {
 											DPlayInventory.Alert({
-												msg : 'd가 부족합니다.'
+												msg : MSG('NOT_ENOUGH_D_MESSAGE')
 											});
 										},
 										

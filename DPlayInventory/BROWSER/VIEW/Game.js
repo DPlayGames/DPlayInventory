@@ -10,10 +10,12 @@ DPlayInventory.Game = CLASS({
 		
 		let webGameList;
 		let content = DIV({
-			c : ['구매하신 게임이 없습니다.', H3({
-				c : '웹 게임 목록'
+			c : [H3({
+				c : MSG('GAME_LIST_TITLE')
+			}), MSG('EMPTY_GAME_LIST_MESSAGE'), H3({
+				c : MSG('WEB_GAME_LIST_TITLE')
 			}), webGameList = DIV({
-				c : '아직 웹 게임이 없습니다.'
+				c : MSG('EMPTY_WEB_GAME_LIST_MESSAGE')
 			})]
 		});
 		

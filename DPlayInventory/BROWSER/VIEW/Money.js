@@ -16,25 +16,25 @@ DPlayInventory.Money = CLASS({
 			c : [dcPanel = DIV({
 				c : 'DC: ...', 
 			}), A({
-				c : '충전하기',
+				c : MSG('CHARGE_MONEY_BUTTON'),
 				target : '_blank',
 				href : 'http://faucet.dplay.games'
 			}), A({
-				c : '보내기'
+				c : MSG('SEND_MONEY_BUTTON')
 			}), dPanel = DIV({
 				c : ['d: ...', A({
-					c : '충전하기'
+					c : MSG('CHARGE_MONEY_BUTTON')
 				}), A({
-					c : '보내기'
+					c : MSG('SEND_MONEY_BUTTON')
 				})]
 			}), etherPanel = DIV({
 				c : 'Ether: ...'
 			}), A({
-				c : '충전하기',
+				c : MSG('CHARGE_MONEY_BUTTON'),
 				target : '_blank',
 				href : 'https://faucet.kovan.network'
 			}), A({
-				c : '보내기'
+				c : MSG('SEND_MONEY_BUTTON')
 			})]
 		});
 		

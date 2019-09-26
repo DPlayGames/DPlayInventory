@@ -25,7 +25,7 @@ DPlayInventory.Item = CLASS(() => {
 					contentStyle : {
 						padding : '8px 0px 8px 3px'
 					},
-					c : '아이템 목록을 불러오는 중입니다.'
+					c : MSG('LOADING_ITEM_LIST_MESSAGE')
 				}), CLEAR_BOTH()]
 			});
 			

@@ -24,7 +24,7 @@ DPlayInventory.Login = CLASS({
 				c : [passwordInput = UUI.FULL_INPUT({
 					name : 'password',
 					type : 'password',
-					placeholder : '비밀번호'
+					placeholder : MSG('LOGIN_PASSWORD_INPUT')
 				}), UUI.FULL_SUBMIT({
 					style : {
 						marginTop : 10,
@@ -34,9 +34,9 @@ DPlayInventory.Login = CLASS({
 						borderRadius : 10,
 						textAlign : 'center'
 					},
-					value : '계정 접속'
+					value : MSG('LOGIN_SUBMIT')
 				}), A({
-					c : '비밀번호 재설정',
+					c : MSG('RESET_PASSWORD_BUTTON'),
 					on : {
 						tap : () => {
 							
@@ -52,13 +52,13 @@ DPlayInventory.Login = CLASS({
 						
 						if (password === '') {
 							DPlayInventory.Alert({
-								msg : '비밀번호를 입력해주세요.'
+								msg : MSG('PLEASE_ENTER_PASSWORD_MESSAGE')
 							});
 						}
 						
 						else if (password.length < 4) {
 							DPlayInventory.Alert({
-								msg : '비밀번호가 너무 짧습니다. 4글자 이상으로 입력해주세요.'
+								msg : MSG('PASSWORD_TOO_SHORT_MESSAGE')
 							});
 						}
 						
@@ -76,7 +76,7 @@ DPlayInventory.Login = CLASS({
 											loading.remove();
 											
 											DPlayInventory.Alert({
-												msg : '비밀번호가 틀렸습니다.'
+												msg : MSG('WRONG_PASSWORD_MESSAGE')
 											});
 										});
 									},
