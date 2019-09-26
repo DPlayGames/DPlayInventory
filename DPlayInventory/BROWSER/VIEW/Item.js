@@ -31,37 +31,40 @@ DPlayInventory.Item = CLASS(() => {
 			
 			let addItem = (key, image, balance) => {
 				
-				if (isInit === true) {
-					itemList.empty();
-					isInit = false;
-				}
-				
-				let itemPanel;
-				itemList.append(itemPanel = DIV({
-					style : {
-						position : 'relative',
-						flt : 'left',
-						marginLeft : 5,
-						marginBottom : 5,
-						width : 50,
-						height : 50,
-						backgroundImage : image,
-						backgroundRepeat : 'no-repeat',
-						backgroundPosition : 'center center',
-						backgroundSize : 'contain',
-						border : '1px solid #999'
-					},
-					c : balance === undefined ? undefined : SPAN({
+				if (balance === undefined || balance > 0) {
+					
+					if (isInit === true) {
+						itemList.empty();
+						isInit = false;
+					}
+					
+					let itemPanel;
+					itemList.append(itemPanel = DIV({
 						style : {
-							position : 'absolute',
-							right : 5,
-							bottom : 5
+							position : 'relative',
+							flt : 'left',
+							marginLeft : 5,
+							marginBottom : 5,
+							width : 50,
+							height : 50,
+							backgroundImage : image,
+							backgroundRepeat : 'no-repeat',
+							backgroundPosition : 'center center',
+							backgroundSize : 'contain',
+							border : '1px solid #999'
 						},
-						c : balance
-					})
-				}));
-				
-				itemPanels[key] = itemPanel;
+						c : balance === undefined ? undefined : SPAN({
+							style : {
+								position : 'absolute',
+								right : 5,
+								bottom : 5
+							},
+							c : balance
+						})
+					}));
+					
+					itemPanels[key] = itemPanel;
+				}
 			};
 			
 			EACH(itemCache, (info, address) => {
