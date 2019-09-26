@@ -116,8 +116,7 @@ DPlayInventory.Ethereum = OBJECT({
 			}
 			
 			inner.send({
-				methodName : 'getEtherBalance',
-				data : params
+				methodName : 'getEtherBalance'
 			}, (result) => {
 				
 				// 계약 실행 오류 발생
@@ -125,7 +124,7 @@ DPlayInventory.Ethereum = OBJECT({
 					if (errorHandler !== undefined) {
 						errorHandler(result.errorMsg);
 					} else {
-						SHOW_ERROR('Ethereum.getEtherBalance', result.errorMsg, params);
+						SHOW_ERROR('Ethereum.getEtherBalance', result.errorMsg);
 					}
 				}
 				
@@ -200,7 +199,7 @@ DPlayInventory.Ethereum = OBJECT({
 			}
 			
 			inner.send({
-				methodName : 'getERC20Balance',
+				methodName : 'getERC721Ids',
 				data : params
 			}, (result) => {
 				

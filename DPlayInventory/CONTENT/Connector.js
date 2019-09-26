@@ -77,7 +77,17 @@ window.Connector = (pack) => {
 		chrome.runtime.sendMessage({
 			methodName : pack + '/' + methodName,
 			data : data
-		}, callback);
+		}, (result) => {
+			
+			if (callback !== undefined) {
+				
+				if (result === TO_DELETE) {
+					result = undefined;
+				}
+				
+				callback(result);
+			}
+		});
 	};
 	
 	let sendToPage = inner.sendToPage = (methodName, data, callback) => {

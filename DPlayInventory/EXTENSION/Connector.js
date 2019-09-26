@@ -57,7 +57,17 @@ global.Connector = CLASS({
 			chrome.runtime.sendMessage({
 				methodName : pack + '/' + methodName,
 				data : data
-			}, callback);
+			}, (result) => {
+				
+				if (callback !== undefined) {
+					
+					if (result === TO_DELETE) {
+						result = undefined;
+					}
+					
+					callback(result);
+				}
+			});
 		};
 		
 		chrome.runtime.onMessage.addListener((params, sender, ret) => {

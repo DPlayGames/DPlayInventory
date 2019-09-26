@@ -43,10 +43,8 @@ global.DPlaySmartContract = CLASS({
 			//REQUIRED: callback
 			
 			if (address === undefined) {
-				Ethereum.getNetworkName((networkName) => {
-					address = addresses[networkName];
-					callback(address);
-				});
+				address = addresses[Ethereum.getNetworkName()];
+				callback(address);
 			}
 			
 			else {
@@ -74,7 +72,58 @@ global.DPlaySmartContract = CLASS({
 					}
 				}, () => {
 					
-					innerRunSmartContractMethod = Ethereum.runSmartContractMethod;
+					innerRunSmartContractMethod = (params, callbackOrHandlers) => {
+						//REQUIRED: params
+						//REQUIRED: params.address
+						//REQUIRED: params.methodName
+						//REQUIRED: params.params
+						//REQUIRED: callbackOrHandlers
+						//OPTIONAL: callbackOrHandlers.error
+						//REQUIRED: callbackOrHandlers.success
+						
+						let errorHandler;
+						let transactionHashCallback;
+						let callback;
+						
+						if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+							callback = callbackOrHandlers;
+						} else {
+							errorHandler = callbackOrHandlers.error;
+							transactionHashCallback = callbackOrHandlers.transactionHash;
+							callback = callbackOrHandlers.success;
+						}
+						
+						Ethereum.runSmartContractMethod(params, (result) => {
+							
+							// 계약 실행 오류 발생
+							if (result.errorMsg !== undefined) {
+								if (errorHandler !== undefined) {
+									errorHandler(result.errorMsg);
+								} else {
+									SHOW_ERROR('DPlaySmartContract.runSmartContractMethod', result.errorMsg, params);
+								}
+							}
+							
+							// 정상 작동
+							else if (callback !== undefined) {
+								
+								// output이 1개인 경우
+								if (result.value !== undefined) {
+									callback(result.value, result.str);
+								}
+								
+								// output이 여러개인 경우
+								else if (result.array !== undefined) {
+									callback.apply(TO_DELETE, result.array);
+								}
+								
+								// output이 없는 경우
+								else {
+									callback();
+								}
+							}
+						});
+					};
 					
 					// 대기중인 내용 실행
 					EACH(waitingRunSmartContractMethodInfos, (info) => {

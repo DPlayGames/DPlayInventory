@@ -121,6 +121,11 @@ DPlayInventory.DSide = OBJECT({
 										onInfos = [];
 										
 										connectToFastestNode();
+										
+										isAccountSigned = false;
+										
+										// retry login.
+										login();
 									});
 									
 									isFoundFastestNode = true;
@@ -138,6 +143,12 @@ DPlayInventory.DSide = OBJECT({
 					}
 				});
 			});
+		};
+		
+		let getNodeTime = self.getNodeTime = (date) => {
+			//REQUIRED: date
+			
+			return new Date(date.getTime() - timeDiffWithNode);
 		};
 		
 		let isSomeNodeConnected = false;

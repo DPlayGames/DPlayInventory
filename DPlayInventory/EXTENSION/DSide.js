@@ -10,6 +10,19 @@ DPlayInventory.DSide = OBJECT({
 	
 	init : (inner, self) => {
 		
+		let timeDiffWithNode = 0;
+		inner.send({
+			methodName : 'getTimeDiffWithNode'
+		}, (_timeDiffWithNode) => {
+			timeDiffWithNode = _timeDiffWithNode;
+		});
+		
+		let getNodeTime = self.getNodeTime = (date) => {
+			//REQUIRED: date
+			
+			return new Date(date.getTime() - timeDiffWithNode);
+		};
+		
 		// 특정 계정의 d 잔고를 가져옵니다.
 		let getDBalance = self.getDBalance = (callback) => {
 			//REQUIRED: callback
@@ -166,6 +179,14 @@ DPlayInventory.DSide = OBJECT({
 			inner.send({
 				methodName : 'getAccountGuild',
 				data : accountId
+			}, callback);
+		};
+		
+		let login = self.login = (callback) => {
+			//REQUIRED: callback
+			
+			inner.send({
+				methodName : 'login'
 			}, callback);
 		};
 	}

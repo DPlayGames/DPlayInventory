@@ -77,8 +77,7 @@ global.Ethereum = OBJECT({
 		let contracts = {};
 		let methodMap = {};
 		
-		// 스마트 계약 인터페이스를 생성합니다.
-		inner.on('changeNetwork', (params, callback) => {
+		let createSmartContractInterface = self.createSmartContractInterface = (params, callback) => {
 			
 			let abi = params.abi;
 			let address = params.address;
@@ -113,7 +112,10 @@ global.Ethereum = OBJECT({
 			});
 			
 			callback();
-		});
+		};
+		
+		// 스마트 계약 인터페이스를 생성합니다.
+		inner.on('createSmartContractInterface', createSmartContractInterface);
 		
 		// 트랜잭션이 완료될 때 까지 확인합니다.
 		let watchTransaction = (transactionHash, callbackOrHandlers) => {
@@ -483,6 +485,9 @@ global.Ethereum = OBJECT({
 		});
 		
 		inner.on('getERC721Ids', (params, callback) => {
+			
+			let addresses = params.addresses;
+			let getItemIdsName = params.getItemIdsName;
 			
 			let erc721 = OBJECT({
 				preset : () => {

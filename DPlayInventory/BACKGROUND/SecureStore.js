@@ -154,7 +154,7 @@ global.SecureStore = OBJECT({
 			});
 		});
 		
-		let signText = self.signText = (data, callback) => {
+		let signText = self.signText = (text, callback) => {
 			
 			getPrivateKey(callback, (privateKey) => {
 				

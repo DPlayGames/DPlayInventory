@@ -129,6 +129,11 @@ global.DSide = OBJECT({
 										onInfos = [];
 										
 										connectToFastestNode();
+										
+										isAccountSigned = false;
+										
+										// retry login.
+										login();
 									});
 									
 									isFoundFastestNode = true;
@@ -189,6 +194,10 @@ global.DSide = OBJECT({
 			});
 		});
 		
+		inner.on('getTimeDiffWithNode', (notUsing, callback) => {
+			callback(timeDiffWithNode);
+		});
+		
 		// 특정 계정의 d 잔고를 가져옵니다.
 		inner.on('getDBalance', (notUsing, callback) => {
 			
@@ -233,38 +242,47 @@ global.DSide = OBJECT({
 		
 		let isAccountSigned = false;
 		
-		let checkAccountIsSigned = self.checkAccountIsSigned = () => {
-			return isAccountSigned;
-		};
-		
-		let login = self.login = (callback) => {
-			//OPTIONAL: callback
+		let login = (callback) => {
 			
-			SecureStore.getAccountId((result) => {
+			if (isAccountSigned === true) {
 				
-				if (result.accountId !== undefined) {
+				if (callback !== undefined) {
+					callback();
+				}
+			}
+			
+			else {
+				
+				SecureStore.getAccountId((result) => {
 					
-					sendToNode('generateLoginToken', undefined, (loginToken) => {
+					if (result.accountId !== undefined) {
 						
-						SecureStore.signText(loginToken, (hash) => {
+						sendToNode('generateLoginToken', undefined, (loginToken) => {
 							
-							sendToNode('login', {
-								hash : hash,
-								accountId : accountId
-							}, (isSucceed) => {
+							SecureStore.signText(loginToken, (hash) => {
 								
-								if (isSucceed === true) {
-									isAccountSigned = true;
+								sendToNode('login', {
+									hash : hash,
+									accountId : result.accountId
+								}, (isSucceed) => {
 									
-									if (callback !== undefined) {
-										callback();
+									if (isSucceed === true) {
+										isAccountSigned = true;
+										
+										if (callback !== undefined) {
+											callback();
+										}
 									}
-								}
+								});
 							});
 						});
-					});
-				}
-			});
+					}
+				});
+			}
 		};
+		
+		inner.on('login', (notUsing, callback) => {
+			login(callback);
+		});
 	}
 });
