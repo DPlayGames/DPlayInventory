@@ -43,7 +43,7 @@ global.DPlaySmartContract = CLASS({
 			//REQUIRED: callback
 			
 			if (address === undefined) {
-				address = addresses[Ethereum.getNetworkName()];
+				address = addresses[DPlayInventory.getNetworkName()];
 				callback(address);
 			}
 			
@@ -57,7 +57,7 @@ global.DPlaySmartContract = CLASS({
 			getAddress((address) => {
 				
 				// 스마트 계약 인터페이스 생성
-				Ethereum.createSmartContractInterface({
+				DPlayInventory.createSmartContractInterface({
 					abi : abi,
 					address : address,
 					onEvent : (eventName, args) => {
@@ -93,7 +93,7 @@ global.DPlaySmartContract = CLASS({
 							callback = callbackOrHandlers.success;
 						}
 						
-						Ethereum.runSmartContractMethod(params, (result) => {
+						DPlayInventory.runSmartContractMethod(params, (result) => {
 							
 							// 계약 실행 오류 발생
 							if (result.errorMsg !== undefined) {

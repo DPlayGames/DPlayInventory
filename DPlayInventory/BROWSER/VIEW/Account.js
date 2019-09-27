@@ -42,8 +42,8 @@ DPlayInventory.Account = CLASS({
 				on : {
 					tap : () => {
 						
-						DPlayInventory.SecureStore.removePassword(() => {
-							DPlayInventory.SecureStore.clear(() => {
+						DPlayInventory.Core.removePassword(() => {
+							DPlayInventory.Core.clear(() => {
 								
 								DPlayInventory.GO('');
 							});
@@ -53,7 +53,7 @@ DPlayInventory.Account = CLASS({
 			})]
 		});
 		
-		DPlayInventory.SecureStore.getAccountId((accountId) => {
+		DPlayInventory.Core.getAccountId((accountId) => {
 			DPlayInventory.DSide.getAccountDetail(accountId, (accountDetail) => {
 				
 				if (accountDetail !== undefined) {

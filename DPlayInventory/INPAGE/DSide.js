@@ -1,7 +1,5 @@
 window.DSide = (() => {
 	
-	let TO_DELETE = null;
-	
 	let SHOW_ERROR = (tag, errorMsg, params) => {
 		//REQUIRED: tag
 		//REQUIRED: errorMsg
@@ -17,488 +15,23 @@ window.DSide = (() => {
 		}
 	};
 	
-	let CHECK_IS_DATA = (target) => {
-		//OPTIONAL: target
-
-		if (
-		target !== undefined &&
-		target !== TO_DELETE &&
-		CHECK_IS_ARRAY(target) !== true &&
-		target instanceof Date !== true &&
-		target instanceof RegExp !== true &&
-		typeof target === 'object') {
-			return true;
-		}
-
-		return false;
-	};
-	
-	let CHECK_IS_ARRAY = (target) => {
-		//OPTIONAL: target
-
-		if (
-		target !== undefined &&
-		target !== TO_DELETE &&
-		typeof target === 'object' &&
-		Object.prototype.toString.call(target) === '[object Array]') {
-			return true;
-		}
-
-		return false;
-	};
-	
-	let EACH = (dataOrArrayOrString, func) => {
-		//OPTIONAL: dataOrArrayOrString
-		//REQUIRED: func
-		
-		if (dataOrArrayOrString === undefined) {
-			return false;
-		}
-
-		// when dataOrArrayOrString is data
-		else if (CHECK_IS_DATA(dataOrArrayOrString) === true) {
-
-			for (let name in dataOrArrayOrString) {
-				if (dataOrArrayOrString.hasOwnProperty === undefined || dataOrArrayOrString.hasOwnProperty(name) === true) {
-					if (func(dataOrArrayOrString[name], name) === false) {
-						return false;
-					}
-				}
-			}
-		}
-
-		// when dataOrArrayOrString is func
-		else if (func === undefined) {
-
-			func = dataOrArrayOrString;
-			dataOrArrayOrString = undefined;
-
-			return (dataOrArrayOrString) => {
-				return EACH(dataOrArrayOrString, func);
-			};
-		}
-
-		// when dataOrArrayOrString is array or string
-		else {
-
-			let length = dataOrArrayOrString.length;
-
-			for (let i = 0; i < length; i += 1) {
-
-				if (func(dataOrArrayOrString[i], i) === false) {
-					return false;
-				}
-
-				// when shrink
-				if (dataOrArrayOrString.length < length) {
-					i -= length - dataOrArrayOrString.length;
-					length -= length - dataOrArrayOrString.length;
-				}
-
-				// when stretch
-				else if (dataOrArrayOrString.length > length) {
-					length += dataOrArrayOrString.length - length;
-				}
-			}
-		}
-
-		return true;
-	};
-	
-	let CONNECT_TO_WEB_SOCKET_SERVER = (portOrParams, connectionListenerOrListeners) => {
-		//REQUIRED: portOrParams
-		//OPTIONAL: portOrParams.isSecure
-		//OPTIONAL: portOrParams.host
-		//REQUIRED: portOrParams.port
-		//REQUIRED: connectionListenerOrListeners
-		//REQUIRED: connectionListenerOrListeners.success
-		//OPTIONAL: connectionListenerOrListeners.error
-
-		let isSecure;
-		let host;
-		let port;
-
-		let connectionListener;
-		let errorListener;
-		
-		let isConnected;
-
-		let methodMap = {};
-		let sendKey = 0;
-		
-		let on;
-		let off;
-		let send;
-
-		if (CHECK_IS_DATA(portOrParams) !== true) {
-			port = portOrParams;
-		} else {
-			isSecure = portOrParams.isSecure;
-			host = portOrParams.host;
-			port = portOrParams.port;
-		}
-		
-		if (isSecure === undefined) {
-			isSecure = BROWSER_CONFIG.isSecure;
-		}
-		
-		if (host === undefined) {
-			host = BROWSER_CONFIG.host;
-		}
-
-		if (CHECK_IS_DATA(connectionListenerOrListeners) !== true) {
-			connectionListener = connectionListenerOrListeners;
-		} else {
-			connectionListener = connectionListenerOrListeners.success;
-			errorListener = connectionListenerOrListeners.error;
-		}
-
-		let runMethods = (methodName, data, sendKey) => {
-
-			let methods = methodMap[methodName];
-
-			if (methods !== undefined) {
-
-				EACH(methods, (method) => {
-
-					// run method.
-					method(data,
-
-					// ret.
-					(retData) => {
-
-						if (send !== undefined && sendKey !== undefined) {
-
-							send({
-								methodName : '__CALLBACK_' + sendKey,
-								data : retData
-							});
-						}
-					});
-				});
-			}
-		};
-
-		let conn = new WebSocket((isSecure === true ? 'wss://': 'ws://') + host + ':' + port);
-
-		conn.onopen = () => {
-
-			isConnected = true;
-
-			connectionListener(
-
-			// on.
-			on = (methodName, method) => {
-				//REQUIRED: methodName
-				//REQUIRED: method
-
-				let methods = methodMap[methodName];
-
-				if (methods === undefined) {
-					methods = methodMap[methodName] = [];
-				}
-
-				methods.push(method);
-			},
-
-			// off.
-			off = (methodName, method) => {
-				//REQUIRED: methodName
-				//OPTIONAL: method
-
-				let methods = methodMap[methodName];
-
-				if (methods !== undefined) {
-
-					if (method !== undefined) {
-
-						REMOVE({
-							array : methods,
-							value : method
-						});
-
-					} else {
-						delete methodMap[methodName];
-					}
-				}
-			},
-
-			// send to server.
-			send = (methodNameOrParams, callback) => {
-				//REQUIRED: methodNameOrParams
-				//REQUIRED: methodNameOrParams.methodName
-				//OPTIONAL: methodNameOrParams.data
-				//OPTIONAL: callback
-				
-				let methodName;
-				let data;
-				let callbackName;
-				
-				if (CHECK_IS_DATA(methodNameOrParams) !== true) {
-					methodName = methodNameOrParams;
-				} else {
-					methodName = methodNameOrParams.methodName;
-					data = methodNameOrParams.data;
-				}
-				
-				if (conn !== undefined) {
-					
-					conn.send(STRINGIFY({
-						methodName : methodName,
-						data : data,
-						sendKey : sendKey
-					}));
-	
-					if (callback !== undefined) {
-						
-						callbackName = '__CALLBACK_' + sendKey;
-	
-						// on callback.
-						on(callbackName, (data) => {
-	
-							// run callback.
-							callback(data);
-	
-							// off callback.
-							off(callbackName);
-						});
-					}
-	
-					sendKey += 1;
-				}
-			},
-
-			// disconnect.
-			() => {
-				if (conn !== undefined) {
-					conn.close();
-					conn = undefined;
-				}
-			});
-		};
-
-		// receive data.
-		conn.onmessage = (e) => {
-
-			let params = PARSE_STR(e.data);
-
-			if (params !== undefined) {
-				runMethods(params.methodName, params.data, params.sendKey);
-			}
-		};
-
-		// when disconnected
-		conn.onclose = () => {
-			runMethods('__DISCONNECTED');
-		};
-
-		// when error
-		conn.onerror = (error) => {
-
-			let errorMsg = error.toString();
-
-			if (isConnected !== true) {
-
-				if (errorListener !== undefined) {
-					errorListener(errorMsg);
-				} else {
-					SHOW_ERROR('CONNECT_TO_WEB_SOCKET_SERVER', errorMsg);
-				}
-
-			} else {
-				runMethods('__ERROR', errorMsg);
-			}
-		};
-	};
-	
 	let inner = Connector('DSide');
 	let self = {};
 	
-	const HARD_CODED_URLS = [
-		'218.38.19.34:8923',
-		'175.207.29.151:8923'
-	];
-	
-	let networkName = 'Unknown';
-	
-	let setNetworkName = self.setNetworkName = (_networkName) => {
+	let setNetworkName = self.setNetworkName = (networkName) => {
 		//REQUIRED: networkName
 		
-		networkName = _networkName;
+		inner.send({
+			methodName : 'setNetworkName',
+			data : networkName
+		});
 	};
 	
-	let nodeURLs;
-	
-	let innerSendToNode;
-	let innerOnFromNode;
-	let innerOffFromNode;
 	let timeDiffWithNode = 0;
-	
-	let waitingSendInfos = [];
-	let onInfos = [];
-	
-	let sendToNode = (methodName, data, callback) => {
-		
-		if (innerSendToNode === undefined) {
-			
-			waitingSendInfos.push({
-				params : {
-					methodName : methodName,
-					data : data
-				},
-				callback : callback
-			});
-			
-		} else {
-			
-			innerSendToNode({
-				methodName : methodName,
-				data : data
-			}, callback);
-		}
-	};
-	
-	let onFromNode = (methodName, method) => {
-		
-		onInfos.push({
-			methodName : methodName,
-			method : method
-		});
-
-		if (innerOnFromNode !== undefined) {
-			innerOnFromNode(methodName, method);
-		}
-	};
-	
-	let offFromNode = (methodName, method) => {
-		
-		if (innerOffFromNode !== undefined) {
-			innerOffFromNode(methodName, method);
-		}
-		
-		if (method !== undefined) {
-			
-			REMOVE(onInfos, (onInfo) => {
-				return onInfo.methodName === methodName && onInfo.method === method;
-			});
-			
-		} else {
-			
-			REMOVE(onInfos, (onInfo) => {
-				return onInfo.methodName === methodName;
-			});
-		}
-	};
-	
-	let connectToFastestNode = () => {
-		
-		let isFoundFastestNode;
-		
-		// 모든 노드들에 연결합니다.
-		EACH(nodeURLs, (url) => {
-			
-			let splits = url.split(':');
-			
-			CONNECT_TO_WEB_SOCKET_SERVER({
-				host : splits[0],
-				port : parseInt(splits[1])
-			}, {
-				error : () => {
-					// 연결 오류를 무시합니다.
-				},
-				success : (on, off, send, disconnect) => {
-					
-					if (isFoundFastestNode !== true) {
-						
-						send('getNodeTime', (nodeTime) => {
-							
-							// 가장 빠른 노드를 찾았습니다.
-							if (isFoundFastestNode !== true) {
-								
-								innerSendToNode = send;
-								innerOnFromNode = on;
-								innerOffFromNode = off;
-								timeDiffWithNode = Date.now() - nodeTime;
-								
-								// 가장 빠른 노드를 찾고 난 뒤 대기중인 내용 실행
-								EACH(onInfos, (onInfo) => {
-									innerOnFromNode(onInfo.methodName, onInfo.method);
-								});
-								
-								EACH(waitingSendInfos, (sendInfo) => {
-									innerSendToNode(sendInfo.params, sendInfo.callback);
-								});
-								
-								// 노드와의 접속이 끊어지면, 모든 내용을 초기화하고 다시 가장 빠른 노드를 찾습니다.
-								on('__DISCONNECTED', () => {
-									
-									innerSendToNode = undefined;
-									innerOnFromNode = undefined;
-									innerOffFromNode = undefined;
-									timeDiffWithNode = 0;
-									
-									waitingSendInfos = [];
-									onInfos = [];
-									
-									connectToFastestNode();
-								});
-								
-								isFoundFastestNode = true;
-							}
-							
-							else {
-								disconnect();
-							}
-						});
-					}
-					
-					else {
-						disconnect();
-					}
-				}
-			});
-		});
-	};
-	
-	let isSomeNodeConnected = false;
-	
-	// 하드코딩된 노드들의 URL로부터 최초 접속 노드를 찾습니다.
-	EACH(HARD_CODED_URLS, (url) => {
-		
-		let splits = url.split(':');
-		
-		CONNECT_TO_WEB_SOCKET_SERVER({
-			host : splits[0],
-			port : parseInt(splits[1])
-		}, {
-			error : () => {
-				// 연결 오류를 무시합니다.
-			},
-			success : (on, off, send, disconnect) => {
-				
-				if (isSomeNodeConnected !== true) {
-					
-					// 실제로 연결된 노드 URL 목록을 가져옵니다.
-					send('getNodeURLs', (urls) => {
-						
-						if (isSomeNodeConnected !== true) {
-							
-							nodeURLs = urls;
-							
-							connectToFastestNode();
-							
-							isSomeNodeConnected = true;
-						}
-						
-						disconnect();
-					});
-				}
-				
-				else {
-					disconnect();
-				}
-			}
-		});
+	inner.send({
+		methodName : 'getTimeDiffWithNode'
+	}, (_timeDiffWithNode) => {
+		timeDiffWithNode = _timeDiffWithNode;
 	});
 	
 	let getNodeTime = self.getNodeTime = (date) => {
@@ -571,7 +104,10 @@ window.DSide = (() => {
 		//REQUIRED: accountId
 		//REQUIRED: callback
 		
-		sendToNode('getAccountDetail', accountId, callback);
+		inner.send({
+			methodName : 'getAccountDetail',
+			data : accountId
+		}, callback);
 	};
 	
 	// 이름으로 계정을 찾습니다.
@@ -579,7 +115,10 @@ window.DSide = (() => {
 		//REQUIRED: nameQuery
 		//REQUIRED: callback
 		
-		sendToNode('findAccounts', nameQuery, callback);
+		inner.send({
+			methodName : 'findAccounts',
+			data : nameQuery
+		}, callback);
 	};
 	
 	// 친구 신청합니다.
@@ -591,22 +130,10 @@ window.DSide = (() => {
 		//OPTIONAL: callbackOrHandlers.notEnoughD
 		//REQUIRED: callbackOrHandlers.success
 		
-		DPlayInventory.getAccountId((accountId) => {
-			
-			let data = {
-				target : targetAccountId,
-				accountId : accountId,
-				createTime : new Date()
-			};
-			
-			DPlayInventory.signData(data, (hash) => {
-				
-				sendToNode('requestFriend', {
-					data : data,
-					hash : hash
-				}, seperateHandler(callbackOrHandlers));
-			});
-		});
+		inner.send({
+			methodName : 'requestFriend',
+			data : targetAccountId
+		}, seperateHandler(callbackOrHandlers));
 	};
 	
 	// 이미 친구 신청했는지 확인합니다.
@@ -616,7 +143,10 @@ window.DSide = (() => {
 		//REQUIRED: params.accountId
 		//REQUIRED: callback
 		
-		sendToNode('checkFriendRequested', params, callback);
+		inner.send({
+			methodName : 'checkFriendRequested',
+			data : params
+		}, callback);
 	};
 	
 	// 친구 신청자들의 ID를 가져옵니다.
@@ -624,7 +154,10 @@ window.DSide = (() => {
 		//REQUIRED: accountId
 		//REQUIRED: callback
 		
-		sendToNode('getFriendRequesterIds', accountId, callback);
+		inner.send({
+			methodName : 'getFriendRequesterIds',
+			data : accountId
+		}, callback);
 	};
 	
 	// 친구 요청을 거절합니다.
@@ -632,24 +165,10 @@ window.DSide = (() => {
 		//REQUIRED: requesterId
 		//REQUIRED: callback
 		
-		DPlayInventory.getAccountId((accountId) => {
-			
-			let data = {
-				target : accountId,
-				accountId : requesterId
-			};
-			
-			DPlayInventory.signData(data, (hash) => {
-				
-				sendToNode('denyFriendRequest', {
-					target : accountId,
-					accountId : requesterId,
-					hash : hash
-				});
-				
-				callback();
-			});
-		});
+		inner.send({
+			methodName : 'denyFriendRequest',
+			data : requesterId
+		}, callback);
 	};
 	
 	// 친구 요청을 수락합니다.
@@ -657,22 +176,10 @@ window.DSide = (() => {
 		//REQUIRED: requesterId
 		//REQUIRED: callback
 		
-		DPlayInventory.getAccountId((accountId) => {
-			
-			let data = {
-				accountId : accountId,
-				account2Id : requesterId,
-				createTime : new Date()
-			};
-			
-			DPlayInventory.signData(data, (hash) => {
-				
-				sendToNode('acceptFriendRequest', {
-					data : data,
-					hash : hash
-				}, seperateHandler(callback));
-			});
-		});
+		inner.send({
+			methodName : 'acceptFriendRequest',
+			data : requesterId
+		}, callback);
 	};
 	
 	// 친구들의 ID를 가져옵니다.
@@ -680,14 +187,19 @@ window.DSide = (() => {
 		//REQUIRED: accountId
 		//REQUIRED: callback
 		
-		sendToNode('getFriendIds', accountId, callback);
+		inner.send({
+			methodName : 'getFriendIds',
+			data : accountId
+		}, callback);
 	};
 	
 	// 길드 목록을 가져옵니다.
 	let getGuildList = self.getGuildList = (callback) => {
 		//REQUIRED: callback
 		
-		sendToNode('getGuildList', undefined, callback);
+		inner.send({
+			methodName : 'getGuildList',
+		}, callback);
 	};
 	
 	// 특정 유저가 가입한 길드 정보를 가져옵니다.
@@ -695,7 +207,10 @@ window.DSide = (() => {
 		//REQUIRED: accountId
 		//REQUIRED: callback
 		
-		sendToNode('getAccountGuild', accountId, callback);
+		inner.send({
+			methodName : 'getAccountGuild',
+			data : accountId
+		}, callback);
 	};
 	
 	// 이름으로 길드를 찾습니다.
@@ -703,7 +218,10 @@ window.DSide = (() => {
 		//REQUIRED: nameQuery
 		//REQUIRED: callback
 		
-		sendToNode('findGuilds', nameQuery, callback);
+		inner.send({
+			methodName : 'findGuilds',
+			data : nameQuery
+		}, callback);
 	};
 	
 	// 길드 가입 신청합니다.
@@ -715,22 +233,10 @@ window.DSide = (() => {
 		//OPTIONAL: callbackOrHandlers.notEnoughD
 		//REQUIRED: callbackOrHandlers.success
 		
-		DPlayInventory.getAccountId((accountId) => {
-			
-			let data = {
-				target : targetGuildId,
-				accountId : accountId,
-				createTime : new Date()
-			};
-			
-			DPlayInventory.signData(data, (hash) => {
-				
-				sendToNode('requestGuildJoin', {
-					data : data,
-					hash : hash
-				}, seperateHandler(callbackOrHandlers));
-			});
-		});
+		inner.send({
+			methodName : 'requestGuildJoin',
+			data : targetGuildId
+		}, seperateHandler(callbackOrHandlers));
 	};
 	
 	// 이미 길드 가입 신청했는지 확인합니다.
@@ -740,7 +246,10 @@ window.DSide = (() => {
 		//REQUIRED: params.accountId
 		//REQUIRED: callback
 		
-		sendToNode('checkGuildJoinRequested', params, callback);
+		inner.send({
+			methodName : 'checkGuildJoinRequested',
+			data : params
+		}, callback);
 	};
 	
 	// 길드 가입 신청자들의 ID를 가져옵니다.
@@ -748,7 +257,10 @@ window.DSide = (() => {
 		//REQUIRED: guildId
 		//REQUIRED: callback
 		
-		sendToNode('getGuildJoinRequesterIds', guildId, callback);
+		inner.send({
+			methodName : 'getGuildJoinRequesterIds',
+			data : guildId
+		}, callback);
 	};
 	
 	// 길드 가입 신청을 거절합니다.
@@ -756,29 +268,10 @@ window.DSide = (() => {
 		//REQUIRED: requesterId
 		//REQUIRED: callback
 		
-		DPlayInventory.getAccountId((accountId) => {
-			
-			getAccountGuild(accountId, (guildData) => {
-				
-				let target = guildData.id;
-				
-				let data = {
-					target : target,
-					accountId : requesterId
-				};
-				
-				DPlayInventory.signData(data, (hash) => {
-					
-					sendToNode('denyGuildJoinRequest', {
-						target : target,
-						accountId : requesterId,
-						hash : hash
-					});
-					
-					callback();
-				});
-			});
-		});
+		inner.send({
+			methodName : 'denyGuildJoinRequest',
+			data : requesterId
+		}, callback);
 	};
 	
 	// 길드 가입 신청을 수락합니다.
@@ -790,43 +283,40 @@ window.DSide = (() => {
 		//OPTIONAL: callbackOrHandlers.notEnoughD
 		//REQUIRED: callbackOrHandlers.success
 		
-		DPlayInventory.getAccountId((accountId) => {
-			
-			getAccountGuild(accountId, (guildData) => {
-				
-				guildData.memberIds.push(requesterId);
-				guildData.lastUpdateTime = getNodeTime(new Date());
-				
-				DPlayInventory.signData(guildData, (hash) => {
-					
-					sendToNode('updateGuild', {
-						data : guildData,
-						hash : hash
-					}, seperateHandler(callbackOrHandlers));
-				});
-			});
-		});
+		inner.send({
+			methodName : 'acceptGuildJoinRequest',
+			data : requesterId
+		}, seperateHandler(callbackOrHandlers));
 	};
 	
 	// 대상에 참여합니다.
 	let joinTarget = self.joinTarget = (target) => {
 		//REQUIRED: target
 		
-		sendToNode('joinTarget', networkName + '/' + target);
+		inner.send({
+			methodName : 'joinTarget',
+			data : target
+		});
 	};
 	
 	// 대상에서 나옵니다.
 	let exitTarget = self.exitTarget = (target) => {
 		//REQUIRED: target
 		
-		sendToNode('exitTarget', networkName + '/' + target);
+		inner.send({
+			methodName : 'exitTarget',
+			data : target
+		});
 	};
 	
 	let getChatMessages = self.getChatMessages = (target, callback) => {
 		//REQUIRED: target
 		//REQUIRED: callback
 		
-		sendToNode('getChatMessages', networkName + '/' + target, callback);
+		inner.send({
+			methodName : 'getChatMessages',
+			data : target
+		}, callback);
 	};
 	
 	let sendChatMessage = self.sendChatMessage = (params) => {
@@ -834,84 +324,10 @@ window.DSide = (() => {
 		//REQUIRED: params.target
 		//REQUIRED: params.message
 		
-		let target = params.target;
-		let message = params.message;
-		
-		sendToNode('sendChatMessage', {
-			target : networkName + '/' + target,
-			message : message
+		inner.send({
+			methodName : 'sendChatMessage',
+			data : params
 		});
-	};
-	
-	let onNewChatMessageHandlers = {};
-	
-	let onNewChatMessage = self.onNewChatMessage = (target, handler) => {
-		//REQUIRED: target
-		//REQUIRED: handler
-		
-		onFromNode('newChatMessage', onNewChatMessageHandlers[networkName + '/' + target] = (data) => {
-			if (data.target === networkName + '/' + target) {
-				handler(data);
-			}
-		});
-	};
-	
-	let offNewChatMessage = self.offNewChatMessage = (target) => {
-		//REQUIRED: target
-		
-		let handler = onNewChatMessageHandlers[networkName + '/' + target];
-		
-		if (handler !== undefined) {
-			offFromNode('newChatMessage', handler);
-		}
-	};
-	
-	let getPendingTransactions = self.getPendingTransactions = (target, callback) => {
-		//REQUIRED: target
-		//REQUIRED: callback
-		
-		sendToNode('getPendingTransactions', networkName + '/' + target, callback);
-	};
-	
-	let sendPendingTransaction = self.sendPendingTransaction = (params) => {
-		//REQUIRED: params
-		//REQUIRED: params.target
-		//REQUIRED: params.transactionHash
-		//REQUIRED: params.message
-		
-		let target = params.target;
-		let transactionHash = params.transactionHash;
-		let message = params.message;
-		
-		sendToNode('sendPendingTransaction', {
-			target : networkName + '/' + target,
-			network : networkName,
-			transactionHash : transactionHash,
-			message : message
-		});
-	};
-	
-	let onNewPendingTransactionHandlers = {};
-	
-	let onNewPendingTransaction = self.onNewPendingTransaction = (target, handler) => {
-		//REQUIRED: target
-		//REQUIRED: handler
-		
-		onFromNode('newPendingTransaction', onNewPendingTransactionHandlers[networkName + '/' + target] = (data) => {
-			if (data.target === networkName + '/' + target) {
-				handler(data);
-			}
-		});
-	};
-	
-	let offNewPendingTransaction = self.offNewPendingTransaction = (target) => {
-		//REQUIRED: target
-		
-		let handler = onNewPendingTransactionHandlers[networkName + '/' + target];
-		
-		if (handler !== undefined) {
-			offFromNode('newPendingTransaction', handler);
-		}
 	};
 	
 	return self;

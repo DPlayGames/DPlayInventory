@@ -342,11 +342,11 @@ DPlayInventory.DSide = OBJECT({
 		let login = self.login = (callback) => {
 			//OPTIONAL: callback
 			
-			DPlayInventory.SecureStore.getAccountId((accountId) => {
+			DPlayInventory.Core.getAccountId((accountId) => {
 				
 				sendToNode('generateLoginToken', undefined, (loginToken) => {
 					
-					DPlayInventory.SecureStore.signText(loginToken, (hash) => {
+					DPlayInventory.Core.signText(loginToken, (hash) => {
 						
 						sendToNode('login', {
 							hash : hash,

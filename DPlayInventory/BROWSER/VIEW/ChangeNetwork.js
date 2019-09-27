@@ -14,7 +14,7 @@ DPlayInventory.ChangeNetwork = CLASS({
 				c : 'Mainnet',
 				on : {
 					tap : () => {
-						DPlayInventory.Ethereum.changeNetwork('Mainnet');
+						DPlayInventory.Core.changeNetwork('Mainnet');
 					}
 				}
 			}), */LI({
@@ -24,7 +24,7 @@ DPlayInventory.ChangeNetwork = CLASS({
 				c : 'Kovan',
 				on : {
 					tap : () => {
-						DPlayInventory.Ethereum.changeNetwork('Kovan');
+						DPlayInventory.Core.changeNetwork('Kovan');
 					}
 				}
 			})/*, LI({
@@ -34,7 +34,7 @@ DPlayInventory.ChangeNetwork = CLASS({
 				c : 'Ropsten',
 				on : {
 					tap : () => {
-						DPlayInventory.Ethereum.changeNetwork('Ropsten');
+						DPlayInventory.Core.changeNetwork('Ropsten');
 					}
 				}
 			}), LI({
@@ -44,7 +44,7 @@ DPlayInventory.ChangeNetwork = CLASS({
 				c : 'Rinkeby',
 				on : {
 					tap : () => {
-						DPlayInventory.Ethereum.changeNetwork('Rinkeby');
+						DPlayInventory.Core.changeNetwork('Rinkeby');
 					}
 				}
 			})*/]

@@ -5,7 +5,7 @@ DPlayInventory.DPlayCoin = OBJECT({
 		let getBalance = self.getBalance = (callback) => {
 			//REQUIRED: callback
 			
-			DPlayInventory.SecureStore.getAccountId((accountId) => {
+			DPlayInventory.Core.getAccountId((accountId) => {
 				
 				DPlayCoinContract.balanceOf(accountId, (balance) => {
 					

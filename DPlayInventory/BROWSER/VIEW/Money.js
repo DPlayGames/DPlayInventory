@@ -48,9 +48,9 @@ DPlayInventory.Money = CLASS({
 			dPanel.append('d: ' + balance);
 		});
 		
-		DPlayInventory.Ethereum.getEtherBalance((balance) => {
+		DPlayInventory.Core.getEtherBalance((balance) => {
 			etherPanel.empty();
-			etherPanel.append('Ether: ' + DPlayInventory.Ethereum.getDisplayPrice(balance));
+			etherPanel.append('Ether: ' + DPlayInventory.Core.getDisplayPrice(balance));
 		});
 		
 		DPlayInventory.Layout.setContent(content);

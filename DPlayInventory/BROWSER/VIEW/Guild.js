@@ -13,7 +13,7 @@ DPlayInventory.Guild = CLASS({
 			c : []
 		});
 		
-		DPlayInventory.SecureStore.getAccountId((accountId) => {
+		DPlayInventory.Core.getAccountId((accountId) => {
 			DPlayInventory.DSide.getAccountGuild(accountId, (guildData) => {
 				
 				// 가입한 길드가 없는 경우

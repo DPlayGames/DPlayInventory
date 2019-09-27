@@ -65,11 +65,11 @@ DPlayInventory.CreateGuild = CLASS({
 							data.id = UUID();
 							data.createTime = DPlayInventory.DSide.getNodeTime(new Date());
 							
-							DPlayInventory.SecureStore.getAccountId((accountId) => {
+							DPlayInventory.Core.getAccountId((accountId) => {
 								data.accountId = accountId;
 								data.memberIds = [accountId];
 								
-								DPlayInventory.SecureStore.signData(data, (hash) => {
+								DPlayInventory.Core.signData(data, (hash) => {
 									
 									DPlayInventory.DSide.createGuild({
 										hash : hash,

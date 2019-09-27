@@ -9,7 +9,7 @@ EXTEND({ origin : CONFIG, extend : {
 	"webServerPort": 8620
 } });
 
-CONFIG.version = 'V1569483114266';
+CONFIG.version = 'V1569617506738';
 
 EXTEND({ origin : BROWSER_CONFIG, extend : {
 	"isNotConnectToServer": true
@@ -53881,81 +53881,84 @@ DPlayInventory.MAIN = METHOD({
 
 	run : () => {
 		
-		DPlayInventory.MATCH_VIEW({
-            uri : 'restoreaccount',
-            target : DPlayInventory.RestoreAccount
-        });
-		
-		DPlayInventory.MATCH_VIEW({
-            uri : 'createaccount',
-            target : DPlayInventory.CreateAccount
-        });
-		
-		DPlayInventory.MATCH_VIEW({
-            uri : 'login',
-            target : DPlayInventory.Login
-        });
-		
-		DPlayInventory.MATCH_VIEW({
-            uri : '**',
-            excludeURI : ['', 'restoreaccount', 'createaccount', 'login'],
-            target : DPlayInventory.CheckData
-        });
-		
-		DPlayInventory.MATCH_VIEW({
-			uri : '**',
-            excludeURI : ['restoreaccount', 'createaccount', 'login'],
-			target : DPlayInventory.Layout
-		});
-		
-		DPlayInventory.MATCH_VIEW({
-			uri : '',
-			target : DPlayInventory.Home
-		});
-		
-		DPlayInventory.MATCH_VIEW({
-			uri : 'account',
-			target : DPlayInventory.Account
-		});
-		
-		DPlayInventory.MATCH_VIEW({
-			uri : 'updateaccount',
-			target : DPlayInventory.UpdateAccount
-		});
-		
-		DPlayInventory.MATCH_VIEW({
-			uri : 'createguild',
-			target : DPlayInventory.CreateGuild
-		});
-		
-		DPlayInventory.MATCH_VIEW({
-			uri : 'updateguild',
-			target : DPlayInventory.UpdateGuild
-		});
-		
-		DPlayInventory.MATCH_VIEW({
-			uri : 'changenetwork',
-			target : DPlayInventory.ChangeNetwork
-		});
-		
-		DPlayInventory.MATCH_VIEW({
-			uri : 'guild',
-			target : DPlayInventory.Guild
-		});
-		
-		DPlayInventory.MATCH_VIEW({
-			uri : 'game',
-			target : DPlayInventory.Game
-		});
-		
-		DPlayInventory.MATCH_VIEW({
-			uri : 'money',
-			target : DPlayInventory.Money
-		});
-		
-		DPlayInventory.MATCH_VIEW({
-			uri : 'item',
-			target : DPlayInventory.Item
+		MSG.loadCSV(DPlayInventory.R('text.csv'), () => {
+			
+			DPlayInventory.MATCH_VIEW({
+	            uri : 'restoreaccount',
+	            target : DPlayInventory.RestoreAccount
+	        });
+			
+			DPlayInventory.MATCH_VIEW({
+	            uri : 'createaccount',
+	            target : DPlayInventory.CreateAccount
+	        });
+			
+			DPlayInventory.MATCH_VIEW({
+	            uri : 'login',
+	            target : DPlayInventory.Login
+	        });
+			
+			DPlayInventory.MATCH_VIEW({
+	            uri : '**',
+	            excludeURI : ['', 'restoreaccount', 'createaccount', 'login'],
+	            target : DPlayInventory.CheckData
+	        });
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : '**',
+	            excludeURI : ['restoreaccount', 'createaccount', 'login'],
+				target : DPlayInventory.Layout
+			});
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : '',
+				target : DPlayInventory.Home
+			});
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : 'account',
+				target : DPlayInventory.Account
+			});
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : 'updateaccount',
+				target : DPlayInventory.UpdateAccount
+			});
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : 'createguild',
+				target : DPlayInventory.CreateGuild
+			});
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : 'updateguild',
+				target : DPlayInventory.UpdateGuild
+			});
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : 'changenetwork',
+				target : DPlayInventory.ChangeNetwork
+			});
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : 'guild',
+				target : DPlayInventory.Guild
+			});
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : 'game',
+				target : DPlayInventory.Game
+			});
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : 'money',
+				target : DPlayInventory.Money
+			});
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : 'item',
+				target : DPlayInventory.Item
+			});
 		});
 	}
 });
@@ -54114,7 +54117,7 @@ DPlayInventory.Account = CLASS({
 				style : {
 					display : 'block'
 				},
-				c : '정보 수정',
+				c : MSG('UPDATE_ACCOUNT_BUTTON'),
 				on : {
 					tap : () => {
 						DPlayInventory.GO('updateaccount');
@@ -54124,12 +54127,12 @@ DPlayInventory.Account = CLASS({
 				style : {
 					display : 'block'
 				},
-				c : '로그아웃',
+				c : MSG('LOGOUT_BUTTON'),
 				on : {
 					tap : () => {
 						
-						DPlayInventory.SecureStore.removePassword(() => {
-							DPlayInventory.SecureStore.clear(() => {
+						DPlayInventory.Core.removePassword(() => {
+							DPlayInventory.Core.clear(() => {
 								
 								DPlayInventory.GO('');
 							});
@@ -54139,7 +54142,7 @@ DPlayInventory.Account = CLASS({
 			})]
 		});
 		
-		DPlayInventory.SecureStore.getAccountId((accountId) => {
+		DPlayInventory.Core.getAccountId((accountId) => {
 			DPlayInventory.DSide.getAccountDetail(accountId, (accountDetail) => {
 				
 				if (accountDetail !== undefined) {
@@ -54166,34 +54169,34 @@ DPlayInventory.ChangeNetwork = CLASS({
 	init : (inner, self) => {
 		
 		let content = UL({
-			c : [LI({
+			c : [/*LI({
 				style : {
 					cursor : 'pointer'
 				},
 				c : 'Mainnet',
 				on : {
 					tap : () => {
-						DPlayInventory.Ethereum.changeNetwork('Mainnet');
+						DPlayInventory.Core.changeNetwork('Mainnet');
 					}
 				}
-			}), LI({
+			}), */LI({
 				style : {
 					cursor : 'pointer'
 				},
 				c : 'Kovan',
 				on : {
 					tap : () => {
-						DPlayInventory.Ethereum.changeNetwork('Kovan');
+						DPlayInventory.Core.changeNetwork('Kovan');
 					}
 				}
-			}), LI({
+			})/*, LI({
 				style : {
 					cursor : 'pointer'
 				},
 				c : 'Ropsten',
 				on : {
 					tap : () => {
-						DPlayInventory.Ethereum.changeNetwork('Ropsten');
+						DPlayInventory.Core.changeNetwork('Ropsten');
 					}
 				}
 			}), LI({
@@ -54203,10 +54206,10 @@ DPlayInventory.ChangeNetwork = CLASS({
 				c : 'Rinkeby',
 				on : {
 					tap : () => {
-						DPlayInventory.Ethereum.changeNetwork('Rinkeby');
+						DPlayInventory.Core.changeNetwork('Rinkeby');
 					}
 				}
-			})]
+			})*/]
 		});
 		
 		DPlayInventory.Layout.setContent(content);
@@ -54224,7 +54227,7 @@ DPlayInventory.CheckData = CLASS({
 
 	init : (inner, self) => {
 		
-		DPlayInventory.SecureStore.checkAccountIdExists((accountIdExists) => {
+		DPlayInventory.Core.checkAccountIdExists((accountIdExists) => {
 			
 			// 저장된 계정 ID가 없다면
 			if (accountIdExists !== true) {
@@ -54233,7 +54236,7 @@ DPlayInventory.CheckData = CLASS({
 			
 			else {
 				
-				DPlayInventory.SecureStore.checkPasswordExists((passwordExists) => {
+				DPlayInventory.Core.checkPasswordExists((passwordExists) => {
 					
 					if (passwordExists !== true) {
 						DPlayInventory.GO('login');
@@ -54281,10 +54284,14 @@ DPlayInventory.CreateAccount = CLASS({
 					margin : 'auto'
 				},
 				c : [
+				H1({
+					c : MSG('CREATE_ACCOUNT_TITLE')
+				}),
+				
 				DIV({
 					c : [
 					H2({
-						c : '당신의 계정 주소'
+						c : MSG('CREATED_ACCOUNT_ID')
 					}),
 					P({
 						c : wallet.getChecksumAddressString()
@@ -54294,13 +54301,13 @@ DPlayInventory.CreateAccount = CLASS({
 				DIV({
 					c : [
 					H2({
-						c : '12개의 비밀 단어'
+						c : MSG('MNEMONIC')
 					}),
 					P({
 						c : mnemonic
 					}),
 					P({
-						c : '절대! 결코! 반드시! 위 비밀 단어들을 백업하세요. 그리고 아무에게도 공개하지 마세요. 위 비밀 단어들을 아는 사람은 당신의 모든 디지털 자산을 훔쳐갈 수 있습니다.\n\n비밀 단어만 알고 있으면 계정 주소도 다시 알아낼 수 있습니다. 계정 주소는 백업 안해도 돼요.'
+						c : MSG('BACKUP_NOTICE_1') + '\n\n' + MSG('BACKUP_NOTICE_2')
 					})]
 				}),
 				
@@ -54313,12 +54320,12 @@ DPlayInventory.CreateAccount = CLASS({
 						borderRadius : 10,
 						textAlign : 'center'
 					},
-					c : '백업을 완료했습니다.',
+					c : MSG('DONE_BACKUP_BUTTON'),
 					on : {
 						tap : () => {
 							
 							DPlayInventory.Confirm({
-								msg : '정말 백업을 하셨습니까? 백업을 하지 않아, 당신이 모든 자산을 잃어버려도 저희는 일체 책임지지 않습니다!'
+								msg : MSG('REALLY_BACKUP_CONFIRM')
 							}, () => {
 								DPlayInventory.GO('restoreaccount');
 							});
@@ -54335,7 +54342,7 @@ DPlayInventory.CreateAccount = CLASS({
 						borderRadius : 10,
 						textAlign : 'center'
 					},
-					c : '다시 생성하기',
+					c : MSG('REGENERATE_ACCOUNT_BUTTON'),
 					on : {
 						tap : () => {
 							REFRESH();
@@ -54367,21 +54374,21 @@ DPlayInventory.CreateGuild = CLASS({
 			DPlayInventory.UseDNotice(20),
 			
 			H1({
-				c : '길드 생성'
+				c : MSG('CREATE_GUILD_TITLE')
 			}),
 			
 			form = UUI.VALID_FORM({
 				
 				errorMsgs : {
 					name : {
-						notEmpty : '길드명을 입력해주세요.',
+						notEmpty : MSG('PLEASE_ENTER_GUILD_NAME_MESSAGE'),
 						size : (validParams) => {
-							return '길드명은 ' + validParams.max + '글자 이하로 입력해주시기 바랍니다.';
+							return MSG('WRONG_SIZE_GUILD_NAME_MESSAGE').replace(/{length}/, validParams.max);
 						}
 					},
 					introduce : {
 						size : (validParams) => {
-							return '길드 소개는 ' + validParams.max + '글자 이하로 입력해주시기 바랍니다.';
+							return MSG('WRONG_SIZE_GUILD_INTRODUCE_MESSAGE').replace(/{length}/, validParams.max);
 						}
 					}
 				},
@@ -54394,34 +54401,34 @@ DPlayInventory.CreateGuild = CLASS({
 				// 길드명 입력
 				UUI.FULL_INPUT({
 					name : 'name',
-					placeholder : '길드명'
+					placeholder : MSG('GUILD_NAME_INPUT')
 				}),
 				
 				// 길드 소개 입력
 				UUI.FULL_TEXTAREA({
 					name : 'introduce',
-					placeholder : '길드 소개'
+					placeholder : MSG('GUILD_INTRODUCE_INPUT')
 				}),
 				
 				UUI.FULL_SUBMIT({
-					value : '저장하기'
+					value : MSG('CREATE_GUILD_SUBMIT')
 				})],
 				on : {
 					submit : (e, form) => {
 						
 						DPlayInventory.Confirm({
-							msg : '20d를 소모하여 길드를 생성하시겠습니까?'
+							msg : MSG('CREATE_GUILD_CONFIRM')
 						}, () => {
 							
 							let data = form.getData();
 							data.id = UUID();
 							data.createTime = DPlayInventory.DSide.getNodeTime(new Date());
 							
-							DPlayInventory.SecureStore.getAccountId((accountId) => {
+							DPlayInventory.Core.getAccountId((accountId) => {
 								data.accountId = accountId;
 								data.memberIds = [accountId];
 								
-								DPlayInventory.SecureStore.signData(data, (hash) => {
+								DPlayInventory.Core.signData(data, (hash) => {
 									
 									DPlayInventory.DSide.createGuild({
 										hash : hash,
@@ -54430,7 +54437,7 @@ DPlayInventory.CreateGuild = CLASS({
 										
 										if (result.isNotEnoughD === true) {
 											DPlayInventory.Alert({
-												msg : 'd가 부족합니다.'
+												msg : MSG('NOT_ENOUGH_D_MESSAGE')
 											});
 										}
 										
@@ -54440,7 +54447,7 @@ DPlayInventory.CreateGuild = CLASS({
 										
 										else if (result.isNotVerified === true) {
 											DPlayInventory.Alert({
-												msg : '유효하지 않은 데이터입니다.'
+												msg : MSG('NOT_VERIFIED_MESSAGE')
 											});
 										}
 										
@@ -54475,10 +54482,12 @@ DPlayInventory.Game = CLASS({
 		
 		let webGameList;
 		let content = DIV({
-			c : ['구매하신 게임이 없습니다.', H3({
-				c : '웹 게임 목록'
+			c : [H3({
+				c : MSG('GAME_LIST_TITLE')
+			}), MSG('EMPTY_GAME_LIST_MESSAGE'), H3({
+				c : MSG('WEB_GAME_LIST_TITLE')
 			}), webGameList = DIV({
-				c : '아직 웹 게임이 없습니다.'
+				c : MSG('EMPTY_WEB_GAME_LIST_MESSAGE')
 			})]
 		});
 		
@@ -54509,16 +54518,16 @@ DPlayInventory.Guild = CLASS({
 			c : []
 		});
 		
-		DPlayInventory.SecureStore.getAccountId((accountId) => {
+		DPlayInventory.Core.getAccountId((accountId) => {
 			DPlayInventory.DSide.getAccountGuild(accountId, (guildData) => {
 				
 				// 가입한 길드가 없는 경우
 				if (guildData === undefined) {
 					content.append(DIV({
 						c : [P({
-							c : '가입한 길드가 없습니다. 길드를 생성하시겠습니까?'
+							c : MSG('NOT_EXISTS_GUILD_MESSAGE')
 						}), UUI.BUTTON({
-							c : '길드 생성',
+							c : MSG('CREATE_GUILD_BUTTON'),
 							on : {
 								tap : () => {
 									DPlayInventory.GO('createguild');
@@ -54540,14 +54549,14 @@ DPlayInventory.Guild = CLASS({
 						// 길드장인 경우 메뉴 생성
 						guildData.accountId !== accountId ? undefined : DIV({
 							c : [UUI.BUTTON({
-								c : '길드 정보 수정',
+								c : MSG('UPDATE_GUILD_BUTTON'),
 								on : {
 									tap : () => {
 										DPlayInventory.GO('updateguild');
 									}
 								}
 							}), UUI.BUTTON({
-								c : '길드 폐쇄',
+								c : MSG('REMOVE_GUILD_BUTTON'),
 								on : {
 									tap : () => {
 										DPlayInventory.GO('removeguild');
@@ -54611,43 +54620,46 @@ DPlayInventory.Item = CLASS(() => {
 					contentStyle : {
 						padding : '8px 0px 8px 3px'
 					},
-					c : '아이템 목록을 불러오는 중입니다.'
+					c : MSG('LOADING_ITEM_LIST_MESSAGE')
 				}), CLEAR_BOTH()]
 			});
 			
 			let addItem = (key, image, balance) => {
 				
-				if (isInit === true) {
-					itemList.empty();
-					isInit = false;
-				}
-				
-				let itemPanel;
-				itemList.append(itemPanel = DIV({
-					style : {
-						position : 'relative',
-						flt : 'left',
-						marginLeft : 5,
-						marginBottom : 5,
-						width : 50,
-						height : 50,
-						backgroundImage : image,
-						backgroundRepeat : 'no-repeat',
-						backgroundPosition : 'center center',
-						backgroundSize : 'contain',
-						border : '1px solid #999'
-					},
-					c : balance === undefined ? undefined : SPAN({
+				if (balance === undefined || balance > 0) {
+					
+					if (isInit === true) {
+						itemList.empty();
+						isInit = false;
+					}
+					
+					let itemPanel;
+					itemList.append(itemPanel = DIV({
 						style : {
-							position : 'absolute',
-							right : 5,
-							bottom : 5
+							position : 'relative',
+							flt : 'left',
+							marginLeft : 5,
+							marginBottom : 5,
+							width : 50,
+							height : 50,
+							backgroundImage : image,
+							backgroundRepeat : 'no-repeat',
+							backgroundPosition : 'center center',
+							backgroundSize : 'contain',
+							border : '1px solid #999'
 						},
-						c : balance
-					})
-				}));
-				
-				itemPanels[key] = itemPanel;
+						c : balance === undefined ? undefined : SPAN({
+							style : {
+								position : 'absolute',
+								right : 5,
+								bottom : 5
+							},
+							c : balance
+						})
+					}));
+					
+					itemPanels[key] = itemPanel;
+				}
 			};
 			
 			EACH(itemCache, (info, address) => {
@@ -54657,7 +54669,7 @@ DPlayInventory.Item = CLASS(() => {
 			EACH(DPlayInventory.ERC20_ITEMS, (items, projectName) => {
 				EACH(items, (itemInfo, itemName) => {
 					
-					DPlayInventory.Ethereum.getERC20Balance(itemInfo.addresses, (balance, address) => {
+					DPlayInventory.Core.getERC20Balance(itemInfo.addresses, (balance, address) => {
 						
 						itemCache[address] = {
 							image : itemInfo.image,
@@ -54686,7 +54698,7 @@ DPlayInventory.Item = CLASS(() => {
 			EACH(DPlayInventory.ERC721_ITEMS, (items, projectName) => {
 				EACH(items, (itemInfo, itemName) => {
 					
-					DPlayInventory.Ethereum.getERC721Ids({
+					DPlayInventory.Core.getERC721Ids({
 						getItemIdsName : itemInfo.getItemIdsName,
 						addresses : itemInfo.addresses
 					}, (ids, address) => {
@@ -54768,13 +54780,13 @@ DPlayInventory.Layout = CLASS((cls) => {
 							padding : 10,
 							color : '#707474'
 						},
-						c : [SPAN({
+						c : [MSG('TITLE').substring(0, MSG('TITLE').indexOf('DPlay')), SPAN({
 							style : {
 								color : '#980100',
 								fontWeight : 'bold',
 							},
 							c : 'DPlay'
-						}), ' 보관함'],
+						}), MSG('TITLE').substring(MSG('TITLE').indexOf('DPlay') + 5)],
 						on : {
 							tap : () => {
 								DPlayInventory.GO('');
@@ -54812,7 +54824,7 @@ DPlayInventory.Layout = CLASS((cls) => {
 							backgroundColor : '#151515',
 							borderRadius : '5px 5px 0 0'
 						},
-						c : '게임',
+						c : MSG('GAME_TAB'),
 						on : {
 							tap : () => {
 								DPlayInventory.GO('game');
@@ -54828,7 +54840,7 @@ DPlayInventory.Layout = CLASS((cls) => {
 							backgroundColor : '#151515',
 							borderRadius : '5px 5px 0 0'
 						},
-						c : '아이템',
+						c : MSG('ITEM_TAB'),
 						on : {
 							tap : () => {
 								DPlayInventory.GO('item');
@@ -54844,7 +54856,7 @@ DPlayInventory.Layout = CLASS((cls) => {
 							backgroundColor : '#151515',
 							borderRadius : '5px 5px 0 0'
 						},
-						c : '재화',
+						c : MSG('MONEY_TAB'),
 						on : {
 							tap : () => {
 								DPlayInventory.GO('money');
@@ -54873,13 +54885,13 @@ DPlayInventory.Layout = CLASS((cls) => {
 				}).appendTo(wrapper);
 				
 				EACH([{
-					title : '내 계정',
+					title : MSG('MENU_MY_ACCOUNT'),
 					uri : 'account'
 				}, {
-					title : '길드 정보',
+					title : MSG('MENU_GUILD'),
 					uri : 'guild'
 				}, {
-					title : '네트워크 변경',
+					title : MSG('MENU_CHANGE_NETWORK'),
 					uri : 'changenetwork'
 				}], (menuInfo, index) => {
 					
@@ -55007,7 +55019,7 @@ DPlayInventory.Login = CLASS({
 				c : [passwordInput = UUI.FULL_INPUT({
 					name : 'password',
 					type : 'password',
-					placeholder : '비밀번호'
+					placeholder : MSG('LOGIN_PASSWORD_INPUT')
 				}), UUI.FULL_SUBMIT({
 					style : {
 						marginTop : 10,
@@ -55017,9 +55029,9 @@ DPlayInventory.Login = CLASS({
 						borderRadius : 10,
 						textAlign : 'center'
 					},
-					value : '계정 접속'
+					value : MSG('LOGIN_SUBMIT')
 				}), A({
-					c : '비밀번호 재설정',
+					c : MSG('RESET_PASSWORD_BUTTON'),
 					on : {
 						tap : () => {
 							
@@ -55035,13 +55047,13 @@ DPlayInventory.Login = CLASS({
 						
 						if (password === '') {
 							DPlayInventory.Alert({
-								msg : '비밀번호를 입력해주세요.'
+								msg : MSG('PLEASE_ENTER_PASSWORD_MESSAGE')
 							});
 						}
 						
 						else if (password.length < 4) {
 							DPlayInventory.Alert({
-								msg : '비밀번호가 너무 짧습니다. 4글자 이상으로 입력해주세요.'
+								msg : MSG('PASSWORD_TOO_SHORT_MESSAGE')
 							});
 						}
 						
@@ -55049,17 +55061,17 @@ DPlayInventory.Login = CLASS({
 							
 							let loading = DPlayInventory.Loading();
 							
-							DPlayInventory.SecureStore.setPassword(password, () => {
+							DPlayInventory.Core.setPassword(password, () => {
 								
-								DPlayInventory.SecureStore.getAccountId({
+								DPlayInventory.Core.getAccountId({
 									
 									error : () => {
 										
-										DPlayInventory.SecureStore.removePassword(() => {
+										DPlayInventory.Core.removePassword(() => {
 											loading.remove();
 											
 											DPlayInventory.Alert({
-												msg : '비밀번호가 틀렸습니다.'
+												msg : MSG('WRONG_PASSWORD_MESSAGE')
 											});
 										});
 									},
@@ -55102,25 +55114,25 @@ DPlayInventory.Money = CLASS({
 			c : [dcPanel = DIV({
 				c : 'DC: ...', 
 			}), A({
-				c : '충전하기',
+				c : MSG('CHARGE_MONEY_BUTTON'),
 				target : '_blank',
 				href : 'http://faucet.dplay.games'
 			}), A({
-				c : '보내기'
+				c : MSG('SEND_MONEY_BUTTON')
 			}), dPanel = DIV({
 				c : ['d: ...', A({
-					c : '충전하기'
+					c : MSG('CHARGE_MONEY_BUTTON')
 				}), A({
-					c : '보내기'
+					c : MSG('SEND_MONEY_BUTTON')
 				})]
 			}), etherPanel = DIV({
 				c : 'Ether: ...'
 			}), A({
-				c : '충전하기',
+				c : MSG('CHARGE_MONEY_BUTTON'),
 				target : '_blank',
 				href : 'https://faucet.kovan.network'
 			}), A({
-				c : '보내기'
+				c : MSG('SEND_MONEY_BUTTON')
 			})]
 		});
 		
@@ -55134,9 +55146,9 @@ DPlayInventory.Money = CLASS({
 			dPanel.append('d: ' + balance);
 		});
 		
-		DPlayInventory.Ethereum.getEtherBalance((balance) => {
+		DPlayInventory.Core.getEtherBalance((balance) => {
 			etherPanel.empty();
-			etherPanel.append('Ether: ' + DPlayInventory.Ethereum.getDisplayPrice(balance));
+			etherPanel.append('Ether: ' + DPlayInventory.Core.getDisplayPrice(balance));
 		});
 		
 		DPlayInventory.Layout.setContent(content);
@@ -55178,7 +55190,7 @@ DPlayInventory.RestoreAccount = CLASS({
 						style : {
 							textAlign : 'center'
 						},
-						c : 'DPlay 보관함을 처음 이용하십니까?'
+						c : MSG('FIRST_USE_CONFIRM')
 					}), A({
 						style : {
 							marginTop : 10,
@@ -55188,7 +55200,7 @@ DPlayInventory.RestoreAccount = CLASS({
 							borderRadius : 10,
 							textAlign : 'center'
 						},
-						c : '계정 생성',
+						c : MSG('CREATE_ACCOUNT_BUTTON'),
 						on : {
 							tap : () => {
 								DPlayInventory.GO('createaccount');
@@ -55205,14 +55217,14 @@ DPlayInventory.RestoreAccount = CLASS({
 						style : {
 							textAlign : 'center'
 						},
-						c : '이전에 계정을 생성하신 적이 있습니까?'
+						c : MSG('ALREADY_HAVE_ACCOUNT_CONFIRM')
 					}), UUI.FULL_TEXTAREA({
 						style : {
 							marginTop : 10,
 							borderRadius : 5
 						},
 						name : 'mnemonic',
-						placeholder : '12개의 비밀 단어'
+						placeholder : MSG('MNEMONIC')
 					}), UUI.FULL_INPUT({
 						style : {
 							marginTop : 10,
@@ -55220,9 +55232,9 @@ DPlayInventory.RestoreAccount = CLASS({
 						},
 						name : 'password',
 						type : 'password',
-						placeholder : '이 기기에서 사용할 비밀번호'
+						placeholder : MSG('THIS_DEVICE_PASSWORD_INPUT')
 					}), P({
-						c : '위 비밀번호는 매번 12개의 비밀 단어를 입력하지 않도록 하는 단순한 편의 기능으로, 비밀번호와 무관하게 12개의 비밀 단어들은 반드시 백업해야합니다.'
+						c : MSG('PASSWORD_NOTICE')
 					}), UUI.FULL_SUBMIT({
 						style : {
 							marginTop : 10,
@@ -55232,7 +55244,7 @@ DPlayInventory.RestoreAccount = CLASS({
 							borderRadius : 10,
 							textAlign : 'center'
 						},
-						value : '계정 접속'
+						value : MSG('RESTORE_ACCOUNT_SUBMIT')
 					})],
 					on : {
 						submit : (e, form) => {
@@ -55243,19 +55255,19 @@ DPlayInventory.RestoreAccount = CLASS({
 							
 							if (mnemonic === '') {
 								DPlayInventory.Alert({
-									msg : '12개의 비밀 단어를 입력해주세요.'
+									msg : MSG('PLEASE_ENTER_MNEMONIC_MESSAGE')
 								});
 							}
 							
 							else if (password === '') {
 								DPlayInventory.Alert({
-									msg : '비밀번호를 입력해주세요.'
+									msg : MSG('PLEASE_ENTER_PASSWORD_MESSAGE')
 								});
 							}
 							
 							else if (password.length < 4) {
 								DPlayInventory.Alert({
-									msg : '비밀번호가 너무 짧습니다. 4글자 이상으로 입력해주세요.'
+									msg : MSG('PASSWORD_TOO_SHORT_MESSAGE')
 								});
 							}
 							
@@ -55263,7 +55275,7 @@ DPlayInventory.RestoreAccount = CLASS({
 								
 								let loading = DPlayInventory.Loading();
 								
-								DPlayInventory.SecureStore.setPassword(password, () => {
+								DPlayInventory.Core.setPassword(password, () => {
 									
 									let seed = bip39.mnemonicToSeed(mnemonic);
 									
@@ -55275,12 +55287,12 @@ DPlayInventory.RestoreAccount = CLASS({
 									
 									NEXT([
 									(next) => {
-										DPlayInventory.SecureStore.saveAccountId(wallet.getChecksumAddressString(), next);
+										DPlayInventory.Core.saveAccountId(wallet.getChecksumAddressString(), next);
 									},
 									
 									(next) => {
 										return () => {
-											DPlayInventory.SecureStore.savePrivateKey(wallet.getPrivateKeyString().substring(2).toUpperCase(), next);
+											DPlayInventory.Core.savePrivateKey(wallet.getPrivateKeyString().substring(2).toUpperCase(), next);
 										};
 									},
 									
@@ -55325,14 +55337,14 @@ DPlayInventory.UpdateAccount = CLASS({
 				
 				errorMsgs : {
 					name : {
-						notEmpty : '이름을 입력해주세요.',
+						notEmpty : MSG('PLEASE_ENTER_NAME_MESSAGE'),
 						size : (validParams) => {
-							return '이름은 ' + validParams.max + '글자 이하로 입력해주시기 바랍니다.';
+							return MSG('WRONG_SIZE_NAME_MESSAGE').replace(/{length}/, validParams.max);
 						}
 					},
 					introduce : {
 						size : (validParams) => {
-							return '자기 소개는 ' + validParams.max + '글자 이하로 입력해주시기 바랍니다.';
+							return MSG('WRONG_SIZE_INTRODUCE_MESSAGE').replace(/{length}/, validParams.max);
 						}
 					}
 				},
@@ -55345,32 +55357,32 @@ DPlayInventory.UpdateAccount = CLASS({
 				// 이름 입력
 				UUI.FULL_INPUT({
 					name : 'name',
-					placeholder : '이름'
+					placeholder : MSG('NAME_INPUT')
 				}),
 				
 				// 자기 소개 입력
 				UUI.FULL_TEXTAREA({
 					name : 'introduce',
-					placeholder : '자기 소개'
+					placeholder : MSG('INTRODUCE_INPUT')
 				}),
 				
 				UUI.FULL_SUBMIT({
-					value : '저장하기'
+					value : MSG('UPDATE_ACCOUNT_SUBMIT')
 				})],
 				on : {
 					submit : (e, form) => {
 						
 						DPlayInventory.Confirm({
-							msg : '1d를 소모하여 계정 정보를 수정하시겠습니까?'
+							msg : MSG('UPDATE_ACCOUNT_CONFIRM')
 						}, () => {
 							
 							let data = form.getData();
 							data.createTime = DPlayInventory.DSide.getNodeTime(new Date());
 							
-							DPlayInventory.SecureStore.getAccountId((accountId) => {
+							DPlayInventory.Core.getAccountId((accountId) => {
 								data.accountId = accountId;
 								
-								DPlayInventory.SecureStore.signData(data, (hash) => {
+								DPlayInventory.Core.signData(data, (hash) => {
 									
 									DPlayInventory.DSide.saveAccountDetail({
 										hash : hash,
@@ -55383,13 +55395,13 @@ DPlayInventory.UpdateAccount = CLASS({
 										
 										notVerified : () => {
 											DPlayInventory.Alert({
-												msg : '유효하지 않은 데이터입니다.'
+												msg : MSG('NOT_VERIFIED_MESSAGE')
 											});
 										},
 										
 										notEnoughD : () => {
 											DPlayInventory.Alert({
-												msg : 'd가 부족합니다.'
+												msg : MSG('NOT_ENOUGH_D_MESSAGE')
 											});
 										},
 										
@@ -55406,7 +55418,7 @@ DPlayInventory.UpdateAccount = CLASS({
 		});
 		
 		// 기존 데이터를 가져옵니다.
-		DPlayInventory.SecureStore.getAccountId((accountId) => {
+		DPlayInventory.Core.getAccountId((accountId) => {
 			DPlayInventory.DSide.getAccountDetail(accountId, (accountDetail) => {
 				if (accountDetail !== undefined) {
 					form.setData(accountDetail);
@@ -55440,21 +55452,21 @@ DPlayInventory.UpdateGuild = CLASS({
 			DPlayInventory.UseDNotice(1),
 			
 			H1({
-				c : '길드 정보 수정'
+				c : MSG('UPDATE_GUILD_TITLE')
 			}),
 			
 			form = UUI.VALID_FORM({
 				
 				errorMsgs : {
 					name : {
-						notEmpty : '길드명을 입력해주세요.',
+						notEmpty : MSG('PLEASE_ENTER_GUILD_NAME_MESSAGE'),
 						size : (validParams) => {
-							return '길드명은 ' + validParams.max + '글자 이하로 입력해주시기 바랍니다.';
+							return MSG('WRONG_SIZE_GUILD_NAME_MESSAGE').replace(/{length}/, validParams.max);
 						}
 					},
 					introduce : {
 						size : (validParams) => {
-							return '길드 소개는 ' + validParams.max + '글자 이하로 입력해주시기 바랍니다.';
+							return MSG('WRONG_SIZE_GUILD_INTRODUCE_MESSAGE').replace(/{length}/, validParams.max);
 						}
 					}
 				},
@@ -55467,23 +55479,23 @@ DPlayInventory.UpdateGuild = CLASS({
 				// 길드명 입력
 				UUI.FULL_INPUT({
 					name : 'name',
-					placeholder : '길드명'
+					placeholder : MSG('GUILD_NAME_INPUT')
 				}),
 				
 				// 길드 소개 입력
 				UUI.FULL_TEXTAREA({
 					name : 'introduce',
-					placeholder : '길드 소개'
+					placeholder : MSG('GUILD_INTRODUCE_INPUT')
 				}),
 				
 				UUI.FULL_SUBMIT({
-					value : '저장하기'
+					value : MSG('UPDATE_GUILD_SUBMIT')
 				})],
 				on : {
 					submit : (e, form) => {
 						
 						DPlayInventory.Confirm({
-							msg : '1d를 소모하여 길드 정보를 수정하시겠습니까?'
+							msg : MSG('UPDATE_GUILD_CONFIRM')
 						}, () => {
 							
 							let data = form.getData();
@@ -55492,7 +55504,7 @@ DPlayInventory.UpdateGuild = CLASS({
 							guildData.introduce = data.introduce;
 							guildData.lastUpdateTime = DPlayInventory.DSide.getNodeTime(new Date());
 							
-							DPlayInventory.SecureStore.signData(guildData, (hash) => {
+							DPlayInventory.Core.signData(guildData, (hash) => {
 								
 								DPlayInventory.DSide.getGuildHash(guildData.id, (guildHash) => {
 									
@@ -55504,7 +55516,7 @@ DPlayInventory.UpdateGuild = CLASS({
 										
 										if (result.isNotEnoughD === true) {
 											DPlayInventory.Alert({
-												msg : 'd가 부족합니다.'
+												msg : MSG('NOT_ENOUGH_D_MESSAGE')
 											});
 										}
 										
@@ -55514,7 +55526,7 @@ DPlayInventory.UpdateGuild = CLASS({
 										
 										else if (result.isNotVerified === true) {
 											DPlayInventory.Alert({
-												msg : '유효하지 않은 데이터입니다.'
+												msg : MSG('NOT_VERIFIED_MESSAGE')
 											});
 										}
 										
@@ -55531,7 +55543,7 @@ DPlayInventory.UpdateGuild = CLASS({
 		});
 		
 		// 기존 데이터를 가져옵니다.
-		DPlayInventory.SecureStore.getAccountId((accountId) => {
+		DPlayInventory.Core.getAccountId((accountId) => {
 			DPlayInventory.DSide.getAccountGuild(accountId, (_guildData) => {
 				if (_guildData !== undefined) {
 					guildData = _guildData;
@@ -55661,238 +55673,14 @@ global.Connector = CLASS({
 		});
 	}
 });
-DPlayInventory.DPlayCoin = OBJECT({
+DPlayInventory.Core = OBJECT({
 	
 	preset : () => {
 		return Connector;
 	},
 	
 	params : () => {
-		return 'DPlayCoin';
-	},
-	
-	init : (inner, self) => {
-		
-		let getBalance = self.getBalance = (callback) => {
-			//REQUIRED: callback
-			
-			inner.send({
-				methodName : 'getBalance'
-			}, callback);
-		};
-		
-		const DECIMALS = 18;
-		
-		let getDisplayPrice = self.getDisplayPrice = (actualPrice) => {
-			return +(actualPrice / Math.pow(10, DECIMALS)).toFixed(11);
-		};
-		
-		let getActualPrice = self.getActualPrice = (displayPrice) => {
-			return displayPrice * Math.pow(10, DECIMALS);
-		};
-	}
-});
-DPlayInventory.DSide = OBJECT({
-	
-	preset : () => {
-		return Connector;
-	},
-	
-	params : () => {
-		return 'DSide';
-	},
-	
-	init : (inner, self) => {
-		
-		let timeDiffWithNode = 0;
-		inner.send({
-			methodName : 'getTimeDiffWithNode'
-		}, (_timeDiffWithNode) => {
-			timeDiffWithNode = _timeDiffWithNode;
-		});
-		
-		let getNodeTime = self.getNodeTime = (date) => {
-			//REQUIRED: date
-			
-			return new Date(date.getTime() - timeDiffWithNode);
-		};
-		
-		// 특정 계정의 d 잔고를 가져옵니다.
-		let getDBalance = self.getDBalance = (callback) => {
-			//REQUIRED: callback
-			
-			inner.send({
-				methodName : 'getDBalance'
-			}, callback);
-		};
-		
-		let seperateHandler = (callbackOrHandlers) => {
-			//REQUIRED: callbackOrHandlers
-			//OPTIONAL: callbackOrHandlers.notValid
-			//OPTIONAL: callbackOrHandlers.notVerified
-			//OPTIONAL: callbackOrHandlers.notEnoughD
-			//REQUIRED: callbackOrHandlers.success
-			
-			let notValidHandler;
-			let notVerifiedHandler;
-			let notEnoughDHandler;
-			let callback;
-			
-			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
-				callback = callbackOrHandlers;
-			} else {
-				notValidHandler = callbackOrHandlers.notValid;
-				notVerifiedHandler = callbackOrHandlers.notVerified;
-				notEnoughDHandler = callbackOrHandlers.notEnoughD;
-				callback = callbackOrHandlers.success;
-			}
-			
-			return (result) => {
-				
-				if (result.validErrors !== undefined) {
-					if (notValidHandler !== undefined) {
-						notValidHandler(result.validErrors);
-					} else {
-						SHOW_ERROR('DSide.saveAccountDetail', MSG({
-							ko : '데이터가 유효하지 않습니다.'
-						}), result.validErrors);
-					}
-				}
-				
-				else if (result.isNotVerified === true) {
-					if (notVerifiedHandler !== undefined) {
-						notVerifiedHandler();
-					} else {
-						SHOW_ERROR('DSide.saveAccountDetail', MSG({
-							ko : '데이터가 유효하지 않습니다.'
-						}));
-					}
-				}
-				
-				else if (result.isNotEnoughD === true) {
-					if (notEnoughDHandler !== undefined) {
-						notEnoughDHandler();
-					} else {
-						SHOW_ERROR('DSide.saveAccountDetail', MSG({
-							ko : 'd가 부족합니다.'
-						}));
-					}
-				}
-				
-				else {
-					callback();
-				}
-			};
-		};
-		
-		// 계정 상세 정보를 저장합니다.
-		let saveAccountDetail = self.saveAccountDetail = (params, callbackOrHandlers) => {
-			//REQUIRED: params
-			//REQUIRED: params.hash
-			//REQUIRED: params.data
-			//REQUIRED: params.data.accountId
-			//OPTIONAL: params.data.name
-			//OPTIONAL: params.data.introduce
-			//REQUIRED: params.data.createTime
-			//REQUIRED: callbackOrHandlers
-			//OPTIONAL: callbackOrHandlers.notValid
-			//OPTIONAL: callbackOrHandlers.notVerified
-			//OPTIONAL: callbackOrHandlers.notEnoughD
-			//REQUIRED: callbackOrHandlers.success
-			
-			inner.send({
-				methodName : 'saveAccountDetail',
-				data : params
-			}, seperateHandler(callbackOrHandlers));
-		};
-		
-		// 계정 상세 정보를 가져옵니다.
-		let getAccountDetail = self.getAccountDetail = (accountId, callback) => {
-			//REQUIRED: accountId
-			//REQUIRED: callback
-			
-			inner.send({
-				methodName : 'getAccountDetail',
-				data : accountId
-			}, callback);
-		};
-		
-		// 길드를 생성합니다.
-		let createGuild = self.createGuild = (params, callback) => {
-			//REQUIRED: params
-			//REQUIRED: params.hash
-			//REQUIRED: params.data
-			//REQUIRED: params.data.accountId
-			//REQUIRED: params.data.id
-			//OPTIONAL: params.data.name
-			//OPTIONAL: params.data.introduce
-			//REQUIRED: params.data.memberIds
-			//REQUIRED: params.data.createTime
-			
-			inner.send({
-				methodName : 'createGuild',
-				data : params
-			}, callback);
-		};
-		
-		// 길드의 해시를 가져옵니다.
-		let getGuildHash = self.getGuildHash = (guildId, callback) => {
-			//REQUIRED: guildId
-			//REQUIRED: callback
-			
-			inner.send({
-				methodName : 'getGuildHash',
-				data : guildId
-			}, callback);
-		};
-		
-		// 길드 정보를 수정합니다.
-		let updateGuild = self.updateGuild = (params, callback) => {
-			//REQUIRED: params
-			//REQUIRED: params.hash
-			//REQUIRED: params.data
-			//REQUIRED: params.data.accountId
-			//REQUIRED: params.data.id
-			//OPTIONAL: params.data.name
-			//OPTIONAL: params.data.introduce
-			//REQUIRED: params.data.memberIds
-			//REQUIRED: params.data.createTime
-			//REQUIRED: params.data.lastUpdateTime
-			
-			inner.send({
-				methodName : 'updateGuild',
-				data : params
-			}, callback);
-		};
-		
-		// 특정 계정이 가입한 길드 정보를 가져옵니다.
-		let getAccountGuild = self.getAccountGuild = (accountId, callback) => {
-			//REQUIRED: accountId
-			//REQUIRED: callback
-			
-			inner.send({
-				methodName : 'getAccountGuild',
-				data : accountId
-			}, callback);
-		};
-		
-		let login = self.login = (callback) => {
-			//REQUIRED: callback
-			
-			inner.send({
-				methodName : 'login'
-			}, callback);
-		};
-	}
-});
-DPlayInventory.Ethereum = OBJECT({
-	
-	preset : () => {
-		return Connector;
-	},
-	
-	params : () => {
-		return 'Ethereum';
+		return 'DPlayInventory';
 	},
 	
 	init : (inner, self) => {
@@ -56104,19 +55892,6 @@ DPlayInventory.Ethereum = OBJECT({
 				}
 			});
 		};
-	}
-});
-DPlayInventory.SecureStore = OBJECT({
-	
-	preset : () => {
-		return Connector;
-	},
-	
-	params : () => {
-		return 'SecureStore';
-	},
-	
-	init : (inner, self) => {
 		
 		let setPassword = self.setPassword = (password, callback) => {
 			//REQUIRED: password
@@ -56342,6 +56117,230 @@ DPlayInventory.SecureStore = OBJECT({
 			
 			inner.send({
 				methodName : 'clear'
+			}, callback);
+		};
+	}
+});
+DPlayInventory.DPlayCoin = OBJECT({
+	
+	preset : () => {
+		return Connector;
+	},
+	
+	params : () => {
+		return 'DPlayCoin';
+	},
+	
+	init : (inner, self) => {
+		
+		let getBalance = self.getBalance = (callback) => {
+			//REQUIRED: callback
+			
+			inner.send({
+				methodName : 'getBalance'
+			}, callback);
+		};
+		
+		const DECIMALS = 18;
+		
+		let getDisplayPrice = self.getDisplayPrice = (actualPrice) => {
+			return +(actualPrice / Math.pow(10, DECIMALS)).toFixed(11);
+		};
+		
+		let getActualPrice = self.getActualPrice = (displayPrice) => {
+			return displayPrice * Math.pow(10, DECIMALS);
+		};
+	}
+});
+DPlayInventory.DSide = OBJECT({
+	
+	preset : () => {
+		return Connector;
+	},
+	
+	params : () => {
+		return 'DSide';
+	},
+	
+	init : (inner, self) => {
+		
+		let timeDiffWithNode = 0;
+		inner.send({
+			methodName : 'getTimeDiffWithNode'
+		}, (_timeDiffWithNode) => {
+			timeDiffWithNode = _timeDiffWithNode;
+		});
+		
+		let getNodeTime = self.getNodeTime = (date) => {
+			//REQUIRED: date
+			
+			return new Date(date.getTime() - timeDiffWithNode);
+		};
+		
+		// 특정 계정의 d 잔고를 가져옵니다.
+		let getDBalance = self.getDBalance = (callback) => {
+			//REQUIRED: callback
+			
+			inner.send({
+				methodName : 'getDBalance'
+			}, callback);
+		};
+		
+		let seperateHandler = (callbackOrHandlers) => {
+			//REQUIRED: callbackOrHandlers
+			//OPTIONAL: callbackOrHandlers.notValid
+			//OPTIONAL: callbackOrHandlers.notVerified
+			//OPTIONAL: callbackOrHandlers.notEnoughD
+			//REQUIRED: callbackOrHandlers.success
+			
+			let notValidHandler;
+			let notVerifiedHandler;
+			let notEnoughDHandler;
+			let callback;
+			
+			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+				callback = callbackOrHandlers;
+			} else {
+				notValidHandler = callbackOrHandlers.notValid;
+				notVerifiedHandler = callbackOrHandlers.notVerified;
+				notEnoughDHandler = callbackOrHandlers.notEnoughD;
+				callback = callbackOrHandlers.success;
+			}
+			
+			return (result) => {
+				
+				if (result.validErrors !== undefined) {
+					if (notValidHandler !== undefined) {
+						notValidHandler(result.validErrors);
+					} else {
+						SHOW_ERROR('DSide.saveAccountDetail', MSG({
+							ko : '데이터가 유효하지 않습니다.'
+						}), result.validErrors);
+					}
+				}
+				
+				else if (result.isNotVerified === true) {
+					if (notVerifiedHandler !== undefined) {
+						notVerifiedHandler();
+					} else {
+						SHOW_ERROR('DSide.saveAccountDetail', MSG({
+							ko : '데이터가 유효하지 않습니다.'
+						}));
+					}
+				}
+				
+				else if (result.isNotEnoughD === true) {
+					if (notEnoughDHandler !== undefined) {
+						notEnoughDHandler();
+					} else {
+						SHOW_ERROR('DSide.saveAccountDetail', MSG({
+							ko : 'd가 부족합니다.'
+						}));
+					}
+				}
+				
+				else {
+					callback();
+				}
+			};
+		};
+		
+		// 계정 상세 정보를 저장합니다.
+		let saveAccountDetail = self.saveAccountDetail = (params, callbackOrHandlers) => {
+			//REQUIRED: params
+			//REQUIRED: params.hash
+			//REQUIRED: params.data
+			//REQUIRED: params.data.accountId
+			//OPTIONAL: params.data.name
+			//OPTIONAL: params.data.introduce
+			//REQUIRED: params.data.createTime
+			//REQUIRED: callbackOrHandlers
+			//OPTIONAL: callbackOrHandlers.notValid
+			//OPTIONAL: callbackOrHandlers.notVerified
+			//OPTIONAL: callbackOrHandlers.notEnoughD
+			//REQUIRED: callbackOrHandlers.success
+			
+			inner.send({
+				methodName : 'saveAccountDetail',
+				data : params
+			}, seperateHandler(callbackOrHandlers));
+		};
+		
+		// 계정 상세 정보를 가져옵니다.
+		let getAccountDetail = self.getAccountDetail = (accountId, callback) => {
+			//REQUIRED: accountId
+			//REQUIRED: callback
+			
+			inner.send({
+				methodName : 'getAccountDetail',
+				data : accountId
+			}, callback);
+		};
+		
+		// 길드를 생성합니다.
+		let createGuild = self.createGuild = (params, callback) => {
+			//REQUIRED: params
+			//REQUIRED: params.hash
+			//REQUIRED: params.data
+			//REQUIRED: params.data.accountId
+			//REQUIRED: params.data.id
+			//OPTIONAL: params.data.name
+			//OPTIONAL: params.data.introduce
+			//REQUIRED: params.data.memberIds
+			//REQUIRED: params.data.createTime
+			
+			inner.send({
+				methodName : 'createGuild',
+				data : params
+			}, callback);
+		};
+		
+		// 길드의 해시를 가져옵니다.
+		let getGuildHash = self.getGuildHash = (guildId, callback) => {
+			//REQUIRED: guildId
+			//REQUIRED: callback
+			
+			inner.send({
+				methodName : 'getGuildHash',
+				data : guildId
+			}, callback);
+		};
+		
+		// 길드 정보를 수정합니다.
+		let updateGuild = self.updateGuild = (params, callback) => {
+			//REQUIRED: params
+			//REQUIRED: params.hash
+			//REQUIRED: params.data
+			//REQUIRED: params.data.accountId
+			//REQUIRED: params.data.id
+			//OPTIONAL: params.data.name
+			//OPTIONAL: params.data.introduce
+			//REQUIRED: params.data.memberIds
+			//REQUIRED: params.data.createTime
+			//REQUIRED: params.data.lastUpdateTime
+			
+			inner.send({
+				methodName : 'updateGuild',
+				data : params
+			}, callback);
+		};
+		
+		// 특정 계정이 가입한 길드 정보를 가져옵니다.
+		let getAccountGuild = self.getAccountGuild = (accountId, callback) => {
+			//REQUIRED: accountId
+			//REQUIRED: callback
+			
+			inner.send({
+				methodName : 'getAccountGuild',
+				data : accountId
+			}, callback);
+		};
+		
+		let login = self.login = (callback) => {
+			//REQUIRED: callback
+			
+			inner.send({
+				methodName : 'login'
 			}, callback);
 		};
 	}

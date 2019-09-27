@@ -69,7 +69,7 @@ DPlayInventory.UpdateGuild = CLASS({
 							guildData.introduce = data.introduce;
 							guildData.lastUpdateTime = DPlayInventory.DSide.getNodeTime(new Date());
 							
-							DPlayInventory.SecureStore.signData(guildData, (hash) => {
+							DPlayInventory.Core.signData(guildData, (hash) => {
 								
 								DPlayInventory.DSide.getGuildHash(guildData.id, (guildHash) => {
 									
@@ -108,7 +108,7 @@ DPlayInventory.UpdateGuild = CLASS({
 		});
 		
 		// 기존 데이터를 가져옵니다.
-		DPlayInventory.SecureStore.getAccountId((accountId) => {
+		DPlayInventory.Core.getAccountId((accountId) => {
 			DPlayInventory.DSide.getAccountGuild(accountId, (_guildData) => {
 				if (_guildData !== undefined) {
 					guildData = _guildData;

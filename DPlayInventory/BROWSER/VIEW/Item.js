@@ -74,7 +74,7 @@ DPlayInventory.Item = CLASS(() => {
 			EACH(DPlayInventory.ERC20_ITEMS, (items, projectName) => {
 				EACH(items, (itemInfo, itemName) => {
 					
-					DPlayInventory.Ethereum.getERC20Balance(itemInfo.addresses, (balance, address) => {
+					DPlayInventory.Core.getERC20Balance(itemInfo.addresses, (balance, address) => {
 						
 						itemCache[address] = {
 							image : itemInfo.image,
@@ -103,7 +103,7 @@ DPlayInventory.Item = CLASS(() => {
 			EACH(DPlayInventory.ERC721_ITEMS, (items, projectName) => {
 				EACH(items, (itemInfo, itemName) => {
 					
-					DPlayInventory.Ethereum.getERC721Ids({
+					DPlayInventory.Core.getERC721Ids({
 						getItemIdsName : itemInfo.getItemIdsName,
 						addresses : itemInfo.addresses
 					}, (ids, address) => {

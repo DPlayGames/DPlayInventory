@@ -146,7 +146,9 @@ window.DPlayInventory = (() => {
 	let getNetworkName = self.getNetworkName = (callback) => {
 		//REQUIRED: callback
 		
-		inner.send('getNetworkName', undefined, callback);
+		inner.send({
+			methodName : 'getNetworkName'
+		}, callback);
 	};
 	
 	// 이더리움 네트워크를 변경합니다.
@@ -154,42 +156,253 @@ window.DPlayInventory = (() => {
 		//REQUIRED: networkName
 		//REQUIRED: callback
 		
-		//TODO:
+		inner.send({
+			methodName : 'changeNetwork',
+			data : networkName
+		}, callback);
 	};
 	
-	// 보관함에 로그인합니다.
-	let login = self.login = () => {
-		send('login');
+	let login = self.login = (params, callback) => {
+		//REQUIRED: params
+		//REQUIRED: params.icon
+		//REQUIRED: params.title
+		//REQUIRED: callback
+		
+		inner.send({
+			methodName : 'login',
+			data : params
+		}, callback);
 	};
 	
 	// 계정의 ID를 가져옵니다.
-	let getAccountId = self.getAccountId = () => {
+	let getAccountId = self.getAccountId = (callback) => {
+		//REQUIRED: callback
 		
+		inner.send({
+			methodName : 'getAccountId'
+		}, callback);
+	};
+	
+	// 문자열에 서명합니다.
+	let signText = self.signText = (text, callbackOrHandlers) => {
+		//REQUIRED: text
+		//REQUIRED: callbackOrHandlers
+		//OPTIONAL: callbackOrHandlers.error
+		//REQUIRED: callbackOrHandlers.success
+		
+		let errorHandler;
+		let callback;
+		
+		if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+			callback = callbackOrHandlers;
+		} else {
+			errorHandler = callbackOrHandlers.error;
+			callback = callbackOrHandlers.success;
+		}
+		
+		inner.send({
+			methodName : 'signText',
+			data : text
+		}, (result) => {
+			
+			// 오류 발생
+			if (result.errorMsg !== undefined) {
+				if (errorHandler === undefined) {
+					SHOW_ERROR('DPlayInventory.signText (web3.js polyfill)', result.errorMsg, text);
+				} else {
+					errorHandler(result.errorMsg);
+				}
+			}
+			
+			else {
+				callback(result.signature);
+			}
+		});
+	};
+	
+	let signData = self.signData = (data, callbackOrHandlers) => {
+		//REQUIRED: data
+		//REQUIRED: callbackOrHandlers
+		//OPTIONAL: callbackOrHandlers.error
+		//REQUIRED: callbackOrHandlers.success
+		
+		let sortedData = {};
+		Object.keys(data).sort().forEach((key) => {
+			sortedData[key] = data[key];
+		});
+		
+		signText(STRINGIFY(sortedData), callbackOrHandlers);
+	};
+	
+	// 계정의 이더 잔고를 가져옵니다.
+	let getEtherBalance = self.getEtherBalance = (callbackOrHandlers) => {
+		//REQUIRED: callbackOrHandlers
+		//OPTIONAL: callbackOrHandlers.error
+		//REQUIRED: callbackOrHandlers.success
+		
+		let errorHandler;
+		let callback;
+		
+		if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+			callback = callbackOrHandlers;
+		} else {
+			errorHandler = callbackOrHandlers.error;
+			callback = callbackOrHandlers.success;
+		}
+		
+		inner.send({
+			methodName : 'getEtherBalance',
+			data : text
+		}, (result) => {
+			
+			// 오류 발생
+			if (result.errorMsg !== undefined) {
+				if (errorHandler === undefined) {
+					SHOW_ERROR('DPlayInventory.signText (web3.js polyfill)', result.errorMsg, text);
+				} else {
+					errorHandler(result.errorMsg);
+				}
+			}
+			
+			else {
+				callback(result.balance);
+			}
+		});
 	};
 	
 	// 스마트 계약을 배포합니다.
 	let deploySmartContract = self.deploySmartContract = () => {
-		
+		//TODO:
 	};
+	
+	// DPlay 보관함의 스킨을 변경합니다.
+	let changeInventorySkin = self.changeInventorySkin = () => {
+		//TODO:
+	};
+	
+	let addChangeNetworkHandler = self.addChangeNetworkHandler = (changeNetworkHandler) => {
+		//REQUIRED: changeNetworkHandler
+		
+		inner.on('networkChanged', () => {
+			changeNetworkHandler();
+		});
+	};
+	
+	let addChangeAccountHandler = self.addChangeAccountHandler = (changeAccountHandler) => {
+		//REQUIRED: changeAccountHandler
+		
+		inner.on('accountsChanged', (accountId) => {
+			changeAccountHandler(accountId);
+		});
+	};
+	
+	let eventMap = {};
 	
 	// 스마트 계약 인터페이스를 생성합니다.
 	let createSmartContractInterface = self.createSmartContractInterface = (params, callback) => {
 		//REQUIRED: params
 		//REQUIRED: params.abi
 		//REQUIRED: params.address
+		//OPTIONAL: params.onEvent
 		//REQUIRED: callback
 		
-		send('createSmartContractInterface', params, callback);
+		let abi = params.abi;
+		let address = params.address;
+		let onEvent = params.onEvent;
+		
+		if (onEvent !== undefined) {
+			if (eventMap[address] === undefined) {
+				eventMap[address] = [];
+			}
+			eventMap[address].push(onEvent);
+		}
+		
+		inner.send({
+			methodName : 'createSmartContractInterface',
+			data : {
+				abi : abi,
+				address : address
+			}
+		}, callback);
+	};
+	
+	inner.on('__CONTRACT_EVENT', (params) => {
+		
+		let address = params.address;
+		let eventName = params.eventName;
+		let args = params.args;
+		
+		if (eventMap[address] !== undefined) {
+			eventMap[address](eventName, args);
+		}
+	});
+	
+	// 트랜잭션이 완료될 때 까지 확인합니다.
+	let watchTransaction = self.watchTransaction = (transactionHash, callbackOrHandlers) => {
+		//REQUIRED: transactionHash
+		//REQUIRED: callbackOrHandlers
+		//OPTIONAL: callbackOrHandlers.error
+		//REQUIRED: callbackOrHandlers.success
+		
+		let callback;
+		let errorHandler;
+		
+		// 콜백 정리
+		if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+			callback = callbackOrHandlers;
+		} else {
+			callback = callbackOrHandlers.success;
+			errorHandler = callbackOrHandlers.error;
+		}
+		
+		inner.send({
+			methodName : 'watchTransaction',
+			data : transactionHash
+		}, (result) => {
+			if (result.errorMsg !== undefined) {
+				errorHandler(result.errorMsg);
+			} else {
+				callback();
+			}
+		});
 	};
 	
 	// 스마트 계약의 메소드를 실행합니다.
-	let runSmartContractMethod = self.runSmartContractMethod = (params, callback) => {
+	let runSmartContractMethod = self.runSmartContractMethod = (params, callbackOrHandlers) => {
 		//REQUIRED: params
 		//REQUIRED: params.address
 		//REQUIRED: params.methodName
 		//REQUIRED: params.params
-		//REQUIRED: callback
+		//REQUIRED: callbackOrHandlers
+		//OPTIONAL: callbackOrHandlers.error
+		//REQUIRED: callbackOrHandlers.success
 		
+		let errorHandler;
+		let transactionHashCallback;
+		let callback;
+		
+		if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+			callback = callbackOrHandlers;
+		} else {
+			errorHandler = callbackOrHandlers.error;
+			transactionHashCallback = callbackOrHandlers.transactionHash;
+			callback = callbackOrHandlers.success;
+		}
+		
+		inner.send({
+			methodName : 'runSmartContractMethod',
+			data : params
+		}, (result) => {
+			if (result.errorMsg !== undefined) {
+				errorHandler(result.errorMsg);
+			} else if (result.value !== undefined) {
+				callback(result.value, result.str);
+			} else if (result.array !== undefined) {
+				callback.apply(TO_DELETE, result.array);
+			} else {
+				callback();
+			}
+		});
 	};
 	
 	return self;

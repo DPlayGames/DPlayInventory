@@ -72,7 +72,14 @@ window.Connector = (pack) => {
 		}
 	};
 	
-	let sendToBackground = inner.sendToBackground = (methodName, data, callback) => {
+	let sendToBackground = inner.sendToBackground = (params, callback) => {
+		//REQUIRED: params
+		//REQUIRED: params.methodName
+		//OPTIONAL: params.data
+		//OPTIONAL: callback
+		
+		let methodName = params.methodName;
+		let data = params.data;
 		
 		chrome.runtime.sendMessage({
 			methodName : pack + '/' + methodName,
@@ -90,7 +97,14 @@ window.Connector = (pack) => {
 		});
 	};
 	
-	let sendToPage = inner.sendToPage = (methodName, data, callback) => {
+	let sendToPage = inner.sendToPage = (params, callback) => {
+		//REQUIRED: params
+		//REQUIRED: params.methodName
+		//OPTIONAL: params.data
+		//OPTIONAL: callback
+		
+		let methodName = params.methodName;
+		let data = params.data;
 		
 		let callbackName;
 		
@@ -123,7 +137,7 @@ window.Connector = (pack) => {
 		let methodName = params.methodName;
 		let data = params.data;
 		
-		runMethods(methodName, data, sendToBackground, ret);
+		runMethods(methodName, data, ret);
 	});
 	
 	window.addEventListener('message', (e) => {

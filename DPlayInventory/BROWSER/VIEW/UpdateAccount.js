@@ -60,10 +60,10 @@ DPlayInventory.UpdateAccount = CLASS({
 							let data = form.getData();
 							data.createTime = DPlayInventory.DSide.getNodeTime(new Date());
 							
-							DPlayInventory.SecureStore.getAccountId((accountId) => {
+							DPlayInventory.Core.getAccountId((accountId) => {
 								data.accountId = accountId;
 								
-								DPlayInventory.SecureStore.signData(data, (hash) => {
+								DPlayInventory.Core.signData(data, (hash) => {
 									
 									DPlayInventory.DSide.saveAccountDetail({
 										hash : hash,
@@ -99,7 +99,7 @@ DPlayInventory.UpdateAccount = CLASS({
 		});
 		
 		// 기존 데이터를 가져옵니다.
-		DPlayInventory.SecureStore.getAccountId((accountId) => {
+		DPlayInventory.Core.getAccountId((accountId) => {
 			DPlayInventory.DSide.getAccountDetail(accountId, (accountDetail) => {
 				if (accountDetail !== undefined) {
 					form.setData(accountDetail);

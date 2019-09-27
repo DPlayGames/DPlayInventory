@@ -9,7 +9,7 @@ window.Connector = (pack) => {
 	
 	let on = inner.on = (methodName, method) => {
 		
-		let realMethodName = pack = '/' + methodName;
+		let realMethodName = pack + '/' + methodName;
 	
 		let methods = methodMap[realMethodName];
 	
@@ -41,7 +41,14 @@ window.Connector = (pack) => {
 		}
 	};
 	
-	let send = inner.send = (methodName, data, callback) => {
+	let send = inner.send = (params, callback) => {
+		//REQUIRED: params
+		//REQUIRED: params.methodName
+		//OPTIONAL: params.data
+		//OPTIONAL: callback
+		
+		let methodName = params.methodName;
+		let data = params.data;
 		
 		let callbackName;
 		

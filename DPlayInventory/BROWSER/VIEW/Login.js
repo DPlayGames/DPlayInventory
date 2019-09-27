@@ -66,13 +66,13 @@ DPlayInventory.Login = CLASS({
 							
 							let loading = DPlayInventory.Loading();
 							
-							DPlayInventory.SecureStore.setPassword(password, () => {
+							DPlayInventory.Core.setPassword(password, () => {
 								
-								DPlayInventory.SecureStore.getAccountId({
+								DPlayInventory.Core.getAccountId({
 									
 									error : () => {
 										
-										DPlayInventory.SecureStore.removePassword(() => {
+										DPlayInventory.Core.removePassword(() => {
 											loading.remove();
 											
 											DPlayInventory.Alert({

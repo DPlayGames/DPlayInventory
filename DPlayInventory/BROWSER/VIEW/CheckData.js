@@ -6,7 +6,7 @@ DPlayInventory.CheckData = CLASS({
 
 	init : (inner, self) => {
 		
-		DPlayInventory.SecureStore.checkAccountIdExists((accountIdExists) => {
+		DPlayInventory.Core.checkAccountIdExists((accountIdExists) => {
 			
 			// 저장된 계정 ID가 없다면
 			if (accountIdExists !== true) {
@@ -15,7 +15,7 @@ DPlayInventory.CheckData = CLASS({
 			
 			else {
 				
-				DPlayInventory.SecureStore.checkPasswordExists((passwordExists) => {
+				DPlayInventory.Core.checkPasswordExists((passwordExists) => {
 					
 					if (passwordExists !== true) {
 						DPlayInventory.GO('login');

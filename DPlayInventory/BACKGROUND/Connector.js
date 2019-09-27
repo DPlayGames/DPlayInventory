@@ -1,8 +1,11 @@
 // Content Script와 연결되는 커넥터
 global.Connector = CLASS({
 
-	init : (inner, self, pack) => {
-		//REQUIRED: pack
+	init : (inner, self, params) => {
+		//REQUIRED: params
+		//REQUIRED: params.pack
+		
+		let pack = params.pack;
 		
 		let methodMap = {};
 		let sendKey = 0;
@@ -76,7 +79,7 @@ global.Connector = CLASS({
 			let data = params.data;
 			
 			let methods = methodMap[methodName];
-	
+			
 			if (methods !== undefined) {
 				methods.forEach((method) => {
 					method(data, ret);

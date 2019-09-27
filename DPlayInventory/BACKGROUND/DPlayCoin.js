@@ -5,14 +5,16 @@ global.DPlayCoin = OBJECT({
 	},
 	
 	params : () => {
-		return 'DPlayCoin';
+		return {
+			pack : 'DPlayCoin'
+		};
 	},
 
 	init : (inner, self) => {
 		
 		inner.on('getBalance', (notUsing, callback) => {
 			
-			SecureStore.getAccountId((result) => {
+			DPlayInventory.getAccountId((result) => {
 				
 				if (result.accountId !== undefined) {
 					

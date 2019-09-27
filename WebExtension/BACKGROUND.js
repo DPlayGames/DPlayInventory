@@ -53754,8 +53754,11 @@ module.exports = {
 // Content Script와 연결되는 커넥터
 global.Connector = CLASS({
 
-	init : (inner, self, pack) => {
-		//REQUIRED: pack
+	init : (inner, self, params) => {
+		//REQUIRED: params
+		//REQUIRED: params.pack
+		
+		let pack = params.pack;
 		
 		let methodMap = {};
 		let sendKey = 0;
@@ -53829,7 +53832,7 @@ global.Connector = CLASS({
 			let data = params.data;
 			
 			let methods = methodMap[methodName];
-	
+			
 			if (methods !== undefined) {
 				methods.forEach((method) => {
 					method(data, ret);
@@ -54059,14 +54062,16 @@ global.DPlayCoin = OBJECT({
 	},
 	
 	params : () => {
-		return 'DPlayCoin';
+		return {
+			pack : 'DPlayCoin'
+		};
 	},
 
 	init : (inner, self) => {
 		
 		inner.on('getBalance', (notUsing, callback) => {
 			
-			SecureStore.getAccountId((result) => {
+			DPlayInventory.getAccountId((result) => {
 				
 				if (result.accountId !== undefined) {
 					
@@ -54079,493 +54084,16 @@ global.DPlayCoin = OBJECT({
 		});
 	}
 });
-global.DPlaySmartContract = CLASS({
-	
-	init : (inner, self, params) => {
-		//REQUIRED: params
-		//REQUIRED: params.abi
-		//REQUIRED: params.addresses
-		
-		let abi = params.abi;
-		let addresses = params.addresses;
-		
-		let address;
-		
-		let waitingRunSmartContractMethodInfos = [];
-		let innerRunSmartContractMethod;
-		
-		let eventMap = {};
-		
-		// 스마트 계약의 메소드를 실행합니다.
-		let runSmartContractMethod = (methodName, params, callbackOrHandlers) => {
-			
-			if (innerRunSmartContractMethod === undefined) {
-				
-				waitingRunSmartContractMethodInfos.push({
-					methodName : methodName,
-					params : params,
-					callbackOrHandlers : callbackOrHandlers
-				});
-				
-			} else {
-				
-				getAddress((address) => {
-					
-					innerRunSmartContractMethod({
-						address : address,
-						methodName : methodName,
-						params : params
-					}, callbackOrHandlers);
-				});
-			}
-		};
-		
-		let getAddress = self.getAddress = (callback) => {
-			//REQUIRED: callback
-			
-			if (address === undefined) {
-				address = addresses[Ethereum.getNetworkName()];
-				callback(address);
-			}
-			
-			else {
-				callback(address);
-			}
-		};
-		
-		let init = self.init = () => {
-			
-			getAddress((address) => {
-				
-				// 스마트 계약 인터페이스 생성
-				Ethereum.createSmartContractInterface({
-					abi : abi,
-					address : address,
-					onEvent : (eventName, args) => {
-						
-						let eventHandlers = eventMap[eventName];
-						
-						if (eventHandlers !== undefined) {
-							EACH(eventHandlers, (eventHandler) => {
-								eventHandler(args);
-							});
-						}
-					}
-				}, () => {
-					
-					innerRunSmartContractMethod = (params, callbackOrHandlers) => {
-						//REQUIRED: params
-						//REQUIRED: params.address
-						//REQUIRED: params.methodName
-						//REQUIRED: params.params
-						//REQUIRED: callbackOrHandlers
-						//OPTIONAL: callbackOrHandlers.error
-						//REQUIRED: callbackOrHandlers.success
-						
-						let errorHandler;
-						let transactionHashCallback;
-						let callback;
-						
-						if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
-							callback = callbackOrHandlers;
-						} else {
-							errorHandler = callbackOrHandlers.error;
-							transactionHashCallback = callbackOrHandlers.transactionHash;
-							callback = callbackOrHandlers.success;
-						}
-						
-						Ethereum.runSmartContractMethod(params, (result) => {
-							
-							// 계약 실행 오류 발생
-							if (result.errorMsg !== undefined) {
-								if (errorHandler !== undefined) {
-									errorHandler(result.errorMsg);
-								} else {
-									SHOW_ERROR('DPlaySmartContract.runSmartContractMethod', result.errorMsg, params);
-								}
-							}
-							
-							// 정상 작동
-							else if (callback !== undefined) {
-								
-								// output이 1개인 경우
-								if (result.value !== undefined) {
-									callback(result.value, result.str);
-								}
-								
-								// output이 여러개인 경우
-								else if (result.array !== undefined) {
-									callback.apply(TO_DELETE, result.array);
-								}
-								
-								// output이 없는 경우
-								else {
-									callback();
-								}
-							}
-						});
-					};
-					
-					// 대기중인 내용 실행
-					EACH(waitingRunSmartContractMethodInfos, (info) => {
-						
-						innerRunSmartContractMethod({
-							address : address,
-							methodName : info.methodName,
-							params : info.params
-						}, info.callbackOrHandlers);
-					});
-				});
-			});
-		};
-		
-		// 메소드 분석 및 생성
-		EACH(abi, (methodInfo) => {
-			if (methodInfo.type === 'function') {
-				
-				self[methodInfo.name] = (params, callbackOrHandlers) => {
-					
-					// 콜백만 입력된 경우
-					if (callbackOrHandlers === undefined && typeof params === 'function') {
-						callbackOrHandlers = params;
-						params = undefined;
-					}
-					
-					runSmartContractMethod(methodInfo.name, params, callbackOrHandlers);
-				};
-			}
-		});
-		
-		// 이벤트 핸들러를 등록합니다.
-		let on = self.on = (eventName, eventHandler) => {
-			//REQUIRED: eventName
-			//REQUIRED: eventHandler
-			
-			if (eventMap[eventName] === undefined) {
-				eventMap[eventName] = [];
-			}
-
-			eventMap[eventName].push(eventHandler);
-		};
-		
-		// 이벤트 핸들러를 제거합니다.
-		let off = self.off = (eventName, eventHandler) => {
-			//REQUIRED: eventName
-			//OPTIONAL: eventHandler
-
-			if (eventMap[eventName] !== undefined) {
-
-				if (eventHandler !== undefined) {
-
-					REMOVE({
-						array: eventMap[eventName],
-						value: eventHandler
-					});
-				}
-
-				if (eventHandler === undefined || eventMap[eventName].length === 0) {
-					delete eventMap[eventName];
-				}
-			}
-		};
-	}
-});
-global.DSide = OBJECT({
+global.DPlayInventory = OBJECT({
 
 	preset : () => {
 		return Connector;
 	},
 	
 	params : () => {
-		return 'DSide';
-	},
-
-	init : (inner, self) => {
-		
-		const HARD_CODED_URLS = [
-			'218.38.19.34:8923',
-			'175.207.29.151:8923'
-		];
-		
-		let nodeURLs;
-		
-		let innerSendToNode;
-		let innerOnFromNode;
-		let innerOffFromNode;
-		let timeDiffWithNode = 0;
-		
-		let waitingSendInfos = [];
-		let onInfos = [];
-		
-		let sendToNode = (methodName, data, callback) => {
-			
-			if (innerSendToNode === undefined) {
-				
-				waitingSendInfos.push({
-					params : {
-						methodName : methodName,
-						data : data
-					},
-					callback : callback
-				});
-				
-			} else {
-				
-				innerSendToNode({
-					methodName : methodName,
-					data : data
-				}, callback);
-			}
+		return {
+			pack : 'DPlayInventory'
 		};
-		
-		let onFromNode = (methodName, method) => {
-			
-			onInfos.push({
-				methodName : methodName,
-				method : method
-			});
-	
-			if (innerOnFromNode !== undefined) {
-				innerOnFromNode(methodName, method);
-			}
-		};
-		
-		let offFromNode = (methodName, method) => {
-			
-			if (innerOffFromNode !== undefined) {
-				innerOffFromNode(methodName, method);
-			}
-			
-			if (method !== undefined) {
-				
-				REMOVE(onInfos, (onInfo) => {
-					return onInfo.methodName === methodName && onInfo.method === method;
-				});
-				
-			} else {
-				
-				REMOVE(onInfos, (onInfo) => {
-					return onInfo.methodName === methodName;
-				});
-			}
-		};
-		
-		let connectToFastestNode = () => {
-			
-			let isFoundFastestNode;
-			
-			// 모든 노드들에 연결합니다.
-			EACH(nodeURLs, (url) => {
-				
-				let splits = url.split(':');
-				
-				CONNECT_TO_WEB_SOCKET_SERVER({
-					host : splits[0],
-					port : parseInt(splits[1])
-				}, {
-					error : () => {
-						// 연결 오류를 무시합니다.
-					},
-					success : (on, off, send, disconnect) => {
-						
-						if (isFoundFastestNode !== true) {
-							
-							send('getNodeTime', (nodeTime) => {
-								
-								// 가장 빠른 노드를 찾았습니다.
-								if (isFoundFastestNode !== true) {
-									
-									innerSendToNode = send;
-									innerOnFromNode = on;
-									innerOffFromNode = off;
-									timeDiffWithNode = Date.now() - nodeTime;
-									
-									// 가장 빠른 노드를 찾고 난 뒤 대기중인 내용 실행
-									EACH(onInfos, (onInfo) => {
-										innerOnFromNode(onInfo.methodName, onInfo.method);
-									});
-									
-									EACH(waitingSendInfos, (sendInfo) => {
-										innerSendToNode(sendInfo.params, sendInfo.callback);
-									});
-									
-									// 노드와의 접속이 끊어지면, 모든 내용을 초기화하고 다시 가장 빠른 노드를 찾습니다.
-									on('__DISCONNECTED', () => {
-										
-										innerSendToNode = undefined;
-										innerOnFromNode = undefined;
-										innerOffFromNode = undefined;
-										timeDiffWithNode = 0;
-										
-										waitingSendInfos = [];
-										onInfos = [];
-										
-										connectToFastestNode();
-										
-										isAccountSigned = false;
-										
-										// retry login.
-										login();
-									});
-									
-									isFoundFastestNode = true;
-								}
-								
-								else {
-									disconnect();
-								}
-							});
-						}
-						
-						else {
-							disconnect();
-						}
-					}
-				});
-			});
-		};
-		
-		let isSomeNodeConnected = false;
-		
-		// 하드코딩된 노드들의 URL로부터 최초 접속 노드를 찾습니다.
-		EACH(HARD_CODED_URLS, (url) => {
-			
-			let splits = url.split(':');
-			
-			CONNECT_TO_WEB_SOCKET_SERVER({
-				host : splits[0],
-				port : parseInt(splits[1])
-			}, {
-				error : () => {
-					// 연결 오류를 무시합니다.
-				},
-				success : (on, off, send, disconnect) => {
-					
-					if (isSomeNodeConnected !== true) {
-						
-						// 실제로 연결된 노드 URL 목록을 가져옵니다.
-						send('getNodeURLs', (urls) => {
-							
-							if (isSomeNodeConnected !== true) {
-								
-								nodeURLs = urls;
-								
-								connectToFastestNode();
-								
-								isSomeNodeConnected = true;
-							}
-							
-							disconnect();
-						});
-					}
-					
-					else {
-						disconnect();
-					}
-				}
-			});
-		});
-		
-		inner.on('getTimeDiffWithNode', (notUsing, callback) => {
-			callback(timeDiffWithNode);
-		});
-		
-		// 특정 계정의 d 잔고를 가져옵니다.
-		inner.on('getDBalance', (notUsing, callback) => {
-			
-			SecureStore.getAccountId((result) => {
-				
-				if (result.accountId !== undefined) {
-					
-					sendToNode('getDBalance', result.accountId, callback);
-				}
-			});
-		});
-		
-		// 특정 계정의 d 잔고를 가져옵니다.
-		inner.on('saveAccountDetail', (params, callback) => {
-			sendToNode('saveAccountDetail', params, callback);
-		});
-		
-		// 계정 상세 정보를 가져옵니다.
-		inner.on('getAccountDetail', (accountId, callback) => {
-			sendToNode('getAccountDetail', accountId, callback);
-		});
-		
-		// 길드를 생성합니다.
-		inner.on('createGuild', (params, callback) => {
-			sendToNode('createGuild', params, callback);
-		});
-		
-		// 길드의 해시를 가져옵니다.
-		inner.on('getGuildHash', (guildId, callback) => {
-			sendToNode('getGuildHash', guildId, callback);
-		});
-		
-		// 길드 정보를 수정합니다.
-		inner.on('updateGuild', (params, callback) => {
-			sendToNode('updateGuild', params, callback);
-		});
-		
-		// 특정 계정이 가입한 길드 정보를 가져옵니다.
-		inner.on('getAccountGuild', (accountId, callback) => {
-			sendToNode('getAccountGuild', accountId, callback);
-		});
-		
-		let isAccountSigned = false;
-		
-		let login = (callback) => {
-			
-			if (isAccountSigned === true) {
-				
-				if (callback !== undefined) {
-					callback();
-				}
-			}
-			
-			else {
-				
-				SecureStore.getAccountId((result) => {
-					
-					if (result.accountId !== undefined) {
-						
-						sendToNode('generateLoginToken', undefined, (loginToken) => {
-							
-							SecureStore.signText(loginToken, (hash) => {
-								
-								sendToNode('login', {
-									hash : hash,
-									accountId : result.accountId
-								}, (isSucceed) => {
-									
-									if (isSucceed === true) {
-										isAccountSigned = true;
-										
-										if (callback !== undefined) {
-											callback();
-										}
-									}
-								});
-							});
-						});
-					}
-				});
-			}
-		};
-		
-		inner.on('login', (notUsing, callback) => {
-			login(callback);
-		});
-	}
-});
-global.Ethereum = OBJECT({
-
-	preset : () => {
-		return Connector;
-	},
-	
-	params : () => {
-		return 'Ethereum';
 	},
 
 	init : (inner, self) => {
@@ -54599,7 +54127,7 @@ global.Ethereum = OBJECT({
 		
 		let changeNetwork;
 		
-		// 비밀번호를 지정합니다.
+		// 네트워크를 변경합니다.
 		inner.on('changeNetwork', changeNetwork = (_networkName) => {
 			
 			networkName = _networkName;
@@ -54616,7 +54144,7 @@ global.Ethereum = OBJECT({
 		changeNetwork(networkName);
 		
 		// 이더리움 네트워크 이름을 가져옵니다.
-		inner.on('changeNetwork', (notUsing, callback) => {
+		inner.on('getNetworkName', (notUsing, callback) => {
 			
 			web3.eth.net.getId((error, netId) => {
 				
@@ -54658,7 +54186,14 @@ global.Ethereum = OBJECT({
 						}
 					});
 					
-					console.log(info.event, args);
+					inner.send({
+						methodName : '__CONTRACT_EVENT',
+						data : {
+							address : address,
+							eventName : info.event,
+							args : args
+						}
+					});
 				}
 			});
 			
@@ -54678,22 +54213,9 @@ global.Ethereum = OBJECT({
 		inner.on('createSmartContractInterface', createSmartContractInterface);
 		
 		// 트랜잭션이 완료될 때 까지 확인합니다.
-		let watchTransaction = (transactionHash, callbackOrHandlers) => {
+		let watchTransaction = (transactionHash, callback) => {
 			//REQUIRED: transactionHash
-			//REQUIRED: callbackOrHandlers
-			//OPTIONAL: callbackOrHandlers.error
-			//REQUIRED: callbackOrHandlers.success
-			
-			let callback;
-			let errorHandler;
-			
-			// 콜백 정리
-			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
-				callback = callbackOrHandlers;
-			} else {
-				callback = callbackOrHandlers.success;
-				errorHandler = callbackOrHandlers.error;
-			}
+			//REQUIRED: callback
 			
 			let retry = RAR(() => {
 				
@@ -54701,11 +54223,9 @@ global.Ethereum = OBJECT({
 					
 					// 트랜잭선 오류 발생
 					if (error !== TO_DELETE) {
-						if (errorHandler !== undefined) {
-							errorHandler(error.toString());
-						} else {
-							SHOW_ERROR(transactionHash, error.toString(), params);
-						}
+						callback({
+							errorMsg : error.toString()
+						});
 					}
 					
 					// 아무런 값이 없으면 재시도
@@ -54715,11 +54235,13 @@ global.Ethereum = OBJECT({
 					
 					// 트랜잭션 완료
 					else {
-						callback();
+						callback({});
 					}
 				});
 			});
 		};
+		
+		inner.on('watchTransaction', watchTransaction);
 		
 		// 결과를 정돈합니다.
 		let cleanResult = (outputs, result) => {
@@ -54965,17 +54487,7 @@ global.Ethereum = OBJECT({
 						
 						// 트랜잭션이 필요한 함수인 경우
 						else if (callback !== undefined) {
-							
-							watchTransaction(result, {
-								error : (errorMsg) => {
-									callback({
-										errorMsg : errorMsg
-									});
-								},
-								success : () => {
-									callback({});
-								}
-							});
+							watchTransaction(result, callback);
 						}
 					}
 				});
@@ -54987,11 +54499,11 @@ global.Ethereum = OBJECT({
 		
 		inner.on('getEtherBalance', (notUsing, callback) => {
 			
-			SecureStore.getAccountId((result) => {
+			getAccountId((result) => {
 				
 				if (result.accountId !== undefined) {
 					
-					web3.eth.getBalance(result.accountId, (error, balance) => {
+					web3.eth.getBalance(result.accountId, (error, balanceBN) => {
 						
 						// 오류 발생
 						if (error !== TO_DELETE) {
@@ -55002,7 +54514,7 @@ global.Ethereum = OBJECT({
 						
 						else {
 							callback({
-								balance : balance
+								balance : web3.fromWei(balanceBN.toNumber(), 'ether')
 							});
 						}
 					});
@@ -55025,7 +54537,7 @@ global.Ethereum = OBJECT({
 			});
 			erc20.init();
 			
-			SecureStore.getAccountId((result) => {
+			getAccountId((result) => {
 				
 				if (result.accountId !== undefined) {
 					
@@ -55067,7 +54579,7 @@ global.Ethereum = OBJECT({
 			});
 			erc721.init();
 			
-			SecureStore.getAccountId((result) => {
+			getAccountId((result) => {
 				
 				if (result.accountId !== undefined) {
 					
@@ -55084,34 +54596,6 @@ global.Ethereum = OBJECT({
 				}
 			});
 		});
-	}
-});
-global.MAIN = METHOD({
-
-	run : () => {
-		
-		const NETWORK_ADDRESSES = {
-			Mainnet : 'wss://mainnet.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
-			Ropsten : 'wss://ropsten.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
-			Rinkeby : 'wss://rinkeby.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
-			Kovan : 'wss://kovan.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
-			Goerli : 'wss://goerli.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b'
-		};
-		
-		global.web3 = new Web3(NETWORK_ADDRESSES.Kovan);
-	}
-});
-global.SecureStore = OBJECT({
-
-	preset : () => {
-		return Connector;
-	},
-	
-	params : () => {
-		return 'SecureStore';
-	},
-
-	init : (inner, self) => {
 		
 		let password;
 		
@@ -55169,27 +54653,36 @@ global.SecureStore = OBJECT({
 			
 			chrome.storage.local.get(['accountId'], (result) => {
 				
-				Crypto.decrypt({
-					encryptedText : result.accountId,
-					password : password
-				}, {
-					error : (errorMsg) => {
-						callback({
-							errorMsg : errorMsg
-						});
-					},
-					success : (accountId) => {
-						callback({
-							accountId : accountId
-						});
-					}
-				});
+				if (result.accountId === undefined) {
+					callback({});
+				}
+				
+				else {
+					
+					Crypto.decrypt({
+						encryptedText : result.accountId,
+						password : password
+					}, {
+						error : (errorMsg) => {
+							callback({
+								errorMsg : errorMsg
+							});
+						},
+						success : (accountId) => {
+							callback({
+								accountId : accountId
+							});
+						}
+					});
+				}
 			});
 		};
 		
 		// 계정 ID를 반환합니다.
 		inner.on('getAccountId', (notUsing, callback) => {
-			getAccountId(callback);
+			getAccountId((result) => {
+				callback(result.accountId);
+			});
 		});
 		
 		// 비밀키를 저장합니다.
@@ -55292,6 +54785,502 @@ global.SecureStore = OBJECT({
 				callback();
 			});
 		});
+	}
+});
+global.DPlaySmartContract = CLASS({
+	
+	init : (inner, self, params) => {
+		//REQUIRED: params
+		//REQUIRED: params.abi
+		//REQUIRED: params.addresses
+		
+		let abi = params.abi;
+		let addresses = params.addresses;
+		
+		let address;
+		
+		let waitingRunSmartContractMethodInfos = [];
+		let innerRunSmartContractMethod;
+		
+		let eventMap = {};
+		
+		// 스마트 계약의 메소드를 실행합니다.
+		let runSmartContractMethod = (methodName, params, callbackOrHandlers) => {
+			
+			if (innerRunSmartContractMethod === undefined) {
+				
+				waitingRunSmartContractMethodInfos.push({
+					methodName : methodName,
+					params : params,
+					callbackOrHandlers : callbackOrHandlers
+				});
+				
+			} else {
+				
+				getAddress((address) => {
+					
+					innerRunSmartContractMethod({
+						address : address,
+						methodName : methodName,
+						params : params
+					}, callbackOrHandlers);
+				});
+			}
+		};
+		
+		let getAddress = self.getAddress = (callback) => {
+			//REQUIRED: callback
+			
+			if (address === undefined) {
+				address = addresses[DPlayInventory.getNetworkName()];
+				callback(address);
+			}
+			
+			else {
+				callback(address);
+			}
+		};
+		
+		let init = self.init = () => {
+			
+			getAddress((address) => {
+				
+				// 스마트 계약 인터페이스 생성
+				DPlayInventory.createSmartContractInterface({
+					abi : abi,
+					address : address,
+					onEvent : (eventName, args) => {
+						
+						let eventHandlers = eventMap[eventName];
+						
+						if (eventHandlers !== undefined) {
+							EACH(eventHandlers, (eventHandler) => {
+								eventHandler(args);
+							});
+						}
+					}
+				}, () => {
+					
+					innerRunSmartContractMethod = (params, callbackOrHandlers) => {
+						//REQUIRED: params
+						//REQUIRED: params.address
+						//REQUIRED: params.methodName
+						//REQUIRED: params.params
+						//REQUIRED: callbackOrHandlers
+						//OPTIONAL: callbackOrHandlers.error
+						//REQUIRED: callbackOrHandlers.success
+						
+						let errorHandler;
+						let transactionHashCallback;
+						let callback;
+						
+						if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+							callback = callbackOrHandlers;
+						} else {
+							errorHandler = callbackOrHandlers.error;
+							transactionHashCallback = callbackOrHandlers.transactionHash;
+							callback = callbackOrHandlers.success;
+						}
+						
+						DPlayInventory.runSmartContractMethod(params, (result) => {
+							
+							// 계약 실행 오류 발생
+							if (result.errorMsg !== undefined) {
+								if (errorHandler !== undefined) {
+									errorHandler(result.errorMsg);
+								} else {
+									SHOW_ERROR('DPlaySmartContract.runSmartContractMethod', result.errorMsg, params);
+								}
+							}
+							
+							// 정상 작동
+							else if (callback !== undefined) {
+								
+								// output이 1개인 경우
+								if (result.value !== undefined) {
+									callback(result.value, result.str);
+								}
+								
+								// output이 여러개인 경우
+								else if (result.array !== undefined) {
+									callback.apply(TO_DELETE, result.array);
+								}
+								
+								// output이 없는 경우
+								else {
+									callback();
+								}
+							}
+						});
+					};
+					
+					// 대기중인 내용 실행
+					EACH(waitingRunSmartContractMethodInfos, (info) => {
+						
+						innerRunSmartContractMethod({
+							address : address,
+							methodName : info.methodName,
+							params : info.params
+						}, info.callbackOrHandlers);
+					});
+				});
+			});
+		};
+		
+		// 메소드 분석 및 생성
+		EACH(abi, (methodInfo) => {
+			if (methodInfo.type === 'function') {
+				
+				self[methodInfo.name] = (params, callbackOrHandlers) => {
+					
+					// 콜백만 입력된 경우
+					if (callbackOrHandlers === undefined && typeof params === 'function') {
+						callbackOrHandlers = params;
+						params = undefined;
+					}
+					
+					runSmartContractMethod(methodInfo.name, params, callbackOrHandlers);
+				};
+			}
+		});
+		
+		// 이벤트 핸들러를 등록합니다.
+		let on = self.on = (eventName, eventHandler) => {
+			//REQUIRED: eventName
+			//REQUIRED: eventHandler
+			
+			if (eventMap[eventName] === undefined) {
+				eventMap[eventName] = [];
+			}
+
+			eventMap[eventName].push(eventHandler);
+		};
+		
+		// 이벤트 핸들러를 제거합니다.
+		let off = self.off = (eventName, eventHandler) => {
+			//REQUIRED: eventName
+			//OPTIONAL: eventHandler
+
+			if (eventMap[eventName] !== undefined) {
+
+				if (eventHandler !== undefined) {
+
+					REMOVE({
+						array: eventMap[eventName],
+						value: eventHandler
+					});
+				}
+
+				if (eventHandler === undefined || eventMap[eventName].length === 0) {
+					delete eventMap[eventName];
+				}
+			}
+		};
+	}
+});
+global.DSide = OBJECT({
+
+	preset : () => {
+		return Connector;
+	},
+	
+	params : () => {
+		return {
+			pack : 'DSide'
+		};
+	},
+
+	init : (inner, self) => {
+		
+		const HARD_CODED_URLS = [
+			'218.38.19.34:8923',
+			'175.207.29.151:8923'
+		];
+		
+		let nodeURLs;
+		
+		let innerSendToNode;
+		let innerOnFromNode;
+		let innerOffFromNode;
+		let timeDiffWithNode = 0;
+		
+		let waitingSendInfos = [];
+		let onInfos = [];
+		
+		let sendToNode = (methodName, data, callback) => {
+			
+			if (innerSendToNode === undefined) {
+				
+				waitingSendInfos.push({
+					params : {
+						methodName : methodName,
+						data : data
+					},
+					callback : callback
+				});
+				
+			} else {
+				
+				innerSendToNode({
+					methodName : methodName,
+					data : data
+				}, callback);
+			}
+		};
+		
+		let onFromNode = (methodName, method) => {
+			
+			onInfos.push({
+				methodName : methodName,
+				method : method
+			});
+	
+			if (innerOnFromNode !== undefined) {
+				innerOnFromNode(methodName, method);
+			}
+		};
+		
+		let offFromNode = (methodName, method) => {
+			
+			if (innerOffFromNode !== undefined) {
+				innerOffFromNode(methodName, method);
+			}
+			
+			if (method !== undefined) {
+				
+				REMOVE(onInfos, (onInfo) => {
+					return onInfo.methodName === methodName && onInfo.method === method;
+				});
+				
+			} else {
+				
+				REMOVE(onInfos, (onInfo) => {
+					return onInfo.methodName === methodName;
+				});
+			}
+		};
+		
+		let connectToFastestNode = () => {
+			
+			let isFoundFastestNode;
+			
+			// 모든 노드들에 연결합니다.
+			EACH(nodeURLs, (url) => {
+				
+				let splits = url.split(':');
+				
+				CONNECT_TO_WEB_SOCKET_SERVER({
+					host : splits[0],
+					port : parseInt(splits[1])
+				}, {
+					error : () => {
+						// 연결 오류를 무시합니다.
+					},
+					success : (on, off, send, disconnect) => {
+						
+						if (isFoundFastestNode !== true) {
+							
+							send('getNodeTime', (nodeTime) => {
+								
+								// 가장 빠른 노드를 찾았습니다.
+								if (isFoundFastestNode !== true) {
+									
+									innerSendToNode = send;
+									innerOnFromNode = on;
+									innerOffFromNode = off;
+									timeDiffWithNode = Date.now() - nodeTime;
+									
+									// 가장 빠른 노드를 찾고 난 뒤 대기중인 내용 실행
+									EACH(onInfos, (onInfo) => {
+										innerOnFromNode(onInfo.methodName, onInfo.method);
+									});
+									
+									EACH(waitingSendInfos, (sendInfo) => {
+										innerSendToNode(sendInfo.params, sendInfo.callback);
+									});
+									
+									// 노드와의 접속이 끊어지면, 모든 내용을 초기화하고 다시 가장 빠른 노드를 찾습니다.
+									on('__DISCONNECTED', () => {
+										
+										innerSendToNode = undefined;
+										innerOnFromNode = undefined;
+										innerOffFromNode = undefined;
+										timeDiffWithNode = 0;
+										
+										waitingSendInfos = [];
+										onInfos = [];
+										
+										connectToFastestNode();
+										
+										isAccountSigned = false;
+										
+										// retry login.
+										login();
+									});
+									
+									isFoundFastestNode = true;
+								}
+								
+								else {
+									disconnect();
+								}
+							});
+						}
+						
+						else {
+							disconnect();
+						}
+					}
+				});
+			});
+		};
+		
+		let isSomeNodeConnected = false;
+		
+		// 하드코딩된 노드들의 URL로부터 최초 접속 노드를 찾습니다.
+		EACH(HARD_CODED_URLS, (url) => {
+			
+			let splits = url.split(':');
+			
+			CONNECT_TO_WEB_SOCKET_SERVER({
+				host : splits[0],
+				port : parseInt(splits[1])
+			}, {
+				error : () => {
+					// 연결 오류를 무시합니다.
+				},
+				success : (on, off, send, disconnect) => {
+					
+					if (isSomeNodeConnected !== true) {
+						
+						// 실제로 연결된 노드 URL 목록을 가져옵니다.
+						send('getNodeURLs', (urls) => {
+							
+							if (isSomeNodeConnected !== true) {
+								
+								nodeURLs = urls;
+								
+								connectToFastestNode();
+								
+								isSomeNodeConnected = true;
+							}
+							
+							disconnect();
+						});
+					}
+					
+					else {
+						disconnect();
+					}
+				}
+			});
+		});
+		
+		inner.on('getTimeDiffWithNode', (notUsing, callback) => {
+			callback(timeDiffWithNode);
+		});
+		
+		// 특정 계정의 d 잔고를 가져옵니다.
+		inner.on('getDBalance', (notUsing, callback) => {
+			
+			DPlayInventory.getAccountId((result) => {
+				
+				if (result.accountId !== undefined) {
+					
+					sendToNode('getDBalance', result.accountId, callback);
+				}
+			});
+		});
+		
+		// 특정 계정의 d 잔고를 가져옵니다.
+		inner.on('saveAccountDetail', (params, callback) => {
+			sendToNode('saveAccountDetail', params, callback);
+		});
+		
+		// 계정 상세 정보를 가져옵니다.
+		inner.on('getAccountDetail', (accountId, callback) => {
+			sendToNode('getAccountDetail', accountId, callback);
+		});
+		
+		// 길드를 생성합니다.
+		inner.on('createGuild', (params, callback) => {
+			sendToNode('createGuild', params, callback);
+		});
+		
+		// 길드의 해시를 가져옵니다.
+		inner.on('getGuildHash', (guildId, callback) => {
+			sendToNode('getGuildHash', guildId, callback);
+		});
+		
+		// 길드 정보를 수정합니다.
+		inner.on('updateGuild', (params, callback) => {
+			sendToNode('updateGuild', params, callback);
+		});
+		
+		// 특정 계정이 가입한 길드 정보를 가져옵니다.
+		inner.on('getAccountGuild', (accountId, callback) => {
+			sendToNode('getAccountGuild', accountId, callback);
+		});
+		
+		let isAccountSigned = false;
+		
+		let login = (callback) => {
+			
+			if (isAccountSigned === true) {
+				
+				if (callback !== undefined) {
+					callback();
+				}
+			}
+			
+			else {
+				
+				DPlayInventory.getAccountId((result) => {
+					
+					if (result.accountId !== undefined) {
+						
+						sendToNode('generateLoginToken', undefined, (loginToken) => {
+							
+							DPlayInventory.signText(loginToken, (hash) => {
+								
+								sendToNode('login', {
+									hash : hash,
+									accountId : result.accountId
+								}, (isSucceed) => {
+									
+									if (isSucceed === true) {
+										isAccountSigned = true;
+										
+										if (callback !== undefined) {
+											callback();
+										}
+									}
+								});
+							});
+						});
+					}
+				});
+			}
+		};
+		
+		inner.on('login', (notUsing, callback) => {
+			login(callback);
+		});
+	}
+});
+global.MAIN = METHOD({
+
+	run : () => {
+		
+		const NETWORK_ADDRESSES = {
+			Mainnet : 'wss://mainnet.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
+			Ropsten : 'wss://ropsten.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
+			Rinkeby : 'wss://rinkeby.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
+			Kovan : 'wss://kovan.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
+			Goerli : 'wss://goerli.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b'
+		};
+		
+		global.web3 = new Web3(NETWORK_ADDRESSES.Kovan);
 	}
 });
 global.DPlayCoinContract = OBJECT({
