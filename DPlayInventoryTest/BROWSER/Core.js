@@ -373,7 +373,7 @@ DPlayInventory.Core = OBJECT({
 			let contract = contracts[address];
 			let methods = methodMap[address];
 			
-			if (contract !== undefined && methods !== undefined) {
+			if (contract !== undefined && methods !== undefined && methods[methodName] !== undefined) {
 				
 				let methodInfo = methods[methodName];
 				
