@@ -43,7 +43,7 @@ global.DPlaySmartContract = CLASS({
 			//REQUIRED: callback
 			
 			if (address === undefined) {
-				DPlayInventory.Ethereum.getNetworkName((networkName) => {
+				DPlayInventory.Core.getNetworkName((networkName) => {
 					address = addresses[networkName];
 					callback(address);
 				});
@@ -59,7 +59,7 @@ global.DPlaySmartContract = CLASS({
 			getAddress((address) => {
 				
 				// 스마트 계약 인터페이스 생성
-				DPlayInventory.Ethereum.createSmartContractInterface({
+				DPlayInventory.Core.createSmartContractInterface({
 					abi : abi,
 					address : address,
 					onEvent : (eventName, args) => {
@@ -74,7 +74,7 @@ global.DPlaySmartContract = CLASS({
 					}
 				}, () => {
 					
-					innerRunSmartContractMethod = DPlayInventory.Ethereum.runSmartContractMethod;
+					innerRunSmartContractMethod = DPlayInventory.Core.runSmartContractMethod;
 					
 					// 대기중인 내용 실행
 					EACH(waitingRunSmartContractMethodInfos, (info) => {

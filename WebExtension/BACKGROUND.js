@@ -54164,6 +54164,7 @@ global.DPlayInventory = OBJECT({
 		
 		let contracts = {};
 		let methodMap = {};
+		let eventMap = {};
 		
 		let createSmartContractInterface = self.createSmartContractInterface = (params, callback) => {
 			
@@ -54180,9 +54181,22 @@ global.DPlayInventory = OBJECT({
 					
 					EACH(info.args, (value, name) => {
 						
+						let type;
+						
+						EACH(eventMap[address][info.event].inputs, (input) => {
+							if (input.name === name) {
+								type = input.type;
+							}
+						});
+						
 						// 숫자인 경우
 						if (value.toNumber !== undefined) {
 							args[name] = value.toNumber();
+						}
+						
+						// 주소인 경우
+						else if (type === 'address') {
+							args[name] = web3.toChecksumAddress(value);
 						}
 					});
 					
@@ -54198,10 +54212,13 @@ global.DPlayInventory = OBJECT({
 			});
 			
 			let methods = methodMap[address] = {};
+			let events = eventMap[address] = {};
 			
 			// 메소드 분석 및 생성
 			EACH(abi, (methodInfo) => {
-				if (methodInfo.type === 'function') {
+				if (methodInfo.type === 'event') {
+					events[methodInfo.name] = methodInfo;
+				} else if (methodInfo.type === 'function') {
 					methods[methodInfo.name] = methodInfo;
 				}
 			});
@@ -54418,7 +54435,7 @@ global.DPlayInventory = OBJECT({
 			let contract = contracts[address];
 			let methods = methodMap[address];
 			
-			if (contract !== undefined && methods !== undefined) {
+			if (contract !== undefined && methods !== undefined && methods[methodName] !== undefined) {
 				
 				let methodInfo = methods[methodName];
 				
@@ -55295,7 +55312,7 @@ global.DPlayCoinContract = OBJECT({
 			abi : [{"constant":true,"inputs":[{"name":"interfaceID","type":"bytes4"}],"name":"supportsInterface","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"amount","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"from","type":"address"},{"name":"to","type":"address"},{"name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"addr","type":"address"}],"name":"setDPlayTradingPostOnce","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"user","type":"address"}],"name":"getPower","outputs":[{"name":"power","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"network","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"user","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"to","type":"address"},{"name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"amount","type":"uint256"}],"name":"createDCForTest","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"addr","type":"address"}],"name":"setDPlayStoreOnce","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"dplayStore","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"user","type":"address"},{"name":"spender","type":"address"}],"name":"allowance","outputs":[{"name":"remaining","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"dplayTradingPost","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}],
 			
 			addresses : {
-				Kovan : '0x23A64D7228e329D2ED466b7360cc61D1d7086aBC'
+				Kovan : '0xD49bc1247d25FBDF2bB25F5A3333b15198FbA544'
 			}
 		};
 	},
@@ -55325,7 +55342,7 @@ global.DPlayStoreContract = OBJECT({
 			abi : [{"constant":false,"inputs":[{"name":"to","type":"address"},{"name":"gameId","type":"uint256"}],"name":"transferGame","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"addr","type":"address"},{"name":"gameId","type":"uint256"}],"name":"checkIsPublisher","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"buyer","type":"address"}],"name":"getBoughtGameIds","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"price","type":"uint256"},{"name":"gameURL","type":"string"},{"name":"isWebGame","type":"bool"},{"name":"defaultLanguage","type":"string"}],"name":"newGame","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"gameId","type":"uint256"}],"name":"release","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"gameId","type":"uint256"}],"name":"getGameInfo","outputs":[{"name":"publisher","type":"address"},{"name":"isReleased","type":"bool"},{"name":"price","type":"uint256"},{"name":"gameURL","type":"string"},{"name":"isWebGame","type":"bool"},{"name":"defaultLanguage","type":"string"},{"name":"createTime","type":"uint256"},{"name":"lastUpdateTime","type":"uint256"},{"name":"releaseTime","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"gameId","type":"uint256"},{"name":"gameURL","type":"string"},{"name":"isWebGame","type":"bool"},{"name":"defaultLanguage","type":"string"}],"name":"changeGameInfo","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"gameId","type":"uint256"}],"name":"unrelease","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"network","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"publisher","type":"address"}],"name":"getPublishedGameIds","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"gameId","type":"uint256"},{"name":"language","type":"string"}],"name":"getGameDetails","outputs":[{"name":"title","type":"string"},{"name":"summary","type":"string"},{"name":"description","type":"string"},{"name":"titleImageURL","type":"string"},{"name":"bannerImageURL","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"addr","type":"address"},{"name":"gameId","type":"uint256"}],"name":"checkIsBuyer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"gameId","type":"uint256"},{"name":"price","type":"uint256"}],"name":"changePrice","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"gameId","type":"uint256"},{"name":"language","type":"string"},{"name":"title","type":"string"},{"name":"summary","type":"string"},{"name":"description","type":"string"},{"name":"titleImageURL","type":"string"},{"name":"bannerImageURL","type":"string"}],"name":"setGameDetails","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"gameId","type":"uint256"}],"name":"buy","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getGameCount","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"gameId","type":"uint256"},{"indexed":false,"name":"price","type":"uint256"}],"name":"ChangePrice","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"gameId","type":"uint256"},{"indexed":false,"name":"gameURL","type":"string"},{"indexed":false,"name":"isWebGame","type":"bool"},{"indexed":false,"name":"defaultLanguage","type":"string"}],"name":"ChangeGameInfo","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"gameId","type":"uint256"}],"name":"Release","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"gameId","type":"uint256"}],"name":"Unrelease","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"gameId","type":"uint256"},{"indexed":true,"name":"buyer","type":"address"}],"name":"Buy","type":"event"}],
 			
 			addresses : {
-				Kovan : '0x4CE8b0C17eb30C24c8632e60e4852f0A518A5302'
+				Kovan : '0x26B675F794bEe5C3a7Ef0880Ca249102c58f59E7'
 			}
 		};
 	}
@@ -55339,10 +55356,10 @@ global.DPlayStoreSearchContract = OBJECT({
 	params : () => {
 		return {
 			
-			abi : [{"constant":true,"inputs":[{"name":"ratingCount","type":"uint256"}],"name":"getGameIdsByRating","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"network","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"gameId","type":"uint256"},{"name":"language","type":"string"}],"name":"getGameTags","outputs":[{"name":"tag1","type":"string"},{"name":"tag2","type":"string"},{"name":"tag3","type":"string"},{"name":"tag4","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getGameIdsNewest","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"language","type":"string"},{"name":"tag","type":"string"},{"name":"ratingCount","type":"uint256"}],"name":"getGameIdsByTagAndRating","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"language","type":"string"},{"name":"tag","type":"string"}],"name":"getGameIdsByTagNewest","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"ratingCount","type":"uint256"}],"name":"getWebGameIdsByRating","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getReleasedGameIds","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"gameId","type":"uint256"},{"name":"language","type":"string"},{"name":"tag1","type":"string"},{"name":"tag2","type":"string"},{"name":"tag3","type":"string"},{"name":"tag4","type":"string"}],"name":"setGameTags","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"}],
+			abi : [{"constant":true,"inputs":[{"name":"ratingCount","type":"uint256"}],"name":"getGameIdsByRating","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"gameId","type":"uint256"},{"name":"language","type":"string"}],"name":"getGameTags","outputs":[{"name":"tag1","type":"string"},{"name":"tag2","type":"string"},{"name":"tag3","type":"string"},{"name":"tag4","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getGameIdsNewest","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"language","type":"string"},{"name":"tag","type":"string"},{"name":"ratingCount","type":"uint256"}],"name":"getGameIdsByTagAndRating","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"language","type":"string"},{"name":"tag","type":"string"}],"name":"getGameIdsByTagNewest","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"ratingCount","type":"uint256"}],"name":"getWebGameIdsByRating","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"getReleasedGameIds","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"gameId","type":"uint256"},{"name":"language","type":"string"},{"name":"tag1","type":"string"},{"name":"tag2","type":"string"},{"name":"tag3","type":"string"},{"name":"tag4","type":"string"}],"name":"setGameTags","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}],
 			
 			addresses : {
-				Kovan : '0x492678907C4669B942C4Ae6812b734D5E5E01f9A'
+				Kovan : '0x9edDd86BEE0a707F76336dBc895f6Bc393ce3e50'
 			}
 		};
 	}

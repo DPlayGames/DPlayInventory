@@ -109,9 +109,9 @@ Inquiry: goblin@dplay.games","DPlay 보관함은 DPlay에서 구매한 게임들
 
 源代碼：https://github.com/DPlayGames/DPlayInventory 
 联络我们：goblin@dplay.games",,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,
+ALERT_TITLE,Alert,알림,通知,通知,,,,,,,,,,,,,,,
+CONFIRM_TITLE,Confirmation,확인,確認,确认,,,,,,,,,,,,,,,
+PROMPT_TITLE,Entry,입력,提示,提示,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,

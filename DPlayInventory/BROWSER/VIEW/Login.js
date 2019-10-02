@@ -7,42 +7,102 @@ DPlayInventory.Login = CLASS({
 	init : (inner, self) => {
 		
 		let passwordInput;
-		let wrapper = UUI.V_CENTER({
+		let wrapper = DIV({
 			style : {
 				position : 'relative',
 				margin : 'auto',
-				width : 370,
-				height : 550,
-				backgroundColor : '#1e1e1e'
+				width : 340,
+				height : 240,
+				backgroundImage : DPlayInventory.R('dialogue/background.png'),
+				color : '#979b9b'
 			},
 			c : [
+			H3({
+				style : {
+					padding : 2,
+					fontWeight : 'bold',
+					textAlign : 'center'
+				},
+				c : MSG('LOGIN_TITLE')
+			}),
+			
 			FORM({
 				style : {
-					width : 300,
+					width : 275,
 					margin : 'auto'
 				},
-				c : [passwordInput = UUI.FULL_INPUT({
+				c : [
+				
+				// 로고
+				H1({
+					style : {
+						marginTop : 36,
+						marginLeft : -10,
+						color : '#707474',
+						fontWeight : 'bold',
+						textAlign : 'center',
+						fontSize : 20
+					},
+					c : [MSG('TITLE').substring(0, MSG('TITLE').indexOf('DPlay')), IMG({
+						style : {
+							marginBottom : -15
+						},
+						src : DPlayInventory.R('dplay.png')
+					}), MSG('TITLE').substring(MSG('TITLE').indexOf('DPlay') + 5)]
+				}),	
+				
+				passwordInput = UUI.FULL_INPUT({
+					style : {
+						position : 'absolute',
+						bottom : 80,
+						left : '50%',
+						marginLeft : -137.5,
+						width : 263,
+						border : '1px solid #abacad',
+						backgroundColor : '#e6e2dd'
+					},
 					name : 'password',
 					type : 'password',
 					placeholder : MSG('LOGIN_PASSWORD_INPUT')
-				}), UUI.FULL_SUBMIT({
+				}),
+				
+				UUI.FULL_SUBMIT({
 					style : {
-						marginTop : 10,
-						display : 'block',
-						padding : '15px 0',
-						backgroundColor : '#666',
-						borderRadius : 10,
-						textAlign : 'center'
+						position : 'absolute',
+						bottom : 38,
+						left : '50%',
+						marginLeft : -137.5,
+						width : 275,
+						height : 33,
+						fontWeight : 'bold',
+						backgroundImage : DPlayInventory.R('dialogue/button.png'),
+						cursor : 'pointer',
+						color : '#afada8',
+						backgroundColor : 'transparent'
+					},
+					inputStyle : {
+						padding : 0
 					},
 					value : MSG('LOGIN_SUBMIT')
-				}), A({
-					c : MSG('RESET_PASSWORD_BUTTON'),
-					on : {
-						tap : () => {
-							
-							DPlayInventory.GO('restoreaccount');
+				}), DIV({
+					style : {
+						position : 'absolute',
+						bottom : 18,
+						left : '50%',
+						marginLeft : -137.5,
+						width : 275,
+						textAlign : 'right',
+						fontSize : 12
+					},
+					c : A({
+						c : MSG('RESET_PASSWORD_BUTTON'),
+						on : {
+							tap : () => {
+								
+								DPlayInventory.GO('restoreaccount');
+							}
 						}
-					}
+					})
 				})],
 				on : {
 					submit : (e, form) => {
@@ -52,13 +112,13 @@ DPlayInventory.Login = CLASS({
 						
 						if (password === '') {
 							DPlayInventory.Alert({
-								msg : MSG('PLEASE_ENTER_PASSWORD_MESSAGE')
+								content : MSG('PLEASE_ENTER_PASSWORD_MESSAGE')
 							});
 						}
 						
 						else if (password.length < 4) {
 							DPlayInventory.Alert({
-								msg : MSG('PASSWORD_TOO_SHORT_MESSAGE')
+								content : MSG('PASSWORD_TOO_SHORT_MESSAGE')
 							});
 						}
 						
@@ -76,7 +136,7 @@ DPlayInventory.Login = CLASS({
 											loading.remove();
 											
 											DPlayInventory.Alert({
-												msg : MSG('WRONG_PASSWORD_MESSAGE')
+												content : MSG('WRONG_PASSWORD_MESSAGE')
 											});
 										});
 									},

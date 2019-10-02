@@ -11,7 +11,8 @@ DPlayInventory.Core = OBJECT({
 		
 		let networkStore = DPlayInventory.SESSION_STORE('__NETWORK_STORE');
 		
-		let networkName = networkStore.get('networkName') !== undefined ? networkStore.get('networkName') : 'Mainnet';
+		//let networkName = networkStore.get('networkName') !== undefined ? networkStore.get('networkName') : 'Mainnet';
+		let networkName = 'Kovan';
 		
 		let getProvider = () => {
 			

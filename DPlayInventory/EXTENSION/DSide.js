@@ -5,7 +5,9 @@ DPlayInventory.DSide = OBJECT({
 	},
 	
 	params : () => {
-		return 'DSide';
+		return {
+			pack : 'DSide'
+		};
 	},
 	
 	init : (inner, self) => {

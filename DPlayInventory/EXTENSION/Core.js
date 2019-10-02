@@ -5,7 +5,9 @@ DPlayInventory.Core = OBJECT({
 	},
 	
 	params : () => {
-		return 'DPlayInventory';
+		return {
+			pack : 'DPlayInventory'
+		};
 	},
 	
 	init : (inner, self) => {
@@ -269,7 +271,7 @@ DPlayInventory.Core = OBJECT({
 					if (errorHandler !== undefined) {
 						errorHandler(result.errorMsg);
 					} else {
-						SHOW_ERROR('DPlayInventory.SecureStore', result.errorMsg);
+						SHOW_ERROR('DPlayInventory.Core', result.errorMsg);
 					}
 				}
 				
@@ -310,7 +312,7 @@ DPlayInventory.Core = OBJECT({
 					if (errorHandler !== undefined) {
 						errorHandler(result.errorMsg);
 					} else {
-						SHOW_ERROR('DPlayInventory.SecureStore', result.errorMsg);
+						SHOW_ERROR('DPlayInventory.Core', result.errorMsg);
 					}
 				}
 				
@@ -345,7 +347,7 @@ DPlayInventory.Core = OBJECT({
 					if (errorHandler !== undefined) {
 						errorHandler(result.errorMsg);
 					} else {
-						SHOW_ERROR('DPlayInventory.SecureStore', result.errorMsg);
+						SHOW_ERROR('DPlayInventory.Core', result.errorMsg);
 					}
 				}
 				
@@ -378,7 +380,7 @@ DPlayInventory.Core = OBJECT({
 					if (errorHandler !== undefined) {
 						errorHandler(result.errorMsg);
 					} else {
-						SHOW_ERROR('DPlayInventory.SecureStore', result.errorMsg);
+						SHOW_ERROR('DPlayInventory.Core', result.errorMsg);
 					}
 				}
 				
@@ -413,7 +415,7 @@ DPlayInventory.Core = OBJECT({
 					if (errorHandler !== undefined) {
 						errorHandler(result.errorMsg);
 					} else {
-						SHOW_ERROR('DPlayInventory.SecureStore', result.errorMsg);
+						SHOW_ERROR('DPlayInventory.Core', result.errorMsg);
 					}
 				}
 				

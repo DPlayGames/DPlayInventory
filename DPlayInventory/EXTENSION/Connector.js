@@ -1,8 +1,11 @@
 // Background Script와 연결되는 커넥터
 global.Connector = CLASS({
 
-	init : (inner, self, pack) => {
-		//REQUIRED: pack
+	init : (inner, self, params) => {
+		//REQUIRED: params
+		//REQUIRED: params.pack
+		
+		let pack = params.pack;
 		
 		let methodMap = {};
 		let sendKey = 0;

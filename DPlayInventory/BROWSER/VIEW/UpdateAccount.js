@@ -54,7 +54,7 @@ DPlayInventory.UpdateAccount = CLASS({
 					submit : (e, form) => {
 						
 						DPlayInventory.Confirm({
-							msg : MSG('UPDATE_ACCOUNT_CONFIRM')
+							content : MSG('UPDATE_ACCOUNT_CONFIRM')
 						}, () => {
 							
 							let data = form.getData();
@@ -76,13 +76,13 @@ DPlayInventory.UpdateAccount = CLASS({
 										
 										notVerified : () => {
 											DPlayInventory.Alert({
-												msg : MSG('NOT_VERIFIED_MESSAGE')
+												content : MSG('NOT_VERIFIED_MESSAGE')
 											});
 										},
 										
 										notEnoughD : () => {
 											DPlayInventory.Alert({
-												msg : MSG('NOT_ENOUGH_D_MESSAGE')
+												content : MSG('NOT_ENOUGH_D_MESSAGE')
 											});
 										},
 										

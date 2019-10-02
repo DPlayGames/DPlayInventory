@@ -5,7 +5,9 @@ DPlayInventory.DPlayCoin = OBJECT({
 	},
 	
 	params : () => {
-		return 'DPlayCoin';
+		return {
+			pack : 'DPlayCoin'
+		};
 	},
 	
 	init : (inner, self) => {

@@ -20,82 +20,145 @@ DPlayInventory.CreateAccount = CLASS({
 			style : {
 				position : 'relative',
 				margin : 'auto',
-				width : 370,
-				height : 550,
-				backgroundColor : '#1e1e1e'
+				width : 374,
+				height : 554,
+				backgroundImage : DPlayInventory.R('background.png'),
+				color : '#979b9b'
 			},
-			c : DIV({
+			c : [
+			// 로고
+			H1({
 				style : {
-					width : 300,
-					margin : 'auto'
+					position : 'absolute',
+					top : 10,
+					left : 13,
+					color : '#707474',
+					fontWeight : 'bold'
+				},
+				c : [MSG('TITLE').substring(0, MSG('TITLE').indexOf('DPlay')), IMG({
+					style : {
+						width : 51,
+						marginBottom : -6
+					},
+					src : DPlayInventory.R('dplay.png')
+				}), MSG('TITLE').substring(MSG('TITLE').indexOf('DPlay') + 5)]
+			}),
+			
+			DIV({
+				style : {
+					width : 330,
+					margin : 'auto',
+					paddingBottom : 80
 				},
 				c : [
-				H1({
+				H2({
+					style : {
+						color : '#fff',
+						fontSize : 20
+					},
 					c : MSG('CREATE_ACCOUNT_TITLE')
 				}),
 				
 				DIV({
+					style : {
+						marginTop : 20
+					},
 					c : [
-					H2({
+					H3({
+						style : {
+							color : '#980100',
+							fontWeight : 'bold'
+						},
 						c : MSG('CREATED_ACCOUNT_ID')
 					}),
 					P({
+						style : {
+							color : '#c2c0bd',
+							fontWeight : 'bold',
+							fontSize : 13
+						},
 						c : wallet.getChecksumAddressString()
 					})]
 				}),
 				
 				DIV({
+					style : {
+						marginTop : 20
+					},
 					c : [
-					H2({
+					H3({
+						style : {
+							color : '#980100',
+							fontWeight : 'bold'
+						},
 						c : MSG('MNEMONIC')
 					}),
 					P({
+						style : {
+							color : '#c2c0bd',
+							fontWeight : 'bold'
+						},
 						c : mnemonic
 					}),
 					P({
+						style : {
+							marginTop : 20
+						},
 						c : MSG('BACKUP_NOTICE_1') + '\n\n' + MSG('BACKUP_NOTICE_2')
 					})]
 				}),
 				
-				A({
+				// 하단 버튼들
+				DIV({
 					style : {
-						marginTop : 10,
-						display : 'block',
-						padding : '15px 0',
-						backgroundColor : '#666',
-						borderRadius : 10,
-						textAlign : 'center'
+						position : 'absolute',
+						bottom : 22,
+						left : '50%',
+						marginLeft : -165
 					},
-					c : MSG('DONE_BACKUP_BUTTON'),
-					on : {
-						tap : () => {
-							
-							DPlayInventory.Confirm({
-								msg : MSG('REALLY_BACKUP_CONFIRM')
-							}, () => {
-								DPlayInventory.GO('restoreaccount');
-							});
+					c : [UUI.V_CENTER({
+						style : {
+							width : 330,
+							height : 33,
+							backgroundImage : DPlayInventory.R('button.png'),
+							textAlign : 'center',
+							cursor : 'pointer',
+							color : '#afada8',
+							fontWeight : 'bold'
+						},
+						c : MSG('DONE_BACKUP_BUTTON'),
+						on : {
+							tap : () => {
+								
+								DPlayInventory.Confirm({
+									content : MSG('REALLY_BACKUP_CONFIRM')
+								}, () => {
+									DPlayInventory.GO('restoreaccount');
+								});
+							}
 						}
-					}
-				}),
-				
-				A({
-					style : {
-						marginTop : 10,
-						display : 'block',
-						padding : '15px 0',
-						backgroundColor : '#666',
-						borderRadius : 10,
-						textAlign : 'center'
-					},
-					c : MSG('REGENERATE_ACCOUNT_BUTTON'),
-					on : {
-						tap : () => {
-							REFRESH();
+					}),
+					
+					UUI.V_CENTER({
+						style : {
+							marginTop : 10,
+							width : 330,
+							height : 33,
+							backgroundImage : DPlayInventory.R('button.png'),
+							textAlign : 'center',
+							cursor : 'pointer',
+							color : '#afada8',
+							fontWeight : 'bold'
+						},
+						c : MSG('REGENERATE_ACCOUNT_BUTTON'),
+						on : {
+							tap : () => {
+								REFRESH();
+							}
 						}
-					}
+					})]
 				})]
-			})
+			})]
 		}).appendTo(BODY);
 		
 		inner.on('close', () => {

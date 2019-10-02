@@ -60,7 +60,7 @@ DPlayInventory.UpdateGuild = CLASS({
 					submit : (e, form) => {
 						
 						DPlayInventory.Confirm({
-							msg : MSG('UPDATE_GUILD_CONFIRM')
+							content : MSG('UPDATE_GUILD_CONFIRM')
 						}, () => {
 							
 							let data = form.getData();
@@ -81,7 +81,7 @@ DPlayInventory.UpdateGuild = CLASS({
 										
 										if (result.isNotEnoughD === true) {
 											DPlayInventory.Alert({
-												msg : MSG('NOT_ENOUGH_D_MESSAGE')
+												content : MSG('NOT_ENOUGH_D_MESSAGE')
 											});
 										}
 										
@@ -91,7 +91,7 @@ DPlayInventory.UpdateGuild = CLASS({
 										
 										else if (result.isNotVerified === true) {
 											DPlayInventory.Alert({
-												msg : MSG('NOT_VERIFIED_MESSAGE')
+												content : MSG('NOT_VERIFIED_MESSAGE')
 											});
 										}
 										

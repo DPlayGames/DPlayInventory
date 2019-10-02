@@ -10,15 +10,36 @@ DPlayInventory.RestoreAccount = CLASS({
 			style : {
 				position : 'relative',
 				margin : 'auto',
-				width : 370,
-				height : 550,
-				backgroundColor : '#1e1e1e'
+				width : 374,
+				height : 554,
+				backgroundImage : DPlayInventory.R('background.png'),
+				color : '#979b9b'
 			},
 			c : [
+			// 로고
+			H1({
+				style : {
+					position : 'absolute',
+					top : 10,
+					left : 13,
+					color : '#707474',
+					fontWeight : 'bold'
+				},
+				c : [MSG('TITLE').substring(0, MSG('TITLE').indexOf('DPlay')), IMG({
+					style : {
+						width : 51,
+						marginBottom : -6
+					},
+					src : DPlayInventory.R('dplay.png')
+				}), MSG('TITLE').substring(MSG('TITLE').indexOf('DPlay') + 5)]
+			}),
+			
+			// 계정 생성
 			DIV({
 				style : {
-					width : 300,
-					margin : 'auto'
+					width : 330,
+					margin : 'auto',
+					paddingBottom : 30
 				},
 				c : [DIV({
 					c : [H2({
@@ -26,14 +47,16 @@ DPlayInventory.RestoreAccount = CLASS({
 							textAlign : 'center'
 						},
 						c : MSG('FIRST_USE_CONFIRM')
-					}), A({
+					}), UUI.V_CENTER({
 						style : {
 							marginTop : 10,
-							display : 'block',
-							padding : '15px 0',
-							backgroundColor : '#666',
-							borderRadius : 10,
-							textAlign : 'center'
+							width : 330,
+							height : 33,
+							backgroundImage : DPlayInventory.R('redbutton.png'),
+							textAlign : 'center',
+							cursor : 'pointer',
+							color : '#afada8',
+							fontWeight : 'bold'
 						},
 						c : MSG('CREATE_ACCOUNT_BUTTON'),
 						on : {
@@ -46,7 +69,7 @@ DPlayInventory.RestoreAccount = CLASS({
 				
 				FORM({
 					style : {
-						marginTop : 20
+						marginTop : 40
 					},
 					c : [H2({
 						style : {
@@ -56,31 +79,49 @@ DPlayInventory.RestoreAccount = CLASS({
 					}), UUI.FULL_TEXTAREA({
 						style : {
 							marginTop : 10,
-							borderRadius : 5
+							border : '1px solid #abacad',
+							backgroundColor : '#e6e2dd'
 						},
 						name : 'mnemonic',
 						placeholder : MSG('MNEMONIC')
 					}), UUI.FULL_INPUT({
 						style : {
 							marginTop : 10,
-							borderRadius : 5
+							border : '1px solid #abacad',
+							backgroundColor : '#e6e2dd'
 						},
 						name : 'password',
 						type : 'password',
 						placeholder : MSG('THIS_DEVICE_PASSWORD_INPUT')
 					}), P({
-						c : MSG('PASSWORD_NOTICE')
-					}), UUI.FULL_SUBMIT({
 						style : {
-							marginTop : 10,
-							display : 'block',
-							padding : '15px 0',
-							backgroundColor : '#666',
-							borderRadius : 10,
-							textAlign : 'center'
+							marginTop : 25
+						},
+						c : MSG('PASSWORD_NOTICE')
+					}),
+					
+					// 계정 생성 버튼
+					UUI.FULL_SUBMIT({
+						style : {
+							position : 'absolute',
+							bottom : 22,
+							left : '50%',
+							marginLeft : -165,
+							width : 330,
+							height : 33,
+							backgroundImage : DPlayInventory.R('button.png'),
+							textAlign : 'center',
+							cursor : 'pointer',
+							color : '#afada8',
+							fontWeight : 'bold',
+							backgroundColor : 'transparent'
+						},
+						inputStyle : {
+							padding : 0
 						},
 						value : MSG('RESTORE_ACCOUNT_SUBMIT')
 					})],
+					
 					on : {
 						submit : (e, form) => {
 							
@@ -90,19 +131,19 @@ DPlayInventory.RestoreAccount = CLASS({
 							
 							if (mnemonic === '') {
 								DPlayInventory.Alert({
-									msg : MSG('PLEASE_ENTER_MNEMONIC_MESSAGE')
+									content : MSG('PLEASE_ENTER_MNEMONIC_MESSAGE')
 								});
 							}
 							
 							else if (password === '') {
 								DPlayInventory.Alert({
-									msg : MSG('PLEASE_ENTER_PASSWORD_MESSAGE')
+									content : MSG('PLEASE_ENTER_PASSWORD_MESSAGE')
 								});
 							}
 							
 							else if (password.length < 4) {
 								DPlayInventory.Alert({
-									msg : MSG('PASSWORD_TOO_SHORT_MESSAGE')
+									content : MSG('PASSWORD_TOO_SHORT_MESSAGE')
 								});
 							}
 							
@@ -136,7 +177,7 @@ DPlayInventory.RestoreAccount = CLASS({
 											
 											loading.remove();
 											
-											DPlayInventory.GO('login');
+											DPlayInventory.GO('');
 										};
 									}]);
 								});
