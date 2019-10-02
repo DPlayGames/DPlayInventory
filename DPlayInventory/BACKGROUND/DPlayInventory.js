@@ -46,7 +46,7 @@ global.DPlayInventory = OBJECT({
 			
 			networkName = _networkName;
 			
-			web3 = new Web3(getProvider());
+			web3 = new Web3(getProvider(NETWORK_ADDRESSES[networkName]));
 			
 			DELAY(() => {
 				DPlayCoinContract.init();
@@ -59,21 +59,7 @@ global.DPlayInventory = OBJECT({
 		
 		// 이더리움 네트워크 이름을 가져옵니다.
 		inner.on('getNetworkName', (notUsing, callback) => {
-			
-			web3.eth.net.getId((error, netId) => {
-				
-				if (netId === 1) {
-					callback('Mainnet');
-				} else if (netId === 3) {
-					callback('Ropsten');
-				} else if (netId === 4) {
-					callback('Rinkeby');
-				} else if (netId === 42) {
-					callback('Kovan');
-				} else {
-					callback('Unknown');
-				}
-			});
+			callback(networkName);
 		});
 		
 		let contracts = {};
@@ -89,6 +75,9 @@ global.DPlayInventory = OBJECT({
 			
 			// 계약의 이벤트 핸들링
 			contract.events.allEvents((error, info) => {
+				
+				console.log(error, info);
+				
 				if (error === TO_DELETE) {
 					
 					let args = info.returnValues;

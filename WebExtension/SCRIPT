@@ -9,7 +9,7 @@ EXTEND({ origin : CONFIG, extend : {
 	"webServerPort": 8620
 } });
 
-CONFIG.version = 'V1570003604777';
+CONFIG.version = 'V1570010394443';
 
 EXTEND({ origin : BROWSER_CONFIG, extend : {
 	"isNotConnectToServer": true
@@ -53784,25 +53784,25 @@ DPlayInventory.ERC20_ITEMS = {
 		
 		// Resources
 		Ducat : {
-			image : 'https://raw.githubusercontent.com/DPlayGames/delight.game/master/Delight/R/ui/trade/ducat.png',
+			image : 'http://delight.game/Delight/R/ui/trade/ducat.png',
 			addresses : {
 				Kovan : '0x452c7ECd6bf7B3a8B5F84c26Dd8B202E87f0Ec0e'
 			}
 		},
 		Wood : {
-			image : 'https://raw.githubusercontent.com/DPlayGames/delight.game/master/Delight/R/ui/trade/wood.png',
+			image : 'http://delight.game/Delight/R/ui/trade/wood.png',
 			addresses : {
 				Kovan : '0x50ab7f8B81932DE37a694e7ff3158BdC626Ca189'
 			}
 		},
 		Iron : {
-			image : 'https://raw.githubusercontent.com/DPlayGames/delight.game/master/Delight/R/ui/trade/iron.png',
+			image : 'http://delight.game/Delight/R/ui/trade/iron.png',
 			addresses : {
 				Kovan : '0x80067ce57D285377F4F61Aa8fAFd0364dCd5fd2b'
 			}
 		},
 		Stone : {
-			image : 'https://raw.githubusercontent.com/DPlayGames/delight.game/master/Delight/R/ui/trade/stone.png',
+			image : 'http://delight.game/Delight/R/ui/trade/stone.png',
 			addresses : {
 				Kovan : '0xc8C20f552558B56EaC721374ee7Bb7b741A22f17'
 			}
@@ -53810,55 +53810,55 @@ DPlayInventory.ERC20_ITEMS = {
 		
 		// Items
 		Axe : {
-			image : 'https://raw.githubusercontent.com/DPlayGames/delight.game/master/Delight/R/ui/status/item/axe.png',
+			image : 'http://delight.game/Delight/R/ui/status/item/axe.png',
 			addresses : {
 				Kovan : '0x9C5E73ba73CeC467734B373c425F036b3D2656DA'
 			}
 		},
 		Ballista : {
-			image : 'https://raw.githubusercontent.com/DPlayGames/delight.game/master/Delight/R/ui/status/item/ballista.png',
+			image : 'http://delight.game/Delight/R/ui/status/item/ballista.png',
 			addresses : {
 				Kovan : '0xD47FA8E53dDe37EDe64c191bB756061439DE13D6'
 			}
 		},
 		Catapult : {
-			image : 'https://raw.githubusercontent.com/DPlayGames/delight.game/master/Delight/R/ui/status/item/catapult.png',
+			image : 'http://delight.game/Delight/R/ui/status/item/catapult.png',
 			addresses : {
 				Kovan : '0x5D2433E17Ed215F0EAC68CA43715741E44d8EE10'
 			}
 		},
 		Camel : {
-			image : 'https://raw.githubusercontent.com/DPlayGames/delight.game/master/Delight/R/ui/status/item/camel.png',
+			image : 'http://delight.game/Delight/R/ui/status/item/camel.png',
 			addresses : {
 				Kovan : '0x424bD410f8482fA1148dFD4dBb1f68A73C1a166b'
 			}
 		},
 		Elephant : {
-			image : 'https://raw.githubusercontent.com/DPlayGames/delight.game/master/Delight/R/ui/status/item/elephant.png',
+			image : 'http://delight.game/Delight/R/ui/status/item/elephant.png',
 			addresses : {
 				Kovan : '0x102Dd28CA0dF427CEaEACdA66Ab2E3a3574F126e'
 			}
 		},
 		Hood : {
-			image : 'https://raw.githubusercontent.com/DPlayGames/delight.game/master/Delight/R/ui/status/item/hood.png',
+			image : 'http://delight.game/Delight/R/ui/status/item/hood.png',
 			addresses : {
 				Kovan : '0x9D16851f55c6A111Daf7AD0EcdA14164a467E251'
 			}
 		},
 		Shield : {
-			image : 'https://raw.githubusercontent.com/DPlayGames/delight.game/master/Delight/R/ui/status/item/shield.png',
+			image : 'http://delight.game/Delight/R/ui/status/item/shield.png',
 			addresses : {
 				Kovan : '0x9568F099C8021CCd2e7839f9114F9Ec6b428D99C'
 			}
 		},
 		Crossbow : {
-			image : 'https://raw.githubusercontent.com/DPlayGames/delight.game/master/Delight/R/ui/status/item/crossbow.png',
+			image : 'http://delight.game/Delight/R/ui/status/item/crossbow.png',
 			addresses : {
 				Kovan : '0x9B4b74328bea79cb360b99e89f56d3Ec37a28D9b'
 			}
 		},
 		Spear : {
-			image : 'https://raw.githubusercontent.com/DPlayGames/delight.game/master/Delight/R/ui/status/item/spear.png',
+			image : 'http://delight.game/Delight/R/ui/status/item/spear.png',
 			addresses : {
 				Kovan : '0xAb7EE9F464426D02670262701FFBf86c2b01fD05'
 			}
@@ -53869,7 +53869,7 @@ DPlayInventory.ERC721_ITEMS = {
 	
 	Delight : {
 		'Knight Item' : {
-			image : 'https://raw.githubusercontent.com/DPlayGames/delight.game/master/Delight/R/knightitem/{id}.png',
+			image : 'http://delight.game/Delight/R/knightitem/{id}.png',
 			addresses : {
 				Kovan : '0xFdF2BF867c89ECA4f14A5992574dF17Ac67B0810'
 			},
@@ -53980,7 +53980,9 @@ DPlayInventory.Loading = CLASS({
 			contentStyle : {
 				height : '100%'
 			},
-			msg : 'Loading...'
+			msg : IMG({
+				src : DPlayInventory.R('loading.png')
+			})
 		};
 	}
 });
@@ -54693,12 +54695,69 @@ DPlayInventory.Game = CLASS({
 		
 		let webGameList;
 		let content = DIV({
-			c : [H3({
-				c : MSG('GAME_LIST_TITLE')
-			}), MSG('EMPTY_GAME_LIST_MESSAGE'), H3({
-				c : MSG('WEB_GAME_LIST_TITLE')
-			}), webGameList = DIV({
-				c : MSG('EMPTY_WEB_GAME_LIST_MESSAGE')
+			c : [
+			// 구매한 게임 목록
+			DIV({
+				style : {
+					
+				},
+				c : [H3({
+					style : {
+						padding : '10px 15px',
+						fontWeight : 'bold'
+					},
+					c : MSG('GAME_LIST_TITLE')
+				}), DIV({
+					style : {
+						textAlign : 'center',
+						padding : '30px 0'
+					},
+					c : [IMG({
+						src : DPlayInventory.R('sadcoinman.png')
+					}), P({
+						style : {
+							marginTop : 10,
+							color : '#3a3d3d',
+							fontWeight : 'bold'
+						},
+						c : MSG('EMPTY_GAME_LIST_MESSAGE')
+					})]
+				})]
+			}),
+			
+			DIV({
+				style : {
+					textAlign : 'center'
+				},
+				c : IMG({
+					src : DPlayInventory.R('line.png')
+				})
+			}),
+			
+			// 웹 게임 목록
+			DIV({
+				c : [H3({
+					style : {
+						padding : '10px 15px',
+						fontWeight : 'bold'
+					},
+					c : MSG('WEB_GAME_LIST_TITLE')
+				}), DIV({
+					style : {
+						textAlign : 'center',
+						padding : '30px 0'
+					},
+					c : [IMG({
+						src : DPlayInventory.R('sadcoinman.png')
+					}), P({
+						style : {
+							marginTop : 10,
+							color : '#3a3d3d',
+							fontWeight : 'bold'
+						},
+						c : MSG('EMPTY_WEB_GAME_LIST_MESSAGE')
+					})]
+				})]
 			})]
 		});
 		
@@ -54971,11 +55030,29 @@ DPlayInventory.Layout = CLASS((cls) => {
 				style : {
 					position : 'relative',
 					margin : 'auto',
-					width : 370,
-					height : 550,
-					backgroundColor : '#000'
+					width : 374,
+					height : 554,
+					backgroundImage : DPlayInventory.R('background.png'),
+					color : '#979b9b'
 				},
 				c : [
+				// 로고
+				H1({
+					style : {
+						position : 'absolute',
+						top : 12,
+						left : 15,
+						color : '#707474',
+						fontWeight : 'bold'
+					},
+					c : [MSG('TITLE').substring(0, MSG('TITLE').indexOf('DPlay')), IMG({
+						style : {
+							width : 51,
+							marginBottom : -6
+						},
+						src : DPlayInventory.R('dplay.png')
+					}), MSG('TITLE').substring(MSG('TITLE').indexOf('DPlay') + 5)]
+				}),
 				
 				// 상단 바
 				DIV({
@@ -54984,36 +55061,17 @@ DPlayInventory.Layout = CLASS((cls) => {
 					},
 					c : [
 					
-					// 로고
-					A({
-						style : {
-							flt : 'left',
-							padding : 10,
-							color : '#707474'
-						},
-						c : [MSG('TITLE').substring(0, MSG('TITLE').indexOf('DPlay')), SPAN({
-							style : {
-								color : '#980100',
-								fontWeight : 'bold',
-							},
-							c : 'DPlay'
-						}), MSG('TITLE').substring(MSG('TITLE').indexOf('DPlay') + 5)],
-						on : {
-							tap : () => {
-								DPlayInventory.GO('');
-							}
-						}
-					}),
-					
 					// 메뉴 버튼
 					A({
 						style : {
-							padding : 12,
-							paddingBottom : 10,
+							padding : 15,
+							paddingBottom : 5,
 							flt : 'right',
 							color : '#980100'
 						},
-						c : FontAwesome.GetIcon('bars'),
+						c : IMG({
+							src : DPlayInventory.R('menu.png')
+						}),
 						on : {
 							tap : () => {
 								openMenu();
@@ -55026,14 +55084,18 @@ DPlayInventory.Layout = CLASS((cls) => {
 				
 				// 탭
 				tabWrapper = DIV({
+					style : {
+						marginLeft : 4,
+						marginTop : 6,
+					},
 					c : [gameTab = A({
 						style : {
 							flt : 'left',
-							width : 120,
+							width : 118,
+							height : 16,
 							padding : '5px 0',
 							textAlign : 'center',
-							backgroundColor : '#151515',
-							borderRadius : '5px 5px 0 0'
+							fontWeight : 'bold'
 						},
 						c : MSG('GAME_TAB'),
 						on : {
@@ -55045,11 +55107,11 @@ DPlayInventory.Layout = CLASS((cls) => {
 						style : {
 							marginLeft : 5,
 							flt : 'left',
-							width : 120,
+							width : 118,
+							height : 16,
 							padding : '5px 0',
 							textAlign : 'center',
-							backgroundColor : '#151515',
-							borderRadius : '5px 5px 0 0'
+							fontWeight : 'bold'
 						},
 						c : MSG('ITEM_TAB'),
 						on : {
@@ -55061,11 +55123,11 @@ DPlayInventory.Layout = CLASS((cls) => {
 						style : {
 							marginLeft : 5,
 							flt : 'left',
-							width : 120,
+							width : 118,
+							height : 16,
 							padding : '5px 0',
 							textAlign : 'center',
-							backgroundColor : '#151515',
-							borderRadius : '5px 5px 0 0'
+							fontWeight : 'bold'
 						},
 						c : MSG('MONEY_TAB'),
 						on : {
@@ -55079,8 +55141,8 @@ DPlayInventory.Layout = CLASS((cls) => {
 				// 내용
 				contentWrapper = DIV({
 					style : {
-						backgroundColor : '#1e1e1e',
-						height : 483
+						height : 475,
+						backgroundImage : DPlayInventory.R('foreground.png')
 					}
 				})]
 			}).appendTo(BODY);
@@ -55137,26 +55199,26 @@ DPlayInventory.Layout = CLASS((cls) => {
 			let hideTabs = () => {
 				tabWrapper.hide();
 				contentWrapper.addStyle({
-					height : 512
+					height : 500
 				});
 			}
 			
 			let showTabs = () => {
 				tabWrapper.show();
 				contentWrapper.addStyle({
-					height : 483
+					height : 475
 				});
 			}
 			
 			let onTab = (tab) => {
 				tab.addStyle({
-					backgroundColor : '#1e1e1e'
+					backgroundImage : DPlayInventory.R('tabon.png')
 				});
 			}
 			
 			let offTab = (tab) => {
 				tab.addStyle({
-					backgroundColor : '#151515'
+					backgroundImage : DPlayInventory.R('tab.png')
 				});
 			}
 			

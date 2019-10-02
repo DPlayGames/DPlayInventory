@@ -208,7 +208,7 @@ window.DPlayInventory = (() => {
 			// 오류 발생
 			if (result.errorMsg !== undefined) {
 				if (errorHandler === undefined) {
-					SHOW_ERROR('DPlayInventory.signText (web3.js polyfill)', result.errorMsg, text);
+					SHOW_ERROR('DPlayInventory.signText', result.errorMsg, text);
 				} else {
 					errorHandler(result.errorMsg);
 				}
@@ -258,7 +258,7 @@ window.DPlayInventory = (() => {
 			// 오류 발생
 			if (result.errorMsg !== undefined) {
 				if (errorHandler === undefined) {
-					SHOW_ERROR('DPlayInventory.signText (web3.js polyfill)', result.errorMsg, text);
+					SHOW_ERROR('DPlayInventory.getEtherBalance', result.errorMsg, text);
 				} else {
 					errorHandler(result.errorMsg);
 				}
@@ -359,9 +359,16 @@ window.DPlayInventory = (() => {
 			methodName : 'watchTransaction',
 			data : transactionHash
 		}, (result) => {
+			
 			if (result.errorMsg !== undefined) {
-				errorHandler(result.errorMsg);
-			} else {
+				if (errorHandler === undefined) {
+					SHOW_ERROR('DPlayInventory.watchTransaction', result.errorMsg, transactionHash);
+				} else {
+					errorHandler(result.errorMsg);
+				}
+			}
+			
+			else {
 				callback();
 			}
 		});
@@ -393,9 +400,16 @@ window.DPlayInventory = (() => {
 			methodName : 'runSmartContractMethod',
 			data : params
 		}, (result) => {
+			
 			if (result.errorMsg !== undefined) {
-				errorHandler(result.errorMsg);
-			} else if (result.value !== undefined) {
+				if (errorHandler === undefined) {
+					SHOW_ERROR('DPlayInventory.runSmartContractMethod', result.errorMsg, params);
+				} else {
+					errorHandler(result.errorMsg);
+				}
+			}
+			
+			else if (result.value !== undefined) {
 				callback(result.value, result.str);
 			} else if (result.array !== undefined) {
 				callback.apply(TO_DELETE, result.array);

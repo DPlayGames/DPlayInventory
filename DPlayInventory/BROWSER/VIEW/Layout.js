@@ -24,11 +24,29 @@ DPlayInventory.Layout = CLASS((cls) => {
 				style : {
 					position : 'relative',
 					margin : 'auto',
-					width : 370,
-					height : 550,
-					backgroundColor : '#000'
+					width : 374,
+					height : 554,
+					backgroundImage : DPlayInventory.R('background.png'),
+					color : '#979b9b'
 				},
 				c : [
+				// 로고
+				H1({
+					style : {
+						position : 'absolute',
+						top : 12,
+						left : 15,
+						color : '#707474',
+						fontWeight : 'bold'
+					},
+					c : [MSG('TITLE').substring(0, MSG('TITLE').indexOf('DPlay')), IMG({
+						style : {
+							width : 51,
+							marginBottom : -6
+						},
+						src : DPlayInventory.R('dplay.png')
+					}), MSG('TITLE').substring(MSG('TITLE').indexOf('DPlay') + 5)]
+				}),
 				
 				// 상단 바
 				DIV({
@@ -37,36 +55,17 @@ DPlayInventory.Layout = CLASS((cls) => {
 					},
 					c : [
 					
-					// 로고
-					A({
-						style : {
-							flt : 'left',
-							padding : 10,
-							color : '#707474'
-						},
-						c : [MSG('TITLE').substring(0, MSG('TITLE').indexOf('DPlay')), SPAN({
-							style : {
-								color : '#980100',
-								fontWeight : 'bold',
-							},
-							c : 'DPlay'
-						}), MSG('TITLE').substring(MSG('TITLE').indexOf('DPlay') + 5)],
-						on : {
-							tap : () => {
-								DPlayInventory.GO('');
-							}
-						}
-					}),
-					
 					// 메뉴 버튼
 					A({
 						style : {
-							padding : 12,
-							paddingBottom : 10,
+							padding : 15,
+							paddingBottom : 5,
 							flt : 'right',
 							color : '#980100'
 						},
-						c : FontAwesome.GetIcon('bars'),
+						c : IMG({
+							src : DPlayInventory.R('menu.png')
+						}),
 						on : {
 							tap : () => {
 								openMenu();
@@ -79,14 +78,18 @@ DPlayInventory.Layout = CLASS((cls) => {
 				
 				// 탭
 				tabWrapper = DIV({
+					style : {
+						marginLeft : 4,
+						marginTop : 6,
+					},
 					c : [gameTab = A({
 						style : {
 							flt : 'left',
-							width : 120,
+							width : 118,
+							height : 16,
 							padding : '5px 0',
 							textAlign : 'center',
-							backgroundColor : '#151515',
-							borderRadius : '5px 5px 0 0'
+							fontWeight : 'bold'
 						},
 						c : MSG('GAME_TAB'),
 						on : {
@@ -98,11 +101,11 @@ DPlayInventory.Layout = CLASS((cls) => {
 						style : {
 							marginLeft : 5,
 							flt : 'left',
-							width : 120,
+							width : 118,
+							height : 16,
 							padding : '5px 0',
 							textAlign : 'center',
-							backgroundColor : '#151515',
-							borderRadius : '5px 5px 0 0'
+							fontWeight : 'bold'
 						},
 						c : MSG('ITEM_TAB'),
 						on : {
@@ -114,11 +117,11 @@ DPlayInventory.Layout = CLASS((cls) => {
 						style : {
 							marginLeft : 5,
 							flt : 'left',
-							width : 120,
+							width : 118,
+							height : 16,
 							padding : '5px 0',
 							textAlign : 'center',
-							backgroundColor : '#151515',
-							borderRadius : '5px 5px 0 0'
+							fontWeight : 'bold'
 						},
 						c : MSG('MONEY_TAB'),
 						on : {
@@ -132,8 +135,8 @@ DPlayInventory.Layout = CLASS((cls) => {
 				// 내용
 				contentWrapper = DIV({
 					style : {
-						backgroundColor : '#1e1e1e',
-						height : 483
+						height : 475,
+						backgroundImage : DPlayInventory.R('foreground.png')
 					}
 				})]
 			}).appendTo(BODY);
@@ -190,26 +193,26 @@ DPlayInventory.Layout = CLASS((cls) => {
 			let hideTabs = () => {
 				tabWrapper.hide();
 				contentWrapper.addStyle({
-					height : 512
+					height : 500
 				});
 			}
 			
 			let showTabs = () => {
 				tabWrapper.show();
 				contentWrapper.addStyle({
-					height : 483
+					height : 475
 				});
 			}
 			
 			let onTab = (tab) => {
 				tab.addStyle({
-					backgroundColor : '#1e1e1e'
+					backgroundImage : DPlayInventory.R('tabon.png')
 				});
 			}
 			
 			let offTab = (tab) => {
 				tab.addStyle({
-					backgroundColor : '#151515'
+					backgroundImage : DPlayInventory.R('tab.png')
 				});
 			}
 			

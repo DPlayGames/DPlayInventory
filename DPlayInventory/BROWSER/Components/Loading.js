@@ -15,7 +15,9 @@ DPlayInventory.Loading = CLASS({
 			contentStyle : {
 				height : '100%'
 			},
-			msg : 'Loading...'
+			msg : IMG({
+				src : DPlayInventory.R('loading.png')
+			})
 		};
 	}
 });

@@ -330,5 +330,9 @@ window.DSide = (() => {
 		});
 	};
 	
+	let onNewChatMessage = self.onNewChatMessage = () => {
+		//TODO:
+	};
+	
 	return self;
 })();
