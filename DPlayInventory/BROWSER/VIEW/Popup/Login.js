@@ -84,27 +84,6 @@ DPlayInventory('Popup').Login = CLASS({
 						padding : 0
 					},
 					value : MSG('LOGIN_SUBMIT')
-				}),
-				
-				DIV({
-					style : {
-						position : 'absolute',
-						bottom : 18,
-						left : '50%',
-						marginLeft : -137.5,
-						width : 275,
-						textAlign : 'right',
-						fontSize : 12
-					},
-					c : A({
-						c : MSG('RESET_PASSWORD_BUTTON'),
-						on : {
-							tap : () => {
-								
-								DPlayInventory.GO('restoreaccount');
-							}
-						}
-					})
 				})],
 				on : {
 					submit : (e, form) => {

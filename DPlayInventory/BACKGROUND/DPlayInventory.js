@@ -256,7 +256,7 @@ global.DPlayInventory = OBJECT({
 		inner.on('createSmartContractInterface', createSmartContractInterface);
 		
 		// 트랜잭션이 완료될 때 까지 확인합니다.
-		let watchTransaction = (transactionHash, callback) => {
+		inner.on('watchTransaction', (transactionHash, callback) => {
 			//REQUIRED: transactionHash
 			//REQUIRED: callback
 			
@@ -282,9 +282,7 @@ global.DPlayInventory = OBJECT({
 					}
 				});
 			});
-		};
-		
-		inner.on('watchTransaction', watchTransaction);
+		});
 		
 		// 결과를 정돈합니다.
 		let cleanResult = (outputs, result) => {
@@ -602,7 +600,9 @@ global.DPlayInventory = OBJECT({
 																
 																// 정상 작동
 																else {
-																	watchTransaction(transactionHash, callback);
+																	callback({
+																		transactionHash : transactionHash
+																	});
 																}
 															});
 														}
@@ -845,7 +845,7 @@ global.DPlayInventory = OBJECT({
 			});
 		});
 		
-		let getPrivateKey = (ret, callbackOrHandlers) => {
+		let getPrivateKey = (callbackOrHandlers) => {
 			//REQUIRED: callbackOrHandlers
 			//OPTIONAL: callbackOrHandlers.error
 			//REQUIRED: callbackOrHandlers.success
@@ -875,7 +875,7 @@ global.DPlayInventory = OBJECT({
 		// 트랜잭션에 서명합니다.
 		inner.on('signTransaction', (transactionData, callback) => {
 			
-			getPrivateKey(callback, (privateKey) => {
+			getPrivateKey((privateKey) => {
 				
 				web3.eth.accounts.signTransaction(transactionData, '0x' + privateKey, (error, result) => {
 					
@@ -896,7 +896,7 @@ global.DPlayInventory = OBJECT({
 		
 		let signText = self.signText = (text, callback) => {
 			
-			getPrivateKey(callback, (privateKey) => {
+			getPrivateKey((privateKey) => {
 				
 				let i, length, c;
 				for(length = i = 0; c = text.charCodeAt(i++); length += c >> 11 ? 3 : c >> 7 ? 2 : 1);

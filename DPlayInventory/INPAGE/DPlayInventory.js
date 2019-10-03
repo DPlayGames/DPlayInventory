@@ -384,7 +384,7 @@ window.DPlayInventory = (() => {
 		//REQUIRED: params.params
 		//REQUIRED: callbackOrHandlers
 		//OPTIONAL: callbackOrHandlers.error
-		//REQUIRED: callbackOrHandlers.success
+		//OPTIONAL: callbackOrHandlers.success
 		
 		let errorHandler;
 		let transactionHashCallback;
@@ -411,12 +411,29 @@ window.DPlayInventory = (() => {
 				}
 			}
 			
-			else if (result.value !== undefined) {
-				callback(result.value, result.str);
-			} else if (result.array !== undefined) {
-				callback.apply(TO_DELETE, result.array);
-			} else {
-				callback();
+			else if (result.transactionHash !== undefined) {
+				
+				if (transactionHashCallback !== undefined) {
+					transactionHashCallback(result.transactionHash);
+				}
+				
+				if (callback !== undefined) {
+					watchTransaction(result.transactionHash, {
+						error : errorHandler,
+						success : callback
+					});
+				}
+			}
+			
+			else if (callback !== undefined) {
+				
+				if (result.value !== undefined) {
+					callback(result.value, result.str);
+				} else if (result.array !== undefined) {
+					callback.apply(TO_DELETE, result.array);
+				} else {
+					callback();
+				}
 			}
 		});
 	};
