@@ -86,7 +86,7 @@ DPlayInventory.Item = CLASS({
 								itemName : itemName,
 								imageSrc : imageSrc,
 								itemId : itemId
-							});
+							}, REFRESH);
 						}
 					}
 				}));

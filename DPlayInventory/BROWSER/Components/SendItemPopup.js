@@ -1,6 +1,6 @@
-DPlayInventory.SendItemPopup = CLASS({
+DPlayInventory.SendItemPopup = METHOD({
 	
-	init : (inner, self, params) => {
+	run : (params, refreshList) => {
 		//REQUIRED: params
 		//REQUIRED: params.itemType
 		//REQUIRED: params.addresses
@@ -8,6 +8,7 @@ DPlayInventory.SendItemPopup = CLASS({
 		//REQUIRED: params.itemName
 		//REQUIRED: params.imageSrc
 		//OPTIONAL: params.itemId
+		//REQUIRED: refreshList
 		
 		let itemType = params.itemType;
 		let addresses = params.addresses;
@@ -145,7 +146,7 @@ DPlayInventory.SendItemPopup = CLASS({
 								
 								if (amount > balance) {
 									DPlayInventory.Alert({
-										msg : MSG('NOT_ENOUGH_ITEM_COUNT_ALERT')
+										content : MSG('NOT_ENOUGH_ITEM_COUNT_ALERT')
 									});
 								}
 								
@@ -162,15 +163,19 @@ DPlayInventory.SendItemPopup = CLASS({
 											loading.remove();
 											
 											DPlayInventory.Alert({
-												msg : MSG('SEND_ITEM_ERROR_ALERT')
+												content : MSG('SEND_ITEM_ERROR_ALERT')
 											});
 										},
 										
 										success : () => {
 											loading.remove();
 											
+											modal.close();
+											
+											refreshList();
+											
 											DPlayInventory.Alert({
-												msg : MSG('SENT_ITEM_ALERT')
+												content : MSG('SENT_ITEM_ALERT')
 											});
 										}
 									});
@@ -193,7 +198,7 @@ DPlayInventory.SendItemPopup = CLASS({
 									
 									if (owner !== accountId) {
 										DPlayInventory.Alert({
-											msg : MSG('NOT_OWNER_ERROR_ALERT')
+											content : MSG('NOT_OWNER_ERROR_ALERT')
 										});
 									}
 									
@@ -210,15 +215,19 @@ DPlayInventory.SendItemPopup = CLASS({
 												loading.remove();
 												
 												DPlayInventory.Alert({
-													msg : MSG('SEND_ITEM_ERROR_ALERT')
+													content : MSG('SEND_ITEM_ERROR_ALERT')
 												});
 											},
 											
 											success : () => {
 												loading.remove();
 												
+												modal.close();
+												
+												refreshList();
+												
 												DPlayInventory.Alert({
-													msg : MSG('SENT_ITEM_ALERT')
+													content : MSG('SENT_ITEM_ALERT')
 												});
 											}
 										});
