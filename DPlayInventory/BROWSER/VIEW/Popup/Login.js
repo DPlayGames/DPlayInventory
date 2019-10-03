@@ -145,6 +145,8 @@ DPlayInventory('Popup').Login = CLASS({
 									
 									else {
 										
+										DPlayInventory.DSide.login();
+										
 										DPlayInventory.Core.loginCallback();
 										close();
 									}

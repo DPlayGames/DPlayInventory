@@ -177,6 +177,8 @@ DPlayInventory.RestoreAccount = CLASS({
 											
 											loading.remove();
 											
+											DPlayInventory.DSide.login();
+											
 											DPlayInventory.GO('');
 										};
 									}]);

@@ -9,7 +9,7 @@ EXTEND({ origin : CONFIG, extend : {
 	"webServerPort": 8620
 } });
 
-CONFIG.version = 'V1570106531021';
+CONFIG.version = 'V1570116700067';
 
 EXTEND({ origin : BROWSER_CONFIG, extend : {
 	"isNotConnectToServer": true
@@ -28134,6 +28134,8 @@ DPlayInventory.Login = CLASS({
 									else {
 										loading.remove();
 										
+										DPlayInventory.DSide.login();
+										
 										DPlayInventory.GO('');
 									}
 								});
@@ -28550,6 +28552,8 @@ DPlayInventory.RestoreAccount = CLASS({
 										return () => {
 											
 											loading.remove();
+											
+											DPlayInventory.DSide.login();
 											
 											DPlayInventory.GO('');
 										};
@@ -29258,6 +29262,8 @@ DPlayInventory('Popup').Login = CLASS({
 									
 									else {
 										
+										DPlayInventory.DSide.login();
+										
 										DPlayInventory.Core.loginCallback();
 										close();
 									}
@@ -29452,6 +29458,8 @@ DPlayInventory('Popup').RestoreAccount = CLASS({
 									
 									() => {
 										return () => {
+											
+											DPlayInventory.DSide.login();
 											
 											DPlayInventory.Core.loginCallback();
 											close();

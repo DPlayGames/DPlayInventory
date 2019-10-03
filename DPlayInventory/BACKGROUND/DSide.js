@@ -222,6 +222,101 @@ global.DSide = OBJECT({
 			sendToNode('getAccountDetail', accountId, callback);
 		});
 		
+		// 이름으로 계정을 찾습니다.
+		inner.on('findAccounts', (nameQuery, callback) => {
+			sendToNode('findAccounts', nameQuery, callback);
+		});
+		
+		// 친구 신청합니다.
+		inner.on('requestFriend', (targetAccountId, callback) => {
+			
+			DPlayInventory.getAccountId((accountId) => {
+				
+				let data = {
+					target : targetAccountId,
+					accountId : accountId,
+					createTime : new Date()
+				};
+				
+				DPlayInventory.signData(data, (hash) => {
+					
+					sendToNode('requestFriend', {
+						data : data,
+						hash : hash
+					}, callback);
+				});
+			});
+		});
+		
+		// 이미 친구 신청했는지 확인합니다.
+		inner.on('checkFriendRequested', (params, callback) => {
+			sendToNode('checkFriendRequested', params, callback);
+		});
+		
+		// 친구 신청자들의 ID를 가져옵니다.
+		inner.on('getFriendRequesterIds', (accountId, callback) => {
+			sendToNode('getFriendRequesterIds', accountId, callback);
+		});
+		
+		// 친구 요청을 거절합니다.
+		inner.on('denyFriendRequest', (requesterId, callback) => {
+			
+			DPlayInventory.getAccountId((accountId) => {
+				
+				let data = {
+					target : accountId,
+					accountId : requesterId
+				};
+				
+				DPlayInventory.signData(data, (hash) => {
+					
+					sendToNode('denyFriendRequest', {
+						target : accountId,
+						accountId : requesterId,
+						hash : hash
+					});
+					
+					callback();
+				});
+			});
+		});
+		
+		// 친구 요청을 수락합니다.
+		inner.on('acceptFriendRequest', (requesterId, callback) => {
+			
+			DPlayInventory.getAccountId((accountId) => {
+				
+				let data = {
+					accountId : accountId,
+					account2Id : requesterId,
+					createTime : new Date()
+				};
+				
+				DPlayInventory.signData(data, (hash) => {
+					
+					sendToNode('acceptFriendRequest', {
+						data : data,
+						hash : hash
+					}, callback);
+				});
+			});
+		});
+		
+		// 친구들의 ID를 가져옵니다.
+		inner.on('getFriendIds', (accountId, callback) => {
+			sendToNode('getFriendIds', accountId, callback);
+		});
+		
+		// 길드 목록을 가져옵니다.
+		inner.on('getGuildList', (notUsing, callback) => {
+			sendToNode('getGuildList', undefined, callback);
+		});
+		
+		// 이름으로 길드를 찾습니다.
+		inner.on('findGuilds', (nameQuery, callback) => {
+			sendToNode('findGuilds', nameQuery, callback);
+		});
+		
 		// 길드를 생성합니다.
 		inner.on('createGuild', (params, callback) => {
 			sendToNode('createGuild', params, callback);
@@ -240,6 +335,86 @@ global.DSide = OBJECT({
 		// 특정 계정이 가입한 길드 정보를 가져옵니다.
 		inner.on('getAccountGuild', (accountId, callback) => {
 			sendToNode('getAccountGuild', accountId, callback);
+		});
+		
+		// 길드 가입 신청합니다.
+		inner.on('requestGuildJoin', (targetGuildId, callback) => {
+			
+			DPlayInventory.getAccountId((accountId) => {
+				
+				let data = {
+					target : targetGuildId,
+					accountId : accountId,
+					createTime : new Date()
+				};
+				
+				DPlayInventory.signData(data, (hash) => {
+					
+					sendToNode('requestGuildJoin', {
+						data : data,
+						hash : hash
+					}, callback);
+				});
+			});
+		});
+		
+		// 이미 길드 가입 신청했는지 확인합니다.
+		inner.on('checkGuildJoinRequested', (params, callback) => {
+			sendToNode('checkGuildJoinRequested', params, callback);
+		});
+		
+		// 길드 가입 신청자들의 ID를 가져옵니다.
+		inner.on('getGuildJoinRequesterIds', (guildId, callback) => {
+			sendToNode('getGuildJoinRequesterIds', guildId, callback);
+		});
+		
+		// 길드 가입 신청을 거절합니다.
+		inner.on('denyGuildJoinRequest', (requesterId, callback) => {
+			
+			DPlayInventory.getAccountId((accountId) => {
+				
+				getAccountGuild(accountId, (guildData) => {
+					
+					let target = guildData.id;
+					
+					let data = {
+						target : target,
+						accountId : requesterId
+					};
+					
+					DPlayInventory.signData(data, (hash) => {
+						
+						sendToNode('denyGuildJoinRequest', {
+							target : target,
+							accountId : requesterId,
+							hash : hash
+						});
+						
+						callback();
+					});
+				});
+			});
+		});
+		
+		// 길드 가입 신청을 수락합니다.
+		inner.on('acceptGuildJoinRequest', (requesterId, callback) => {
+			
+			DPlayInventory.getAccountId((accountId) => {
+				
+				getAccountGuild(accountId, (guildData) => {
+					
+					guildData.memberIds.push(requesterId);
+					guildData.lastUpdateTime = getNodeTime(new Date());
+					
+					DPlayInventory.signData(guildData, (hash) => {
+						
+						sendToNode('updateGuild', {
+							data : guildData,
+							hash : hash
+						}, callback);
+					});
+				});
+			});
 		});
 		
 		let isAccountSigned = false;
@@ -285,6 +460,107 @@ global.DSide = OBJECT({
 		
 		inner.on('login', (notUsing, callback) => {
 			login(callback);
+		});
+		
+		let eventPorts = {};
+		chrome.runtime.onConnect.addListener((eventPort) => {
+			eventPort.onMessage.addListener((clientId) => {
+				
+				if (eventPort.name === '__DSIDE_EVENT') {
+					eventPorts[clientId] = eventPort;
+					eventPort.onDisconnect.addListener(() => {
+						delete eventPorts[clientId];
+					});
+				}
+			});
+		});
+		
+		let targetClientIds = {};
+		
+		// 대상에 참여합니다.
+		inner.on('joinTarget', (params, callback) => {
+			
+			let clientId = params.clientId;
+			let target = params.target;
+			
+			if (targetClientIds[target] === undefined) {
+				targetClientIds[target] = [];
+				
+				sendToNode('joinTarget', target);
+			}
+			
+			if (CHECK_IS_IN({
+				array : targetClientIds[target],
+				value : clientId
+			}) !== true) {
+				targetClientIds[target].push(clientId);
+			}
+		});
+		
+		// 대상에서 나옵니다.
+		inner.on('exitTarget', (params, callback) => {
+			
+			let clientId = params.clientId;
+			let target = params.target;
+			
+			if (targetClientIds[target] !== undefined) {
+				
+				REMOVE({
+					array : targetClientIds[target],
+					value : clientId
+				});
+				
+				if (targetClientIds[target].length === 0) {	
+					sendToNode('exitTarget', target);
+					delete targetClientIds[target];
+				}
+			}
+		});
+		
+		onFromNode('newChatMessage', (data) => {
+			
+			if (targetClientIds[data.target] !== undefined) {
+				EACH(targetClientIds[data.target], (clientId) => {
+					
+					if (eventPorts[clientId] !== undefined) {
+						eventPorts[clientId].postMessage({
+							methodName : 'newChatMessage',
+							data : data
+						});
+					}
+				});
+			}
+		});
+		
+		onFromNode('newPendingTransaction', (data) => {
+			
+			if (targetClientIds[data.target] !== undefined) {
+				EACH(targetClientIds[data.target], (clientId) => {
+					
+					if (eventPorts[clientId] !== undefined) {
+						eventPorts[clientId].postMessage({
+							methodName : 'newPendingTransaction',
+							data : data
+						});
+					}
+				});
+			}
+		});
+		
+		inner.on('getChatMessages', (target, callback) => {
+			sendToNode('getChatMessages', target, callback);
+		});
+		
+		inner.on('sendChatMessage', (params) => {
+			sendToNode('sendChatMessage', params);
+		});
+		
+		inner.on('getPendingTransactions', (target, callback) => {
+			sendToNode('getPendingTransactions', target, callback);
+		});
+		
+		inner.on('sendPendingTransaction', (params) => {
+			sendToNode('sendPendingTransaction', params);
 		});
 	}
 });

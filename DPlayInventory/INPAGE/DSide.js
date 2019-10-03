@@ -18,13 +18,12 @@ window.DSide = (() => {
 	let inner = Connector('DSide');
 	let self = {};
 	
-	let setNetworkName = self.setNetworkName = (networkName) => {
+	let networkName = 'Unknown';
+	
+	let setNetworkName = self.setNetworkName = (_networkName) => {
 		//REQUIRED: networkName
 		
-		inner.send({
-			methodName : 'setNetworkName',
-			data : networkName
-		});
+		networkName = _networkName;
 	};
 	
 	let timeDiffWithNode = 0;
@@ -295,7 +294,7 @@ window.DSide = (() => {
 		
 		inner.send({
 			methodName : 'joinTarget',
-			data : target
+			data : networkName + '/' + target
 		});
 	};
 	
@@ -305,7 +304,7 @@ window.DSide = (() => {
 		
 		inner.send({
 			methodName : 'exitTarget',
-			data : target
+			data : networkName + '/' + target
 		});
 	};
 	
@@ -315,7 +314,7 @@ window.DSide = (() => {
 		
 		inner.send({
 			methodName : 'getChatMessages',
-			data : target
+			data : networkName + '/' + target
 		}, callback);
 	};
 	
@@ -324,15 +323,102 @@ window.DSide = (() => {
 		//REQUIRED: params.target
 		//REQUIRED: params.message
 		
+		let target = params.target;
+		let message = params.message;
+		
 		inner.send({
 			methodName : 'sendChatMessage',
-			data : params
+			data : {
+				target : networkName + '/' + target,
+				message : message
+			}
 		});
 	};
 	
-	let onNewChatMessage = self.onNewChatMessage = () => {
-		//TODO:
+	let onNewChatMessageHandlers = {};
+	
+	let onNewChatMessage = self.onNewChatMessage = (target, handler) => {
+		//REQUIRED: target
+		//REQUIRED: handler
+		
+		onNewChatMessageHandlers[networkName + '/' + target] = handler;
 	};
+	
+	let offNewChatMessage = self.offNewChatMessage = (target) => {
+		//REQUIRED: target
+		
+		let handler = onNewChatMessageHandlers[networkName + '/' + target];
+		
+		if (handler !== undefined) {
+			delete onNewChatMessageHandlers[networkName + '/' + target];
+		}
+	};
+	
+	inner.on('newChatMessage', (data) => {
+		EACH(onNewChatMessageHandlers, (handler, target) => {
+			if (data.target === target) {
+				handler(data);
+			}
+		});
+	});
+	
+	let getPendingTransactions = self.getPendingTransactions = (target, callback) => {
+		//REQUIRED: target
+		//REQUIRED: callback
+		
+		inner.send({
+			methodName : 'getPendingTransactions',
+			data : networkName + '/' + target
+		}, callback);
+	};
+	
+	let sendPendingTransaction = self.sendPendingTransaction = (params) => {
+		//REQUIRED: params
+		//REQUIRED: params.target
+		//REQUIRED: params.transactionHash
+		//REQUIRED: params.message
+		
+		let target = params.target;
+		let transactionHash = params.transactionHash;
+		let message = params.message;
+		
+		inner.send({
+			methodName : 'sendPendingTransaction',
+			data : {
+				target : networkName + '/' + target,
+				network : networkName,
+				transactionHash : transactionHash,
+				message : message
+			}
+		});
+	};
+	
+	let onNewPendingTransactionHandlers = {};
+	
+	let onNewPendingTransaction = self.onNewPendingTransaction = (target, handler) => {
+		//REQUIRED: target
+		//REQUIRED: handler
+		
+		onNewPendingTransactionHandlers[networkName + '/' + target] = handler;
+	};
+	
+	let offNewPendingTransaction = self.offNewPendingTransaction = (target) => {
+		//REQUIRED: target
+		
+		let handler = onNewPendingTransactionHandlers[networkName + '/' + target];
+		
+		if (handler !== undefined) {
+			delete onNewPendingTransactionHandlers[networkName + '/' + target];
+		}
+	};
+	
+	inner.on('newPendingTransaction', (data) => {
+		EACH(onNewPendingTransactionHandlers, (handler, target) => {
+			if (data.target === target) {
+				handler(data);
+			}
+		});
+	});
 	
 	return self;
 })();

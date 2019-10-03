@@ -138,6 +138,8 @@ window.Connector = (pack) => {
 		let data = params.data;
 		
 		runMethods(methodName, data, ret);
+		
+		return true;
 	});
 	
 	window.addEventListener('message', (e) => {

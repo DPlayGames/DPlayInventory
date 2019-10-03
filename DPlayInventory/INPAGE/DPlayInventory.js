@@ -167,7 +167,11 @@ window.DPlayInventory = (() => {
 		
 		inner.send({
 			methodName : 'login'
-		}, callback);
+		}, (result) => {
+			if (result === true) {
+				callback();
+			}
+		});
 	};
 	
 	// 계정의 ID를 가져옵니다.
@@ -329,7 +333,9 @@ window.DPlayInventory = (() => {
 		let args = params.args;
 		
 		if (eventMap[address] !== undefined) {
-			eventMap[address](eventName, args);
+			EACH(eventMap[address], (onEvent) => {
+				onEvent(eventName, args);
+			});
 		}
 	});
 	

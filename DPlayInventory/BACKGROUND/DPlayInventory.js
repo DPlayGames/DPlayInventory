@@ -12,7 +12,16 @@ global.DPlayInventory = OBJECT({
 
 	init : (inner, self) => {
 		
+		// 가져오는 속도는 HTTP가 Web Socket보다 빠릅니다.
 		const NETWORK_ADDRESSES = {
+			Mainnet : 'https://mainnet.infura.io/v3/c1a2b959458440c780e5614fd075051b',
+			Kovan : 'https://kovan.infura.io/v3/c1a2b959458440c780e5614fd075051b',
+			Ropsten : 'https://ropsten.infura.io/v3/c1a2b959458440c780e5614fd075051b',
+			Rinkeby : 'https://rinkeby.infura.io/v3/c1a2b959458440c780e5614fd075051b'
+		};
+		
+		// 이벤트는 Web Socket으로만 받아올 수 있습니다.
+		const NETWORK_WS_ADDRESSES = {
 			Mainnet : 'wss://mainnet.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
 			Kovan : 'wss://kovan.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
 			Ropsten : 'wss://ropsten.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
@@ -26,18 +35,23 @@ global.DPlayInventory = OBJECT({
 			return networkName;
 		};
 		
+		let web3;
+		let web3WS;
+		
 		let getProvider = () => {
+			return new Web3.providers.HttpProvider(NETWORK_ADDRESSES[networkName]);
+		};
+		
+		let getWebSocketProvider = () => {
 			
-			let provider = new Web3.providers.WebsocketProvider(NETWORK_ADDRESSES[networkName]);
+			let provider = new Web3.providers.WebsocketProvider(NETWORK_WS_ADDRESSES[networkName]);
 			provider.on('end', (e) => {
 				SHOW_ERROR('SmartContract', 'WebsocketProvider의 접속이 끊어졌습니다. 재접속합니다.');
-				web3.setProvider(getProvider());
+				weweb3WSb3.setProvider(getProvider());
 			});
 			
 			return provider;
 		};
-		
-		let web3;
 		
 		let changeNetwork;
 		
@@ -47,6 +61,7 @@ global.DPlayInventory = OBJECT({
 			networkName = _networkName;
 			
 			web3 = new Web3(getProvider(NETWORK_ADDRESSES[networkName]));
+			web3WS = new Web3(getWebSocketProvider(NETWORK_WS_ADDRESSES[networkName]));
 			
 			DELAY(() => {
 				
@@ -85,7 +100,9 @@ global.DPlayInventory = OBJECT({
 						url : 'restoreaccount.html',
 						type : 'popup',
 						width : 374 + 16,
-						height : 554 + 35
+						height : 554 + 35,
+						left : 20,
+						top : 20
 					});
 				}
 				
@@ -96,7 +113,9 @@ global.DPlayInventory = OBJECT({
 						url : 'login.html',
 						type : 'popup',
 						width : 340 + 16,
-						height : 240 + 35
+						height : 240 + 35,
+						left : 20,
+						top : 20
 					});
 				}
 			});
@@ -116,12 +135,14 @@ global.DPlayInventory = OBJECT({
 							url : 'integrate.html',
 							type : 'popup',
 							width : 340 + 16,
-							height : 240 + 35
+							height : 240 + 35,
+							left : 20,
+							top : 20
 						});
 					}
 					
 					else {
-						loginCallback();
+						loginCallback(true);
 						loginCallback = undefined;
 					}
 				});
@@ -141,25 +162,43 @@ global.DPlayInventory = OBJECT({
 				data['integrated-' + loginParams.url] = true;
 				
 				chrome.storage.local.set(data, () => {
-					loginCallback();
+					loginCallback(true);
 					loginCallback = undefined;
 				});
 			}
 		});
 		
 		let contracts = {};
+		let contractsWS = {};
+		
 		let methodMap = {};
 		let eventMap = {};
+		
+		let eventPorts = [];
+		chrome.runtime.onConnect.addListener((eventPort) => {
+			
+			if (eventPort.name === '__CONTRACT_EVENT') {
+				eventPorts.push(eventPort);
+				eventPort.onDisconnect.addListener(() => {
+					REMOVE({
+						array : eventPorts,
+						value : eventPort
+					});
+				});
+			}
+		});
 		
 		let createSmartContractInterface = self.createSmartContractInterface = (params, callback) => {
 			
 			let abi = params.abi;
 			let address = params.address;
 			
-			let contract = contracts[address] = new web3.eth.Contract(abi, address);
+			contracts[address] = new web3.eth.Contract(abi, address);
+			
+			let contractWS = contractsWS[address] = new web3WS.eth.Contract(abi, address);
 			
 			// 계약의 이벤트 핸들링
-			contract.events.allEvents((error, info) => {
+			contractWS.events.allEvents((error, info) => {
 				
 				console.log(error, info);
 				
@@ -188,13 +227,12 @@ global.DPlayInventory = OBJECT({
 						}
 					});
 					
-					inner.send({
-						methodName : '__CONTRACT_EVENT',
-						data : {
+					EACH(eventPorts, (eventPort) => {
+						eventPort.postMessage({
 							address : address,
 							eventName : info.event,
 							args : args
-						}
+						});
 					});
 				}
 			});
@@ -736,7 +774,7 @@ global.DPlayInventory = OBJECT({
 			});
 		});
 		
-		let getAccountId = (callback) => {
+		let getAccountId = self.getAccountId = (callback) => {
 			
 			chrome.storage.local.get(['accountId'], (result) => {
 				

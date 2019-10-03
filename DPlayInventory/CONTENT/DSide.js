@@ -136,11 +136,16 @@ window.DSide = (() => {
 		}, callback);
 	});
 	
+	const CLIENT_ID = UUID();
+	
 	// 대상에 참여합니다.
 	inner.on('joinTarget', (target) => {
 		inner.sendToBackground({
 			methodName : 'joinTarget',
-			data : target
+			data : {
+				clientId : CLIENT_ID,
+				target : target
+			}
 		});
 	});
 	
@@ -148,7 +153,10 @@ window.DSide = (() => {
 	inner.on('exitTarget', (target) => {
 		inner.sendToBackground({
 			methodName : 'exitTarget',
-			data : target
+			data : {
+				clientId : CLIENT_ID,
+				target : target
+			}
 		});
 	});
 	
@@ -164,6 +172,28 @@ window.DSide = (() => {
 			methodName : 'sendChatMessage',
 			data : params
 		});
+	});
+	
+	inner.on('getPendingTransactions', (target, callback) => {
+		inner.sendToBackground({
+			methodName : 'getPendingTransactions',
+			data : target
+		}, callback);
+	});
+	
+	inner.on('sendPendingTransaction', (params) => {
+		inner.sendToBackground({
+			methodName : 'sendPendingTransaction',
+			data : params
+		});
+	});
+	
+	let eventPort = chrome.runtime.connect({
+		name : '__DSIDE_EVENT'
+	});
+	eventPort.postMessage(CLIENT_ID);
+	eventPort.onMessage.addListener((params) => {
+		inner.sendToPage(params);
 	});
 	
 	return self;

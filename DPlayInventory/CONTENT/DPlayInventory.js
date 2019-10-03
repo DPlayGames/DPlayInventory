@@ -102,5 +102,14 @@ window.DPlayInventory = (() => {
 		}, callback);
 	});
 	
+	chrome.runtime.connect({
+		name : '__CONTRACT_EVENT'
+	}).onMessage.addListener((data) => {
+		inner.sendToPage({
+			methodName : '__CONTRACT_EVENT',
+			data : data
+		});
+	});
+	
 	return self;
 })();

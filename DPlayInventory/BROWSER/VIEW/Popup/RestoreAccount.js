@@ -175,6 +175,8 @@ DPlayInventory('Popup').RestoreAccount = CLASS({
 									() => {
 										return () => {
 											
+											DPlayInventory.DSide.login();
+											
 											DPlayInventory.Core.loginCallback();
 											close();
 										};

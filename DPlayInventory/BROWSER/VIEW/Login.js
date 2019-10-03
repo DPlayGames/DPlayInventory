@@ -146,6 +146,8 @@ DPlayInventory.Login = CLASS({
 									else {
 										loading.remove();
 										
+										DPlayInventory.DSide.login();
+										
 										DPlayInventory.GO('');
 									}
 								});
