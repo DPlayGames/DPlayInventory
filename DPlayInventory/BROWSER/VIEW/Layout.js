@@ -30,6 +30,7 @@ DPlayInventory.Layout = CLASS((cls) => {
 					color : '#979b9b'
 				},
 				c : [
+				
 				// 로고
 				H1({
 					style : {
@@ -37,7 +38,8 @@ DPlayInventory.Layout = CLASS((cls) => {
 						top : 12,
 						left : 15,
 						color : '#707474',
-						fontWeight : 'bold'
+						fontWeight : 'bold',
+						cursor : 'pointer'
 					},
 					c : [MSG('TITLE').substring(0, MSG('TITLE').indexOf('DPlay')), IMG({
 						style : {
@@ -45,7 +47,12 @@ DPlayInventory.Layout = CLASS((cls) => {
 							marginBottom : -6
 						},
 						src : DPlayInventory.R('dplay.png')
-					}), MSG('TITLE').substring(MSG('TITLE').indexOf('DPlay') + 5)]
+					}), MSG('TITLE').substring(MSG('TITLE').indexOf('DPlay') + 5)],
+					on : {
+						tap : () => {
+							DPlayInventory.GO('');
+						}
+					}
 				}),
 				
 				// 상단 바
@@ -160,19 +167,21 @@ DPlayInventory.Layout = CLASS((cls) => {
 				}, {
 					title : MSG('MENU_CHANGE_NETWORK'),
 					uri : 'changenetwork'
+				}, {
+					title : MSG('TRANSACTION_HISTORY_BUTTON'),
+					uri : 'transactionhistory'
 				}], (menuInfo, index) => {
 					
 					menu.append(LI({
 						style : {
-							border : '1px solid #666',
-							backgroundColor : '#333',
-							marginTop : -1
+							borderBottom : '1px solid #000',
+							backgroundColor : '#333'
 						},
 						c : A({
 							style : {
 								width : 150,
 								display : 'block',
-								padding : 10,
+								padding : 8,
 								textAlign : 'center'
 							},
 							c : menuInfo.title,

@@ -12,13 +12,14 @@ DPlayInventory.Core = OBJECT({
 	
 	init : (inner, self) => {
 		
-		let changeNetwork = self.changeNetwork = (networkName) => {
+		let changeNetwork = self.changeNetwork = (networkName, callback) => {
 			//REQUIRED: networkName
+			//REQUIRED: callback
 			
 			inner.send({
 				methodName : 'changeNetwork',
 				data : networkName
-			});
+			}, callback);
 		};
 		
 		// 이더리움 네트워크 이름을 가져옵니다.

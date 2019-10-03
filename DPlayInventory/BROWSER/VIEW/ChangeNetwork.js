@@ -6,48 +6,68 @@ DPlayInventory.ChangeNetwork = CLASS({
 
 	init : (inner, self) => {
 		
-		let content = UL({
-			c : [/*LI({
+		let content = DIV({
+			style : {
+				position : 'relative',
+				textAlign : 'center'
+			},
+			
+			c : [A({
 				style : {
-					cursor : 'pointer'
+					position : 'absolute',
+					left : 12,
+					top : 10
 				},
-				c : 'Mainnet',
+				c : IMG({
+					src : DPlayInventory.R('backbutton.png')
+				}),
 				on : {
 					tap : () => {
-						DPlayInventory.Core.changeNetwork('Mainnet');
+						DPlayInventory.GO('');
 					}
 				}
-			}), */LI({
+			}),
+			
+			H1({
 				style : {
-					cursor : 'pointer'
+					paddingTop : 50,
+					paddingBottom : 40,
+					fontWeight : 'bold',
+					fontSize : 20
 				},
-				c : 'Kovan',
+				c : MSG('CHANGE_NETWORK_TITLE')
+			})]
+		});
+		
+		EACH([
+			'Mainnet',
+			'Kovan',
+			'Ropsten',
+			'Rinkeby'
+		], (networkName) => {
+			
+			content.append(UUI.V_CENTER({
+				style : {
+					margin : 'auto',
+					marginTop : 10,
+					width : 330,
+					height : 33,
+					backgroundImage : DPlayInventory.R('button.png'),
+					textAlign : 'center',
+					cursor : 'pointer',
+					color : '#afada8',
+					fontWeight : 'bold'
+				},
+				c : networkName,
 				on : {
 					tap : () => {
-						DPlayInventory.Core.changeNetwork('Kovan');
+						
+						DPlayInventory.Core.changeNetwork(networkName, () => {
+							DPlayInventory.GO('');
+						});
 					}
 				}
-			})/*, LI({
-				style : {
-					cursor : 'pointer'
-				},
-				c : 'Ropsten',
-				on : {
-					tap : () => {
-						DPlayInventory.Core.changeNetwork('Ropsten');
-					}
-				}
-			}), LI({
-				style : {
-					cursor : 'pointer'
-				},
-				c : 'Rinkeby',
-				on : {
-					tap : () => {
-						DPlayInventory.Core.changeNetwork('Rinkeby');
-					}
-				}
-			})*/]
+			}));
 		});
 		
 		DPlayInventory.Layout.setContent(content);

@@ -67,6 +67,11 @@ DPlayInventory.MAIN = METHOD({
 			});
 			
 			DPlayInventory.MATCH_VIEW({
+				uri : 'transactionhistory',
+				target : DPlayInventory.TransactionHistory
+			});
+			
+			DPlayInventory.MATCH_VIEW({
 				uri : 'game',
 				target : DPlayInventory.Game
 			});

@@ -51,17 +51,19 @@ DPlayInventory.CreateAccount = CLASS({
 					paddingBottom : 80
 				},
 				c : [
+				
 				H2({
 					style : {
-						color : '#fff',
-						fontSize : 20
+						fontWeight : 'bold',
+						fontSize : 20,
+						textAlign : 'center'
 					},
 					c : MSG('CREATE_ACCOUNT_TITLE')
 				}),
 				
 				DIV({
 					style : {
-						marginTop : 20
+						marginTop : 30
 					},
 					c : [
 					H3({

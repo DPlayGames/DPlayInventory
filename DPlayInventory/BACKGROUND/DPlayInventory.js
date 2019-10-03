@@ -42,16 +42,19 @@ global.DPlayInventory = OBJECT({
 		let changeNetwork;
 		
 		// 네트워크를 변경합니다.
-		inner.on('changeNetwork', changeNetwork = (_networkName) => {
+		inner.on('changeNetwork', changeNetwork = (_networkName, callback) => {
 			
 			networkName = _networkName;
 			
 			web3 = new Web3(getProvider(NETWORK_ADDRESSES[networkName]));
 			
 			DELAY(() => {
+				
 				DPlayCoinContract.init();
 				DPlayStoreContract.init();
 				DPlayStoreSearchContract.init();
+				
+				callback();
 			});
 		});
 		

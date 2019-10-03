@@ -30,8 +30,9 @@ DPlayInventory.Core = OBJECT({
 		
 		let web3;
 		
-		let changeNetwork = self.changeNetwork = (_networkName) => {
+		let changeNetwork = self.changeNetwork = (_networkName, callback) => {
 			//REQUIRED: networkName
+			//OPTIONAL: callback
 			
 			networkName = _networkName;
 			
@@ -43,9 +44,14 @@ DPlayInventory.Core = OBJECT({
 			web3 = new Web3(getProvider());
 			
 			DELAY(() => {
+				
 				DPlayCoinContract.init();
 				DPlayStoreContract.init();
 				DPlayStoreSearchContract.init();
+				
+				if (callback !== undefined) {
+					callback();
+				}
 			});
 		};
 		

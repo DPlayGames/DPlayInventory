@@ -7,6 +7,11 @@ DPlayInventory.UseDNotice = CLASS({
 	init : (inner, self, d) => {
 		//REQUIRED: d
 		
-		self.append(MSG('USE_D_MESSAGE').replace(/{d}/, d));
+		self.append(P({
+			style : {
+				padding : 20
+			},
+			c : MSG('USE_D_MESSAGE').replace(/{d}/, d)
+		}));
 	}
 });
