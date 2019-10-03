@@ -203,11 +203,11 @@ global.DSide = OBJECT({
 		// 특정 계정의 d 잔고를 가져옵니다.
 		inner.on('getDBalance', (notUsing, callback) => {
 			
-			DPlayInventory.getAccountId((result) => {
+			DPlayInventory.getAccountId((accountId) => {
 				
-				if (result.accountId !== undefined) {
+				if (accountId !== undefined) {
 					
-					sendToNode('getDBalance', result.accountId, callback);
+					sendToNode('getDBalance', accountId, callback);
 				}
 			});
 		});
@@ -255,9 +255,9 @@ global.DSide = OBJECT({
 			
 			else {
 				
-				DPlayInventory.getAccountId((result) => {
+				DPlayInventory.getAccountId((accountId) => {
 					
-					if (result.accountId !== undefined) {
+					if (accountId !== undefined) {
 						
 						sendToNode('generateLoginToken', undefined, (loginToken) => {
 							
@@ -265,7 +265,7 @@ global.DSide = OBJECT({
 								
 								sendToNode('login', {
 									hash : hash,
-									accountId : result.accountId
+									accountId : accountId
 								}, (isSucceed) => {
 									
 									if (isSucceed === true) {

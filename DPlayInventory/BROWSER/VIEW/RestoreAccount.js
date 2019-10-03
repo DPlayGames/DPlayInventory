@@ -20,8 +20,8 @@ DPlayInventory.RestoreAccount = CLASS({
 			H1({
 				style : {
 					position : 'absolute',
-					top : 10,
-					left : 13,
+					top : 12,
+					left : 15,
 					color : '#707474',
 					fontWeight : 'bold'
 				},

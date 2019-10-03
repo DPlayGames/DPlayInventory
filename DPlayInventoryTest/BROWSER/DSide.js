@@ -196,7 +196,7 @@ DPlayInventory.DSide = OBJECT({
 		let getDBalance = self.getDBalance = (callback) => {
 			//REQUIRED: callback
 			
-			DPlayInventory.SecureStore.getAccountId((accountId) => {
+			DPlayInventory.Core.getAccountId((accountId) => {
 				sendToNode('getDBalance', accountId, callback);
 			});
 		};

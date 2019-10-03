@@ -14,11 +14,11 @@ global.DPlayCoin = OBJECT({
 		
 		inner.on('getBalance', (notUsing, callback) => {
 			
-			DPlayInventory.getAccountId((result) => {
+			DPlayInventory.getAccountId((accountId) => {
 				
-				if (result.accountId !== undefined) {
+				if (accountId !== undefined) {
 					
-					DPlayCoinContract.balanceOf(result.accountId, (balance) => {
+					DPlayCoinContract.balanceOf(accountId, (balance) => {
 						
 						callback(balance);
 					});

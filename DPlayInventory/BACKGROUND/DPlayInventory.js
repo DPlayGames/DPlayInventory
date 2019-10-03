@@ -368,49 +368,131 @@ global.DPlayInventory = OBJECT({
 					});
 				}
 				
-				// 함수 실행
-				contract.methods[methodInfo.name].apply(contract.methods, args).call((error, result) => {
+				// constant 함수인 경우
+				if (methodInfo.constant === true) {
 					
-					// 계약 실행 오류 발생
-					if (error !== TO_DELETE) {
-						callback({
-							errorMsg : error.toString()
-						});
-					}
-					
-					// 정상 작동
-					else {
+					// 함수 실행
+					contract.methods[methodInfo.name].apply(contract.methods, args).call((error, result) => {
 						
-						// constant 함수인 경우
-						if (methodInfo.constant === true) {
+						// 계약 실행 오류 발생
+						if (error !== TO_DELETE) {
+							callback({
+								errorMsg : error.toString()
+							});
+						}
+						
+						// 정상 작동
+						else {
 							
-							if (callback !== undefined) {
-								
-								// output이 없는 경우
-								if (methodInfo.outputs.length === 0) {
-									callback({});
-								}
-								
-								// output이 1개인 경우
-								else if (methodInfo.outputs.length === 1) {
-									result = cleanResult(methodInfo.outputs, result);
-									callback(result);
-								}
-								
-								// output이 여러개인 경우
-								else if (methodInfo.outputs.length > 1) {
-									result = cleanResult(methodInfo.outputs, result);
-									callback(result);
-								}
+							// output이 없는 경우
+							if (methodInfo.outputs.length === 0) {
+								callback({});
+							}
+							
+							// output이 1개인 경우
+							else if (methodInfo.outputs.length === 1) {
+								result = cleanResult(methodInfo.outputs, result);
+								callback(result);
+							}
+							
+							// output이 여러개인 경우
+							else if (methodInfo.outputs.length > 1) {
+								result = cleanResult(methodInfo.outputs, result);
+								callback(result);
 							}
 						}
+					});
+				}
+				
+				// 트랜잭션이 필요한 함수인 경우
+				else {
+					
+					getAccountId((accountId) => {
 						
-						// 트랜잭션이 필요한 함수인 경우
-						else if (callback !== undefined) {
-							watchTransaction(result, callback);
+						if (accountId !== undefined) {
+							
+							web3.eth.getTransactionCount(accountId, (error, nonce) => {
+								
+								if (error !== TO_DELETE) {
+									callback({
+										errorMsg : error.toString()
+									});
+								}
+								
+								else {
+									
+									let method = contract.methods[methodInfo.name].apply(contract.methods, args);
+									
+									method.estimateGas({
+										from : accountId
+									}, (error, gas) => {
+										
+										if (error !== TO_DELETE) {
+											callback({
+												errorMsg : error.toString()
+											});
+										}
+										
+										else {
+											
+											GET('https://ethgasstation.info/json/ethgasAPI.json', {
+												
+												error : (errorMsg) => {
+													callback({
+														errorMsg : errorMsg
+													});
+												},
+												
+												success : (gasPrices) => {
+													gasPrices = PARSE_STR(gasPrices);
+													
+													let transaction = new ethereumjs.Tx({
+														nonce : nonce,
+														gasPrice : web3.utils.toHex(web3.utils.toWei(new web3.utils.BN(gasPrices.fast / 10), 'gwei')),
+														gasLimit : gas,
+														to : address,
+														value : 0,
+														data : method.encodeABI()
+													});
+													
+													getPrivateKey({
+														
+														error : (errorMsg) => {
+															callback({
+																errorMsg : errorMsg
+															});
+														},
+														
+														success : (privateKey) => {
+															
+															transaction.sign(ethereumjs.Buffer.Buffer.from(privateKey, 'hex'));
+															
+															// 함수 실행
+															web3.eth.sendSignedTransaction('0x' + transaction.serialize().toString('hex'), (error, transactionHash) => {
+																
+																// 계약 실행 오류 발생
+																if (error !== TO_DELETE) {
+																	callback({
+																		errorMsg : error.toString()
+																	});
+																}
+																
+																// 정상 작동
+																else {
+																	watchTransaction(transactionHash, callback);
+																}
+															});
+														}
+													});
+												}
+											});
+										}
+									});
+								}
+							});
 						}
-					}
-				});
+					});
+				}
 			}
 		};
 		
@@ -419,11 +501,11 @@ global.DPlayInventory = OBJECT({
 		
 		inner.on('getEtherBalance', (notUsing, callback) => {
 			
-			getAccountId((result) => {
+			getAccountId((accountId) => {
 				
-				if (result.accountId !== undefined) {
+				if (accountId !== undefined) {
 					
-					web3.eth.getBalance(result.accountId, (error, balanceBN) => {
+					web3.eth.getBalance(accountId, (error, balanceBN) => {
 						
 						// 오류 발생
 						if (error !== TO_DELETE) {
@@ -457,12 +539,12 @@ global.DPlayInventory = OBJECT({
 			});
 			erc20.init();
 			
-			getAccountId((result) => {
+			getAccountId((accountId) => {
 				
-				if (result.accountId !== undefined) {
+				if (accountId !== undefined) {
 					
 					erc20.decimals((decimals) => {
-						erc20.balanceOf(result.accountId, (balance) => {
+						erc20.balanceOf(accountId, (balance) => {
 							erc20.getAddress((address) => {
 							
 								callback({
@@ -499,11 +581,11 @@ global.DPlayInventory = OBJECT({
 			});
 			erc721.init();
 			
-			getAccountId((result) => {
+			getAccountId((accountId) => {
 				
-				if (result.accountId !== undefined) {
+				if (accountId !== undefined) {
 					
-					erc721[getItemIdsName](result.accountId, (ids) => {
+					erc721[getItemIdsName](accountId, (ids) => {
 						
 						erc721.getAddress((address) => {
 							
@@ -569,12 +651,25 @@ global.DPlayInventory = OBJECT({
 			});
 		});
 		
-		let getAccountId = self.getAccountId = (callback) => {
+		let getAccountId = self.getAccountId = (callbackOrHandlers) => {
+			//REQUIRED: callbackOrHandlers
+			//OPTIONAL: callbackOrHandlers.error
+			//REQUIRED: callbackOrHandlers.success
+			
+			let errorHandler;
+			let callback;
+			
+			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+				callback = callbackOrHandlers;
+			} else {
+				errorHandler = callbackOrHandlers.error;
+				callback = callbackOrHandlers.success;
+			}
 			
 			chrome.storage.local.get(['accountId'], (result) => {
 				
 				if (result.accountId === undefined) {
-					callback({});
+					callback(undefined);
 				}
 				
 				else {
@@ -583,16 +678,8 @@ global.DPlayInventory = OBJECT({
 						encryptedText : result.accountId,
 						password : password
 					}, {
-						error : (errorMsg) => {
-							callback({
-								errorMsg : errorMsg
-							});
-						},
-						success : (accountId) => {
-							callback({
-								accountId : accountId
-							});
-						}
+						error : errorHandler,
+						success : callback
 					});
 				}
 			});
@@ -600,9 +687,7 @@ global.DPlayInventory = OBJECT({
 		
 		// 계정 ID를 반환합니다.
 		inner.on('getAccountId', (notUsing, callback) => {
-			getAccountId((result) => {
-				callback(result.accountId);
-			});
+			getAccountId(callback);
 		});
 		
 		// 비밀키를 저장합니다.
@@ -630,7 +715,20 @@ global.DPlayInventory = OBJECT({
 			});
 		});
 		
-		let getPrivateKey = (ret, callback) => {
+		let getPrivateKey = (ret, callbackOrHandlers) => {
+			//REQUIRED: callbackOrHandlers
+			//OPTIONAL: callbackOrHandlers.error
+			//REQUIRED: callbackOrHandlers.success
+			
+			let errorHandler;
+			let callback;
+			
+			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
+				callback = callbackOrHandlers;
+			} else {
+				errorHandler = callbackOrHandlers.error;
+				callback = callbackOrHandlers.success;
+			}
 			
 			chrome.storage.local.get(['privateKey'], (result) => {
 				
@@ -638,11 +736,7 @@ global.DPlayInventory = OBJECT({
 					encryptedText : result.privateKey,
 					password : password
 				}, {
-					error : (errorMsg) => {
-						ret({
-							errorMsg : errorMsg
-						});
-					},
+					error : errorHandler,
 					success : callback
 				});
 			});
