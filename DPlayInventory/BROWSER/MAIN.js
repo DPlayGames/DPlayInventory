@@ -21,13 +21,13 @@ DPlayInventory.MAIN = METHOD({
 			
 			DPlayInventory.MATCH_VIEW({
 	            uri : '**',
-	            excludeURI : ['', 'restoreaccount', 'createaccount', 'login'],
+	            excludeURI : ['', 'restoreaccount', 'createaccount', 'login', 'popup/*'],
 	            target : DPlayInventory.CheckData
 	        });
 			
 			DPlayInventory.MATCH_VIEW({
 				uri : '**',
-	            excludeURI : ['restoreaccount', 'createaccount', 'login'],
+	            excludeURI : ['restoreaccount', 'createaccount', 'login', 'popup/*'],
 				target : DPlayInventory.Layout
 			});
 			
@@ -84,6 +84,36 @@ DPlayInventory.MAIN = METHOD({
 			DPlayInventory.MATCH_VIEW({
 				uri : 'item',
 				target : DPlayInventory.Item
+			});
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : 'popup/login',
+				target : DPlayInventory.Popup.Login
+			});
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : 'popup/integrate',
+				target : DPlayInventory.Popup.Integrate
+			});
+			
+			DPlayInventory.MATCH_VIEW({
+	            uri : 'popup/restoreaccount',
+	            target : DPlayInventory.Popup.RestoreAccount
+	        });
+	        
+			DPlayInventory.MATCH_VIEW({
+	            uri : 'popup/createaccount',
+	            target : DPlayInventory.Popup.CreateAccount
+	        });
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : 'popup/signtext',
+				target : DPlayInventory.Popup.SignText
+			});
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : 'popup/runmethod',
+				target : DPlayInventory.Popup.RunMethod
 			});
 		});
 	}

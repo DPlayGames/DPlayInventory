@@ -32,19 +32,34 @@ window.DPlayInventory = (() => {
 	});
 	
 	// 스마트 계약의 메소드를 실행합니다.
-	inner.on('login', (params, callback) => {
-		//REQUIRED: params
-		//REQUIRED: params.icon
-		//REQUIRED: params.title
+	inner.on('login', (notUsing, callback) => {
 		
-		// 로그인 창을 엽니다.
-		window.open(chrome.runtime.getURL('popup/login.html'), 'extension_popup', 'directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width=300,height=300');
+		let favicon;
+		let links = document.getElementsByTagName('link');
+		
+		for (let i = 0; i < links.length; i += 1) {
+			let rel = links[i].getAttribute('rel');
+			if (rel === 'icon' || rel === 'shortcut icon') {
+				favicon = links[i].getAttribute('href');
+				break;
+			}
+		}
+		
+		inner.sendToBackground({
+			methodName : 'login',
+			data : {
+				url : location.host,
+				title : document.title,
+				favicon : location.href + '/' + favicon
+			}
+		}, callback);
 	});
 	
 	// 계정의 ID를 가져옵니다.
 	inner.on('getAccountId', (notUsing, callback) => {
 		inner.sendToBackground({
-			methodName : 'getAccountId'
+			methodName : 'getAccountId',
+			data : location.host
 		}, callback);
 	});
 	

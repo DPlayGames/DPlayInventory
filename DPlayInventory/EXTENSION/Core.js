@@ -231,6 +231,26 @@ DPlayInventory.Core = OBJECT({
 			}, callback);
 		};
 		
+		let loginCallback = self.loginCallback = () => {
+			inner.send({
+				methodName : 'loginCallback'
+			});
+		};
+		
+		let getLoginParams = self.getLoginParams = (callback) => {
+			//REQUIRED: callback
+			
+			inner.send({
+				methodName : 'getLoginParams'
+			}, callback);
+		}
+		
+		let integrate = self.integrate = () => {
+			inner.send({
+				methodName : 'integrate'
+			});
+		};
+		
 		let checkPasswordExists = self.checkPasswordExists = (callback) => {
 			//REQUIRED: callback
 			
@@ -290,37 +310,12 @@ DPlayInventory.Core = OBJECT({
 			}, callback);
 		};
 		
-		let getAccountId = self.getAccountId = (callbackOrHandlers) => {
-			//REQUIRED: callbackOrHandlers
-			//OPTIONAL: callbackOrHandlers.error
-			//REQUIRED: callbackOrHandlers.success
-			
-			let errorHandler;
-			let callback;
-			
-			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
-				callback = callbackOrHandlers;
-			} else {
-				errorHandler = callbackOrHandlers.error;
-				callback = callbackOrHandlers.success;
-			}
+		let getAccountId = self.getAccountId = (callback) => {
+			//REQUIRED: callback
 			
 			inner.send({
 				methodName : 'getAccountId',
-			}, (result) => {
-				
-				if (result.errorMsg !== undefined) {
-					if (errorHandler !== undefined) {
-						errorHandler(result.errorMsg);
-					} else {
-						SHOW_ERROR('DPlayInventory.Core', result.errorMsg);
-					}
-				}
-				
-				else {
-					callback(result.accountId);
-				}
-			});
+			}, callback);
 		};
 		
 		let savePrivateKey = self.savePrivateKey = (privateKey, callbackOrHandlers) => {

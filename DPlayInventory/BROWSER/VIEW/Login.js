@@ -130,9 +130,9 @@ DPlayInventory.Login = CLASS({
 							
 							DPlayInventory.Core.setPassword(password, () => {
 								
-								DPlayInventory.Core.getAccountId({
+								DPlayInventory.Core.getAccountId((accountId) => {
 									
-									error : () => {
+									if (accountId === undefined) {
 										
 										DPlayInventory.Core.removePassword(() => {
 											loading.remove();
@@ -141,9 +141,9 @@ DPlayInventory.Login = CLASS({
 												content : MSG('WRONG_PASSWORD_MESSAGE')
 											});
 										});
-									},
+									}
 									
-									success : () => {
+									else {
 										loading.remove();
 										
 										DPlayInventory.GO('');

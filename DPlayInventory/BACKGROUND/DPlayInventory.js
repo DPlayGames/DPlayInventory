@@ -54,7 +54,9 @@ global.DPlayInventory = OBJECT({
 				DPlayStoreContract.init();
 				DPlayStoreSearchContract.init();
 				
-				callback();
+				if (callback !== undefined) {
+					callback();
+				}
 			});
 		});
 		
@@ -63,6 +65,86 @@ global.DPlayInventory = OBJECT({
 		// 이더리움 네트워크 이름을 가져옵니다.
 		inner.on('getNetworkName', (notUsing, callback) => {
 			callback(networkName);
+		});
+		
+		let loginParams;
+		let loginCallback;
+		
+		// 로그인 창을 엽니다.
+		inner.on('login', (params, callback) => {
+			
+			loginParams = params;
+			loginCallback = callback;
+			
+			chrome.storage.local.get(['accountId'], (result) => {
+				
+				// 계정이 존재하지 않으면
+				if (result.accountId === undefined) {
+					
+					chrome.windows.create({
+						url : 'restoreaccount.html',
+						type : 'popup',
+						width : 374 + 16,
+						height : 554 + 35
+					});
+				}
+				
+				// 로그인 화면
+				else {
+					
+					chrome.windows.create({
+						url : 'login.html',
+						type : 'popup',
+						width : 340 + 16,
+						height : 240 + 35
+					});
+				}
+			});
+		});
+		
+		// 로그인 콜백을 실행합니다.
+		inner.on('loginCallback', (notUsing) => {
+			
+			if (loginParams !== undefined && loginParams.url !== undefined) {
+				
+				chrome.storage.local.get(['integrated-' + loginParams.url], (result) => {
+					
+					// 연동 화면
+					if (result['integrated-' + loginParams.url] !== true) {
+						
+						chrome.windows.create({
+							url : 'integrate.html',
+							type : 'popup',
+							width : 340 + 16,
+							height : 240 + 35
+						});
+					}
+					
+					else {
+						loginCallback();
+						loginCallback = undefined;
+					}
+				});
+			}
+		});
+		
+		inner.on('getLoginParams', (notUsing, callback) => {
+			callback(loginParams);
+		});
+		
+		// 서비스와 연동합니다.
+		inner.on('integrate', (notUsing) => {
+			
+			if (loginParams !== undefined && loginParams.url !== undefined) {
+				
+				let data = {};
+				data['integrated-' + loginParams.url] = true;
+				
+				chrome.storage.local.set(data, () => {
+					loginCallback();
+					loginCallback = undefined;
+				});
+			}
 		});
 		
 		let contracts = {};
@@ -654,20 +736,7 @@ global.DPlayInventory = OBJECT({
 			});
 		});
 		
-		let getAccountId = self.getAccountId = (callbackOrHandlers) => {
-			//REQUIRED: callbackOrHandlers
-			//OPTIONAL: callbackOrHandlers.error
-			//REQUIRED: callbackOrHandlers.success
-			
-			let errorHandler;
-			let callback;
-			
-			if (CHECK_IS_DATA(callbackOrHandlers) !== true) {
-				callback = callbackOrHandlers;
-			} else {
-				errorHandler = callbackOrHandlers.error;
-				callback = callbackOrHandlers.success;
-			}
+		let getAccountId = (callback) => {
 			
 			chrome.storage.local.get(['accountId'], (result) => {
 				
@@ -681,7 +750,9 @@ global.DPlayInventory = OBJECT({
 						encryptedText : result.accountId,
 						password : password
 					}, {
-						error : errorHandler,
+						error : () => {
+							callback(undefined);
+						},
 						success : callback
 					});
 				}
@@ -689,8 +760,26 @@ global.DPlayInventory = OBJECT({
 		};
 		
 		// 계정 ID를 반환합니다.
-		inner.on('getAccountId', (notUsing, callback) => {
-			getAccountId(callback);
+		inner.on('getAccountId', (url, callback) => {
+			
+			if (url !== undefined) {
+				
+				chrome.storage.local.get(['integrated-' + url], (result) => {
+					
+					// 연동 필요
+					if (result['integrated-' + url] !== true) {
+						callback(undefined);
+					}
+					
+					else {
+						getAccountId(callback);
+					}
+				});
+			}
+			
+			else {
+				getAccountId(callback);
+			}
 		});
 		
 		// 비밀키를 저장합니다.

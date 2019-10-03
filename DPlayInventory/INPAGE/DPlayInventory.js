@@ -162,15 +162,11 @@ window.DPlayInventory = (() => {
 		}, callback);
 	};
 	
-	let login = self.login = (params, callback) => {
-		//REQUIRED: params
-		//REQUIRED: params.icon
-		//REQUIRED: params.title
+	let login = self.login = (callback) => {
 		//REQUIRED: callback
 		
 		inner.send({
-			methodName : 'login',
-			data : params
+			methodName : 'login'
 		}, callback);
 	};
 	

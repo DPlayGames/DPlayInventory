@@ -12,7 +12,8 @@
 		"128" : "icon128.png"
 	},
 	"permissions" : [
-		"storage"
+		"storage",
+		"tabs"
 	],
 	"background" : {
 		"scripts" : [
@@ -30,10 +31,5 @@
 		],
 		"run_at": "document_start",
 		"all_frames": true
-	}],
-	"web_accessible_resources" : [
-		"popup/login.html",
-		"popup/sign-text.html",
-		"popup/sign-transaction.html"
-	]
+	}]
 }
