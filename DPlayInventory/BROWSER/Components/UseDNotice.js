@@ -7,6 +7,6 @@ DPlayInventory.UseDNotice = CLASS({
 	init : (inner, self, d) => {
 		//REQUIRED: d
 		
-		self.append('이하 작업에는 ' + d + 'd가 소모됩니다.');
+		self.append(MSG('USE_D_MESSAGE').replace(/{d}/, d));
 	}
 });

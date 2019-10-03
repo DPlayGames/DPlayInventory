@@ -1,141 +1,142 @@
-DPlayInventory.Item = CLASS(() => {
+DPlayInventory.Item = CLASS({
 	
-	let itemCache = {};
-	
-	return {
-	
-		preset : () => {
-			return VIEW;
-		},
-	
-		init : (inner, self) => {
+	preset : () => {
+		return VIEW;
+	},
+
+	init : (inner, self) => {
+		
+		let inventoryStore = DPlayInventory.STORE('inventoryStore');
+		
+		let itemList;
+		
+		let loading;
+		let content = DIV({
+			style : {
+				position : 'relative'
+			},
+			c : [itemList = UUI.PANEL({
+				style : {
+					height : 483,
+					overflowY : 'scroll'
+				},
+				contentStyle : {
+					padding : '2px 0 2px 2px'
+				}
+			}), CLEAR_BOTH(), loading = UUI.V_CENTER({
+				style : {
+					position : 'absolute',
+					left : 0,
+					top : 0,
+					backgroundColor : 'rgba(0, 0, 0, 0.5)',
+					width : '100%',
+					height : '100%',
+					textAlign : 'center'
+				},
+				c : IMG({
+					src : DPlayInventory.R('loading.png')
+				})
+			})]
+		});
+		
+		let addItem = (itemType, addresses, gameName, itemName, imageSrc, balance, itemId) => {
 			
-			let inventoryStore = DPlayInventory.STORE('inventoryStore');
-			
-			let itemList;
-			let isInit = true;
-			
-			let itemPanels = {};
-			let content = DIV({
-				c : [itemList = UUI.PANEL({
+			if (balance === undefined || balance > 0) {
+				
+				itemList.append(UUI.PANEL({
 					style : {
-						height : 483,
-						overflowY : 'scroll'
+						position : 'relative',
+						flt : 'left',
+						marginLeft : 1,
+						marginBottom : 1,
+						width : 50,
+						height : 50,
+						backgroundImage : DPlayInventory.R('itemslot.png'),
+						backgroundRepeat : 'no-repeat',
+						backgroundPosition : 'center center',
+						backgroundSize : 'contain',
+						padding : 10,
+						cursor : 'pointer'
 					},
 					contentStyle : {
-						padding : '8px 0px 8px 3px'
+						width : 50,
+						height : 50,
+						backgroundImage : imageSrc,
+						backgroundRepeat : 'no-repeat',
+						backgroundPosition : 'center center',
+						backgroundSize : 'contain'
 					},
-					c : MSG('LOADING_ITEM_LIST_MESSAGE')
-				}), CLEAR_BOTH()]
-			});
-			
-			let addItem = (key, image, balance) => {
+					c : balance === undefined ? undefined : SPAN({
+						style : {
+							position : 'absolute',
+							right : 7,
+							bottom : 4,
+							color : '#f6f4e3',
+							textShadow : DPlayInventory.TextBorderShadow('#403414')
+						},
+						c : balance
+					}),
+					on : {
+						tap : () => {
+							
+							DPlayInventory.SendItemPopup({
+								itemType : itemType,
+								addresses : addresses,
+								gameName : gameName,
+								itemName : itemName,
+								imageSrc : imageSrc,
+								itemId : itemId
+							});
+						}
+					}
+				}));
+			}
+		};
+		
+		EACH(DPlayInventory.ERC20_ITEMS, (items, gameName) => {
+			EACH(items, (itemInfo, itemName) => {
 				
-				if (balance === undefined || balance > 0) {
+				DPlayInventory.Core.getERC20Balance(itemInfo.addresses, (balance) => {
 					
-					if (isInit === true) {
-						itemList.empty();
-						isInit = false;
+					if (loading !== undefined) {
+						loading.remove();
+						loading = undefined;
 					}
 					
-					let itemPanel;
-					itemList.append(itemPanel = DIV({
-						style : {
-							position : 'relative',
-							flt : 'left',
-							marginLeft : 5,
-							marginBottom : 5,
-							width : 50,
-							height : 50,
-							backgroundImage : image,
-							backgroundRepeat : 'no-repeat',
-							backgroundPosition : 'center center',
-							backgroundSize : 'contain',
-							border : '1px solid #999'
-						},
-						c : balance === undefined ? undefined : SPAN({
-							style : {
-								position : 'absolute',
-								right : 5,
-								bottom : 5
-							},
-							c : balance
-						})
-					}));
-					
-					itemPanels[key] = itemPanel;
-				}
-			};
-			
-			EACH(itemCache, (info, address) => {
-				addItem(address, info.image, info.balance);
+					addItem('ERC20', itemInfo.addresses, gameName, itemName, itemInfo.image, balance);
+				});
 			});
-			
-			EACH(DPlayInventory.ERC20_ITEMS, (items, projectName) => {
-				EACH(items, (itemInfo, itemName) => {
+		});
+		
+		EACH(DPlayInventory.ERC721_ITEMS, (items, gameName) => {
+			EACH(items, (itemInfo, itemName) => {
+				
+				DPlayInventory.Core.getERC721Ids({
+					getItemIdsName : itemInfo.getItemIdsName,
+					addresses : itemInfo.addresses
+				}, (ids) => {
 					
-					DPlayInventory.Core.getERC20Balance(itemInfo.addresses, (balance, address) => {
-						
-						itemCache[address] = {
-							image : itemInfo.image,
-							balance : balance
-						};
-						
-						if (itemPanels[address] !== undefined) {
-							itemPanels[address].empty();
-							itemPanels[address].append(SPAN({
-								style : {
-									position : 'absolute',
-									right : 5,
-									bottom : 5
-								},
-								c : balance
-							}));
-						}
-						
-						else {
-							addItem(address, itemInfo.image, balance);
-						}
+					if (loading !== undefined) {
+						loading.remove();
+						loading = undefined;
+					}
+					
+					EACH(ids, (id) => {
+						addItem('ERC721', itemInfo.addresses, gameName, itemName, itemInfo.image.replace(/{id}/g, id), id);
 					});
 				});
 			});
-			
-			EACH(DPlayInventory.ERC721_ITEMS, (items, projectName) => {
-				EACH(items, (itemInfo, itemName) => {
-					
-					DPlayInventory.Core.getERC721Ids({
-						getItemIdsName : itemInfo.getItemIdsName,
-						addresses : itemInfo.addresses
-					}, (ids, address) => {
-						
-						EACH(ids, (id) => {
-							
-							let key = address + ' ' + id;
-							
-							let image = itemInfo.image.replace(/{id}/g, id);
-							itemCache[key] = {
-								id : id,
-								image : image
-							};
-							
-							if (itemPanels[key] === undefined) {
-								addItem(key, image);
-							}
-						});
-					});
-				});
-			});
-			
-			DPlayInventory.Layout.setContent(content);
-			
-			inventoryStore.save({
-				name : 'lastTab',
-				value : 'item'
-			});
-			
-			inner.on('close', () => {
-				content.remove();
-			});
-		}
-	};
+		});
+		
+		DPlayInventory.Layout.setContent(content);
+		
+		inventoryStore.save({
+			name : 'lastTab',
+			value : 'item'
+		});
+		
+		inner.on('close', () => {
+			content.remove();
+		});
+	}
 });

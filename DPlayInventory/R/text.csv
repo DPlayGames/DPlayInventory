@@ -75,7 +75,7 @@ DPLAY_INVENTORY_DESCRIPTION,"DPlay Inventory is an application managing the game
 • You can manage the items in-game purchased in the games integrated with DPlay.
 • You can manage DPlay Coin, which is the currency used in DPlay, d and Ether.
 • You can change your guild’s name and your introduction.
-•You can create or edit your guild.
+• You can create or edit your guild.
 
 Source code: https://github.com/DPlayGames/DPlayInventory
 Inquiry: goblin@dplay.games","DPlay 보관함은 DPlay에서 구매한 게임들과 게임에서 사용되는 아이템, 그리고 재화들을 관리하는 애플리케이션입니다. 또한 DPlay와 연동된 웹 게임에서는 필수적으로 사용해야합니다.
@@ -112,18 +112,18 @@ Inquiry: goblin@dplay.games","DPlay 보관함은 DPlay에서 구매한 게임들
 ALERT_TITLE,Alert,알림,通知,通知,,,,,,,,,,,,,,,
 CONFIRM_TITLE,Confirmation,확인,確認,确认,,,,,,,,,,,,,,,
 PROMPT_TITLE,Entry,입력,提示,提示,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,
-,,,,,,,,,,,,,,,,,,,
+LOGIN_TITLE,Sign in,로그인,登入,登入,,,,,,,,,,,,,,,
+USE_D_MESSAGE,The below costs {d}d.,이하 작업에는 {d}d가 소모됩니다.,以下操作將花費{d}d。,以下操作将花费{d}d。,,,,,,,,,,,,,,,
+ITEM_COUNT,You have {n} of them.,보유량 {n},擁有數：{n},持有数：{n},,,,,,,,,,,,,,,
+SEND_ITEM_COUNT_INPUT_PLACEHOLDER,Amount of items to send,아이템을 보낼 수량,發送物品數量,发送物品数量,,,,,,,,,,,,,,,
+SEND_ITEM_ACCOUNT_ID_INPUT_PLACEHOLDER,Account ID of the recipient,아이템을 받을 계정 ID,接收物品的帳號,接收物品的账戶,,,,,,,,,,,,,,,
+SEND_ITEM_SUBMIT,Send,보내기,送出,送出,,,,,,,,,,,,,,,
+SEND_ITEM_TITLE,{item} of {game},{game}의 {item},{game}的{item},{game}的{item},,,,,,,,,,,,,,,
+SPECIAL_ITEM,,특별 아이템,,,,,,,,,,,,,,,,,
+NOT_ENOUGH_ITEM_COUNT_ALERT,,아이템 보유 수량이 부족합니다.,,,,,,,,,,,,,,,,,
+SENT_ITEM_ALERT,,아이템을 보냈습니다.,,,,,,,,,,,,,,,,,
+SEND_ITEM_ERROR_ALERT,,아이템을 보내는데 오류가 발생했습니다.,,,,,,,,,,,,,,,,,
+NOT_OWNER_ERROR_ALERT,,아이템의 소유주가 아닙니다.,,,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,

@@ -4,7 +4,7 @@ DPlayInventory.ERC721_ITEMS = {
 		'Knight Item' : {
 			image : 'http://delight.game/Delight/R/knightitem/{id}.png',
 			addresses : {
-				Kovan : '0xFdF2BF867c89ECA4f14A5992574dF17Ac67B0810'
+				Kovan : '0x8dC216c399fc0b2e6D17777318A6a12A515e6261'
 			},
 			getItemIdsName : 'getOwnerItemIds'
 		}

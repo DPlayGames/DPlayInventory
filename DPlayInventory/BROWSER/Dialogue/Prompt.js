@@ -84,23 +84,5 @@ DPlayInventory.Prompt = CLASS({
 			},
 			c : content
 		}));
-		
-		self.getOkButton().on('touchstart', () => {
-			
-			SOUND_ONCE({
-				ogg : '/Delight/R/sfx/buttonpositive.ogg',
-				mp3 : '/Delight/R/sfx/buttonpositive.mp3',
-				volume : gameStore.get('soundVolume')
-			});
-		});
-		
-		self.getCancelButton().on('touchstart', () => {
-			
-			SOUND_ONCE({
-				ogg : '/Delight/R/sfx/buttonnegative.ogg',
-				mp3 : '/Delight/R/sfx/buttonnegative.mp3',
-				volume : gameStore.get('soundVolume')
-			});
-		});
 	}
 });

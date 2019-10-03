@@ -6,25 +6,25 @@ DPlayInventory.ERC20_ITEMS = {
 		Ducat : {
 			image : 'http://delight.game/Delight/R/ui/trade/ducat.png',
 			addresses : {
-				Kovan : '0x452c7ECd6bf7B3a8B5F84c26Dd8B202E87f0Ec0e'
+				Kovan : '0xd8A1388D10d37374968D4E489E3dB451E00E92db'
 			}
 		},
 		Wood : {
 			image : 'http://delight.game/Delight/R/ui/trade/wood.png',
 			addresses : {
-				Kovan : '0x50ab7f8B81932DE37a694e7ff3158BdC626Ca189'
-			}
-		},
-		Iron : {
-			image : 'http://delight.game/Delight/R/ui/trade/iron.png',
-			addresses : {
-				Kovan : '0x80067ce57D285377F4F61Aa8fAFd0364dCd5fd2b'
+				Kovan : '0x66a412038bb8e6F4b9f5597Bd579465E7Fc1Deb5'
 			}
 		},
 		Stone : {
 			image : 'http://delight.game/Delight/R/ui/trade/stone.png',
 			addresses : {
-				Kovan : '0xc8C20f552558B56EaC721374ee7Bb7b741A22f17'
+				Kovan : '0xD3F9FF0EB49EBbBc6E4FdCCFb6512bb221786593'
+			}
+		},
+		Iron : {
+			image : 'http://delight.game/Delight/R/ui/trade/iron.png',
+			addresses : {
+				Kovan : '0xE2d3BEF06C7dD2b0b1d9a4A885d0864f8c3D8199'
 			}
 		},
 		
@@ -32,19 +32,13 @@ DPlayInventory.ERC20_ITEMS = {
 		Axe : {
 			image : 'http://delight.game/Delight/R/ui/status/item/axe.png',
 			addresses : {
-				Kovan : '0x9C5E73ba73CeC467734B373c425F036b3D2656DA'
+				Kovan : '0xe8857040c117FC79E394e8Ad9D2D979C44BEE50B'
 			}
 		},
 		Ballista : {
 			image : 'http://delight.game/Delight/R/ui/status/item/ballista.png',
 			addresses : {
-				Kovan : '0xD47FA8E53dDe37EDe64c191bB756061439DE13D6'
-			}
-		},
-		Catapult : {
-			image : 'http://delight.game/Delight/R/ui/status/item/catapult.png',
-			addresses : {
-				Kovan : '0x5D2433E17Ed215F0EAC68CA43715741E44d8EE10'
+				Kovan : '0xCb4A6d8fc8a0bd91995B2A62cB5F80BDbbbFE9C0'
 			}
 		},
 		Camel : {
@@ -53,34 +47,40 @@ DPlayInventory.ERC20_ITEMS = {
 				Kovan : '0x424bD410f8482fA1148dFD4dBb1f68A73C1a166b'
 			}
 		},
-		Elephant : {
-			image : 'http://delight.game/Delight/R/ui/status/item/elephant.png',
+		Catapult : {
+			image : 'http://delight.game/Delight/R/ui/status/item/catapult.png',
 			addresses : {
-				Kovan : '0x102Dd28CA0dF427CEaEACdA66Ab2E3a3574F126e'
-			}
-		},
-		Hood : {
-			image : 'http://delight.game/Delight/R/ui/status/item/hood.png',
-			addresses : {
-				Kovan : '0x9D16851f55c6A111Daf7AD0EcdA14164a467E251'
-			}
-		},
-		Shield : {
-			image : 'http://delight.game/Delight/R/ui/status/item/shield.png',
-			addresses : {
-				Kovan : '0x9568F099C8021CCd2e7839f9114F9Ec6b428D99C'
+				Kovan : '0xd93FF200f683cdc266073c7D4E3aE6E50B9cD727'
 			}
 		},
 		Crossbow : {
 			image : 'http://delight.game/Delight/R/ui/status/item/crossbow.png',
 			addresses : {
-				Kovan : '0x9B4b74328bea79cb360b99e89f56d3Ec37a28D9b'
+				Kovan : '0x8C3ed661BF02D07f86Bac5a9BB0FFDf916d00c18'
+			}
+		},
+		Elephant : {
+			image : 'http://delight.game/Delight/R/ui/status/item/elephant.png',
+			addresses : {
+				Kovan : '0x6068eB1878DFCf0773f36D3C1b4189ac88d98AE0'
+			}
+		},
+		Hood : {
+			image : 'http://delight.game/Delight/R/ui/status/item/hood.png',
+			addresses : {
+				Kovan : '0x4007E4E371E7114f902a1F9bD9556E35D36Cb71d'
+			}
+		},
+		Shield : {
+			image : 'http://delight.game/Delight/R/ui/status/item/shield.png',
+			addresses : {
+				Kovan : '0x58Edb48459F925B30235608E548CA880007289DB'
 			}
 		},
 		Spear : {
 			image : 'http://delight.game/Delight/R/ui/status/item/spear.png',
 			addresses : {
-				Kovan : '0xAb7EE9F464426D02670262701FFBf86c2b01fD05'
+				Kovan : '0x42F63A596c2B9b02Db6B21E430fd45981C59C0b8'
 			}
 		}
 	}

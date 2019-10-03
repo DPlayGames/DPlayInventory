@@ -84,7 +84,9 @@ DPlayInventory.Login = CLASS({
 						padding : 0
 					},
 					value : MSG('LOGIN_SUBMIT')
-				}), DIV({
+				}),
+				
+				DIV({
 					style : {
 						position : 'absolute',
 						bottom : 18,
