@@ -91,7 +91,7 @@ global.DPlayInventory = OBJECT({
 			loginParams = params;
 			loginCallback = callback;
 			
-			chrome.storage.local.get(['accountId'], (result) => {
+			browser.storage.local.get(['accountId'], (result) => {
 				
 				// 계정이 존재하지 않으면
 				if (result.accountId === undefined) {
@@ -126,7 +126,7 @@ global.DPlayInventory = OBJECT({
 			
 			if (loginParams !== undefined && loginParams.url !== undefined) {
 				
-				chrome.storage.local.get(['integrated-' + loginParams.url], (result) => {
+				browser.storage.local.get(['integrated-' + loginParams.url], (result) => {
 					
 					// 연동 화면
 					if (result['integrated-' + loginParams.url] !== true) {
@@ -161,7 +161,7 @@ global.DPlayInventory = OBJECT({
 				let data = {};
 				data['integrated-' + loginParams.url] = true;
 				
-				chrome.storage.local.set(data, () => {
+				browser.storage.local.set(data, () => {
 					loginCallback(true);
 					loginCallback = undefined;
 				});
@@ -628,7 +628,7 @@ global.DPlayInventory = OBJECT({
 				
 				if (accountId !== undefined) {
 					
-					web3.eth.getBalance(accountId, (error, balanceBN) => {
+					web3.eth.getBalance(accountId, (error, balance) => {
 						
 						// 오류 발생
 						if (error !== TO_DELETE) {
@@ -639,7 +639,7 @@ global.DPlayInventory = OBJECT({
 						
 						else {
 							callback({
-								balance : web3.fromWei(balanceBN.toNumber(), 'ether')
+								balance : web3.utils.fromWei(balance, 'ether')
 							});
 						}
 					});
@@ -755,7 +755,7 @@ global.DPlayInventory = OBJECT({
 				},
 				success : (encryptedAccountId) => {
 					
-					chrome.storage.local.set({
+					browser.storage.local.set({
 						accountId : encryptedAccountId
 					}, () => {
 						callback({
@@ -769,14 +769,14 @@ global.DPlayInventory = OBJECT({
 		// 저장된 갑 주소가 존재하는지 확인합니다.
 		inner.on('checkAccountIdExists', (notUsing, callback) => {
 			
-			chrome.storage.local.get(['accountId'], (result) => {
+			browser.storage.local.get(['accountId'], (result) => {
 				callback(result.accountId !== undefined);
 			});
 		});
 		
 		let getAccountId = self.getAccountId = (callback) => {
 			
-			chrome.storage.local.get(['accountId'], (result) => {
+			browser.storage.local.get(['accountId'], (result) => {
 				
 				if (result.accountId === undefined) {
 					callback(undefined);
@@ -802,7 +802,7 @@ global.DPlayInventory = OBJECT({
 			
 			if (url !== undefined) {
 				
-				chrome.storage.local.get(['integrated-' + url], (result) => {
+				browser.storage.local.get(['integrated-' + url], (result) => {
 					
 					// 연동 필요
 					if (result['integrated-' + url] !== true) {
@@ -834,7 +834,7 @@ global.DPlayInventory = OBJECT({
 				},
 				success : (encryptedPrivateKey) => {
 					
-					chrome.storage.local.set({
+					browser.storage.local.set({
 						privateKey : encryptedPrivateKey
 					}, () => {
 						callback({
@@ -860,7 +860,7 @@ global.DPlayInventory = OBJECT({
 				callback = callbackOrHandlers.success;
 			}
 			
-			chrome.storage.local.get(['privateKey'], (result) => {
+			browser.storage.local.get(['privateKey'], (result) => {
 				
 				Crypto.decrypt({
 					encryptedText : result.privateKey,
@@ -924,7 +924,7 @@ global.DPlayInventory = OBJECT({
 			
 			password = undefined;
 			
-			chrome.storage.local.clear(() => {
+			browser.storage.local.clear(() => {
 				
 				callback();
 			});
