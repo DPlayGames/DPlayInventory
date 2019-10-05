@@ -80,6 +80,14 @@ window.DSide = (() => {
 		}, callback);
 	});
 	
+	// 특정 길드 정보를 가져옵니다.
+	inner.on('getGuild', (guildId, callback) => {
+		inner.sendToBackground({
+			methodName : 'getGuild',
+			data : guildId
+		}, callback);
+	});
+	
 	// 특정 유저가 가입한 길드 정보를 가져옵니다.
 	inner.on('getAccountGuild', (accountId, callback) => {
 		inner.sendToBackground({

@@ -332,6 +332,11 @@ global.DSide = OBJECT({
 			sendToNode('updateGuild', params, callback);
 		});
 		
+		// 특정 길드 정보를 가져옵니다.
+		inner.on('getGuild', (guildId, callback) => {
+			sendToNode('getGuild', guildId, callback);
+		});
+		
 		// 특정 계정이 가입한 길드 정보를 가져옵니다.
 		inner.on('getAccountGuild', (accountId, callback) => {
 			sendToNode('getAccountGuild', accountId, callback);
