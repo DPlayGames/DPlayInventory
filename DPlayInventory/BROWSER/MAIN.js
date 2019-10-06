@@ -107,6 +107,11 @@ DPlayInventory.MAIN = METHOD({
 	        });
 			
 			DPlayInventory.MATCH_VIEW({
+				uri : 'popup/changenetwork',
+				target : DPlayInventory.Popup.ChangeNetwork
+			});
+			
+			DPlayInventory.MATCH_VIEW({
 				uri : 'popup/signtext',
 				target : DPlayInventory.Popup.SignText
 			});

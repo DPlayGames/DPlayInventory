@@ -113,7 +113,7 @@ window.DSide = (() => {
 	});
 	
 	// 이미 길드 가입 신청했는지 확인합니다.
-	inner.on('checkGuildJoinRequested', (targetGuildId, callback) => {
+	inner.on('checkGuildJoinRequested', (params, callback) => {
 		inner.sendToBackground({
 			methodName : 'checkGuildJoinRequested',
 			data : params

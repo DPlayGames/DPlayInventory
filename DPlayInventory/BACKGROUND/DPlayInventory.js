@@ -53,10 +53,7 @@ global.DPlayInventory = OBJECT({
 			return provider;
 		};
 		
-		let changeNetwork;
-		
-		// 네트워크를 변경합니다.
-		inner.on('changeNetwork', changeNetwork = (_networkName, callback) => {
+		let changeNetwork = (_networkName, callback) => {
 			
 			networkName = _networkName;
 			
@@ -73,6 +70,24 @@ global.DPlayInventory = OBJECT({
 					callback();
 				}
 			});
+		}
+		
+		// 네트워크를 변경합니다.
+		inner.on('changeNetwork', (networkName, callback) => {
+			
+			chrome.windows.create({
+				url : 'changenetwork.html',
+				type : 'popup',
+				width : 340 + 16,
+				height : 240 + 35,
+				left : 20,
+				top : 20
+			});
+			
+			//TODO:
+			return;
+			
+			changeNetwork(networkName, callback);
 		});
 		
 		changeNetwork(networkName);
@@ -199,8 +214,6 @@ global.DPlayInventory = OBJECT({
 			
 			// 계약의 이벤트 핸들링
 			contractWS.events.allEvents((error, info) => {
-				
-				console.log(error, info);
 				
 				if (error === TO_DELETE) {
 					
@@ -527,6 +540,18 @@ global.DPlayInventory = OBJECT({
 				
 				// 트랜잭션이 필요한 함수인 경우
 				else {
+					
+					chrome.windows.create({
+						url : 'runmethod.html',
+						type : 'popup',
+						width : 374 + 16,
+						height : 554 + 35,
+						left : 20,
+						top : 20
+					});
+					
+					//TODO:
+					return;
 					
 					getAccountId((accountId) => {
 						
@@ -910,6 +935,18 @@ global.DPlayInventory = OBJECT({
 		
 		// 문자열에 서명합니다.
 		inner.on('signText', (data, callback) => {
+			
+			chrome.windows.create({
+				url : 'signtext.html',
+				type : 'popup',
+				width : 340 + 16,
+				height : 240 + 35,
+				left : 20,
+				top : 20
+			});
+			
+			//TODO:
+			return;
 			
 			signText(data, (signature) => {
 				
