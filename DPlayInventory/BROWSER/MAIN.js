@@ -5,29 +5,29 @@ DPlayInventory.MAIN = METHOD({
 		MSG.loadCSV(DPlayInventory.R('text.csv'), () => {
 			
 			DPlayInventory.MATCH_VIEW({
-	            uri : 'restoreaccount',
-	            target : DPlayInventory.RestoreAccount
-	        });
+				uri : 'restoreaccount',
+				target : DPlayInventory.RestoreAccount
+			});
 			
 			DPlayInventory.MATCH_VIEW({
-	            uri : 'createaccount',
-	            target : DPlayInventory.CreateAccount
-	        });
+				uri : 'createaccount',
+				target : DPlayInventory.CreateAccount
+			});
 			
 			DPlayInventory.MATCH_VIEW({
-	            uri : 'login',
-	            target : DPlayInventory.Login
-	        });
-			
-			DPlayInventory.MATCH_VIEW({
-	            uri : '**',
-	            excludeURI : ['', 'restoreaccount', 'createaccount', 'login', 'popup/*'],
-	            target : DPlayInventory.CheckData
-	        });
+				uri : 'login',
+				target : DPlayInventory.Login
+			});
 			
 			DPlayInventory.MATCH_VIEW({
 				uri : '**',
-	            excludeURI : ['restoreaccount', 'createaccount', 'login', 'popup/*'],
+				excludeURI : ['', 'restoreaccount', 'createaccount', 'login', 'popup/*'],
+				target : DPlayInventory.CheckData
+			});
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : '**',
+				excludeURI : ['restoreaccount', 'createaccount', 'login', 'popup/*'],
 				target : DPlayInventory.Layout
 			});
 			
@@ -97,14 +97,14 @@ DPlayInventory.MAIN = METHOD({
 			});
 			
 			DPlayInventory.MATCH_VIEW({
-	            uri : 'popup/restoreaccount',
-	            target : DPlayInventory.Popup.RestoreAccount
-	        });
-	        
+				uri : 'popup/restoreaccount',
+				target : DPlayInventory.Popup.RestoreAccount
+			});
+			
 			DPlayInventory.MATCH_VIEW({
-	            uri : 'popup/createaccount',
-	            target : DPlayInventory.Popup.CreateAccount
-	        });
+				uri : 'popup/createaccount',
+				target : DPlayInventory.Popup.CreateAccount
+			});
 			
 			DPlayInventory.MATCH_VIEW({
 				uri : 'popup/changenetwork',
