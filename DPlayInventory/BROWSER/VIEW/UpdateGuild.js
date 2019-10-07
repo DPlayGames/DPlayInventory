@@ -109,11 +109,14 @@ DPlayInventory.UpdateGuild = CLASS({
 		
 		// 기존 데이터를 가져옵니다.
 		DPlayInventory.Core.getAccountId((accountId) => {
-			DPlayInventory.DSide.getAccountGuild(accountId, (_guildData) => {
-				if (_guildData !== undefined) {
-					guildData = _guildData;
-					form.setData(guildData);
-				}
+			DPlayInventory.DSide.getAccountGuildId(accountId, (guildId) => {
+				DPlayInventory.DSide.getGuild(guildId, (_guildData) => {
+					
+					if (_guildData !== undefined) {
+						guildData = _guildData;
+						form.setData(guildData);
+					}
+				});
 			});
 		});
 		

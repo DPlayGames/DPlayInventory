@@ -73,10 +73,26 @@ window.DSide = (() => {
 		}, callback);
 	});
 	
-	// 길드 목록을 가져옵니다.
-	inner.on('getGuildList', (accountId, callback) => {
+	// 친구를 삭제합니다.
+	inner.on('removeFriend', (friendId, callback) => {
 		inner.sendToBackground({
-			methodName : 'getGuildList'
+			methodName : 'removeFriend',
+			data : friendId
+		}, callback);
+	});
+	
+	// 회원수 순으로 길드 ID들을 가져옵니다.
+	inner.on('getGuildIdsByMemberCount', (notUsing, callback) => {
+		inner.sendToBackground({
+			methodName : 'getGuildIdsByMemberCount'
+		}, callback);
+	});
+	
+	// 특정 유저가 가입한 길드 ID를 가져옵니다.
+	inner.on('getAccountGuildId', (accountId, callback) => {
+		inner.sendToBackground({
+			methodName : 'getAccountGuildId',
+			data : accountId
 		}, callback);
 	});
 	
@@ -85,14 +101,6 @@ window.DSide = (() => {
 		inner.sendToBackground({
 			methodName : 'getGuild',
 			data : guildId
-		}, callback);
-	});
-	
-	// 특정 유저가 가입한 길드 정보를 가져옵니다.
-	inner.on('getAccountGuild', (accountId, callback) => {
-		inner.sendToBackground({
-			methodName : 'getAccountGuild',
-			data : accountId
 		}, callback);
 	});
 	
@@ -128,6 +136,14 @@ window.DSide = (() => {
 		}, callback);
 	});
 	
+	// 길드원들의 ID들을 가져옵니다.
+	inner.on('getGuildMemberIds', (guildId, callback) => {
+		inner.sendToBackground({
+			methodName : 'getGuildMemberIds',
+			data : guildId
+		}, callback);
+	});
+	
 	// 길드 가입 신청을 거절합니다.
 	inner.on('denyGuildJoinRequest', (requesterId, callback) => {
 		inner.sendToBackground({
@@ -141,6 +157,13 @@ window.DSide = (() => {
 		inner.sendToBackground({
 			methodName : 'acceptGuildJoinRequest',
 			data : requesterId
+		}, callback);
+	});
+	
+	// 길드에서 탈퇴합니다.
+	inner.on('leaveGuild', (notUsing, callback) => {
+		inner.sendToBackground({
+			methodName : 'leaveGuild'
 		}, callback);
 	});
 	

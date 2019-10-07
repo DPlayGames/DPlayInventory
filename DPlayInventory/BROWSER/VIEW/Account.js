@@ -6,8 +6,10 @@ DPlayInventory.Account = CLASS({
 
 	init : (inner, self) => {
 		
+		let idPanel;
 		let namePanel;
 		let introducePanel;
+		
 		let content = DIV({
 			style : {
 				position : 'relative',
@@ -38,15 +40,21 @@ DPlayInventory.Account = CLASS({
 				c : MSG('ACCOUNT_INFO_TITLE')
 			}),
 			
-			namePanel = DIV({
+			idPanel = DIV({
 				style : {
 					marginTop : 30
 				}
 			}),
 			
+			namePanel = DIV({
+				style : {
+					marginTop : 15
+				}
+			}),
+			
 			introducePanel = DIV({
 				style : {
-					marginTop : 20
+					marginTop : 15
 				}
 			}),
 			
@@ -98,6 +106,21 @@ DPlayInventory.Account = CLASS({
 		});
 		
 		DPlayInventory.Core.getAccountId((accountId) => {
+			
+			idPanel.append(H2({
+				style : {
+					fontWeight : 'bold'
+				},
+				c : MSG('MY_ACCOUNT_ID')
+			}));
+			idPanel.append(P({
+				style : {
+					padding : 15,
+					fontSize : 12
+				},
+				c : accountId
+			}));
+			
 			DPlayInventory.DSide.getAccountDetail(accountId, (accountDetail) => {
 				
 				if (accountDetail !== undefined) {
@@ -110,7 +133,7 @@ DPlayInventory.Account = CLASS({
 					}));
 					namePanel.append(P({
 						style : {
-							padding : 20
+							padding : 15
 						},
 						c : accountDetail.name
 					}));
@@ -123,7 +146,7 @@ DPlayInventory.Account = CLASS({
 					}));
 					introducePanel.append(P({
 						style : {
-							padding : 20
+							padding : 15
 						},
 						c : accountDetail.introduce
 					}));

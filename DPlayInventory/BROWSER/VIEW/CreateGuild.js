@@ -67,7 +67,6 @@ DPlayInventory.CreateGuild = CLASS({
 							
 							DPlayInventory.Core.getAccountId((accountId) => {
 								data.accountId = accountId;
-								data.memberIds = [accountId];
 								
 								DPlayInventory.Core.signData(data, (hash) => {
 									

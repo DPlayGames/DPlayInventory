@@ -301,7 +301,6 @@ DPlayInventory.DSide = OBJECT({
 			//REQUIRED: params.data.id
 			//OPTIONAL: params.data.name
 			//OPTIONAL: params.data.introduce
-			//REQUIRED: params.data.memberIds
 			//REQUIRED: params.data.createTime
 			
 			sendToNode('createGuild', params, callback);
@@ -324,19 +323,35 @@ DPlayInventory.DSide = OBJECT({
 			//REQUIRED: params.data.id
 			//OPTIONAL: params.data.name
 			//OPTIONAL: params.data.introduce
-			//REQUIRED: params.data.memberIds
 			//REQUIRED: params.data.createTime
 			//REQUIRED: params.data.lastUpdateTime
 			
 			sendToNode('updateGuild', params, callback);
 		};
 		
-		// 특정 계정이 가입한 길드 정보를 가져옵니다.
-		let getAccountGuild = self.getAccountGuild = (accountId, callback) => {
+		// 특정 계정이 가입한 길드 ID를 가져옵니다.
+		let getAccountGuildId = self.getAccountGuildId = (accountId, callback) => {
 			//REQUIRED: accountId
 			//REQUIRED: callback
 			
-			sendToNode('getAccountGuild', accountId, callback);
+			sendToNode('getAccountGuildId', accountId, callback);
+		};
+		
+		// 특정 길드 정보를 가져옵니다.
+		let getGuild = self.getGuild = (guildId, callback) => {
+			//REQUIRED: guildId
+			//REQUIRED: callback
+			
+			sendToNode('getGuild', guildId, callback);
+		};
+		
+		// 길드를 폐쇄합니다.
+		let removeGuild = self.removeGuild = (params, callback) => {
+			//REQUIRED: params
+			//REQUIRED: params.hash
+			//REQUIRED: params.checkHash
+			
+			sendToNode('removeGuild', params, callback);
 		};
 		
 		let login = self.login = (callback) => {

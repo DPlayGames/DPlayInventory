@@ -192,12 +192,37 @@ window.DSide = (() => {
 		}, callback);
 	};
 	
-	// 길드 목록을 가져옵니다.
-	let getGuildList = self.getGuildList = (callback) => {
+	// 친구를 삭제합니다.
+	let removeFriend = self.removeFriend = (friendId, callbackOrHandlers) => {
+		//REQUIRED: friendId
+		//REQUIRED: callbackOrHandlers
+		//OPTIONAL: callbackOrHandlers.notValid
+		//OPTIONAL: callbackOrHandlers.notVerified
+		//REQUIRED: callbackOrHandlers.success
+		
+		inner.send({
+			methodName : 'removeFriend',
+			data : friendId
+		}, seperateHandler(callbackOrHandlers));
+	};
+	
+	// 회원수 순으로 길드 ID들을 가져옵니다.
+	let getGuildIdsByMemberCount = self.getGuildIdsByMemberCount = (callback) => {
 		//REQUIRED: callback
 		
 		inner.send({
-			methodName : 'getGuildList',
+			methodName : 'getGuildIdsByMemberCount',
+		}, callback);
+	};
+	
+	// 특정 유저가 가입한 길드 ID를 가져옵니다.
+	let getAccountGuildId = self.getAccountGuildId = (accountId, callback) => {
+		//REQUIRED: accountId
+		//REQUIRED: callback
+		
+		inner.send({
+			methodName : 'getAccountGuildId',
+			data : accountId
 		}, callback);
 	};
 	
@@ -209,17 +234,6 @@ window.DSide = (() => {
 		inner.send({
 			methodName : 'getGuild',
 			data : guildId
-		}, callback);
-	};
-	
-	// 특정 유저가 가입한 길드 정보를 가져옵니다.
-	let getAccountGuild = self.getAccountGuild = (accountId, callback) => {
-		//REQUIRED: accountId
-		//REQUIRED: callback
-		
-		inner.send({
-			methodName : 'getAccountGuild',
-			data : accountId
 		}, callback);
 	};
 	
@@ -273,6 +287,17 @@ window.DSide = (() => {
 		}, callback);
 	};
 	
+	// 길드원들의 ID들을 가져옵니다.
+	let getGuildMemberIds = self.getGuildMemberIds = (guildId, callback) => {
+		//REQUIRED: guildId
+		//REQUIRED: callback
+		
+		inner.send({
+			methodName : 'getGuildMemberIds',
+			data : guildId
+		}, callback);
+	};
+	
 	// 길드 가입 신청을 거절합니다.
 	let denyGuildJoinRequest = self.denyGuildJoinRequest = (requesterId, callback) => {
 		//REQUIRED: requesterId
@@ -297,6 +322,15 @@ window.DSide = (() => {
 			methodName : 'acceptGuildJoinRequest',
 			data : requesterId
 		}, seperateHandler(callbackOrHandlers));
+	};
+	
+	// 길드에서 탈퇴합니다.
+	let leaveGuild = self.leaveGuild = (callback) => {
+		//REQUIRED: callback
+		
+		inner.send({
+			methodName : 'leaveGuild'
+		}, callback);
 	};
 	
 	// 대상에 참여합니다.

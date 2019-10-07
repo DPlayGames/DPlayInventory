@@ -307,9 +307,21 @@ global.DSide = OBJECT({
 			sendToNode('getFriendIds', accountId, callback);
 		});
 		
-		// 길드 목록을 가져옵니다.
-		inner.on('getGuildList', (notUsing, callback) => {
-			sendToNode('getGuildList', undefined, callback);
+		// 친구들의 ID를 가져옵니다.
+		inner.on('removeFriend', (friendId, callback) => {
+			
+			DPlayInventory.signText(friendId, (hash) => {
+				
+				sendToNode('removeFriend', {
+					friendId : friendId,
+					hash : hash
+				}, callback);
+			});
+		});
+		
+		// 회원수 순으로 길드 ID들을 가져옵니다.
+		inner.on('getGuildIdsByMemberCount', (notUsing, callback) => {
+			sendToNode('getGuildIdsByMemberCount', undefined, callback);
 		});
 		
 		// 이름으로 길드를 찾습니다.
@@ -332,14 +344,23 @@ global.DSide = OBJECT({
 			sendToNode('updateGuild', params, callback);
 		});
 		
-		// 특정 길드 정보를 가져옵니다.
-		inner.on('getGuild', (guildId, callback) => {
-			sendToNode('getGuild', guildId, callback);
-		});
+		let getAccountGuildId = (accountId, callback) => {
+			sendToNode('getAccountGuildId', accountId, callback);
+		};
 		
-		// 특정 계정이 가입한 길드 정보를 가져옵니다.
-		inner.on('getAccountGuild', (accountId, callback) => {
-			sendToNode('getAccountGuild', accountId, callback);
+		// 특정 계정이 가입한 길드 ID를 가져옵니다.
+		inner.on('getAccountGuildId', getAccountGuildId);
+		
+		let getGuild = (guildId, callback) => {
+			sendToNode('getGuild', guildId, callback);
+		};
+		
+		// 특정 길드 정보를 가져옵니다.
+		inner.on('getGuild', getGuild);
+		
+		// 길드를 폐쇄합니다.
+		inner.on('removeGuild', (params, callback) => {
+			sendToNode('removeGuild', params, callback);
 		});
 		
 		// 길드 가입 신청합니다.
@@ -373,24 +394,27 @@ global.DSide = OBJECT({
 			sendToNode('getGuildJoinRequesterIds', guildId, callback);
 		});
 		
+		// 길드원들의 ID들을 가져옵니다.
+		inner.on('getGuildMemberIds', (guildId, callback) => {
+			sendToNode('getGuildMemberIds', guildId, callback);
+		});
+		
 		// 길드 가입 신청을 거절합니다.
 		inner.on('denyGuildJoinRequest', (requesterId, callback) => {
 			
 			DPlayInventory.getAccountId((accountId) => {
 				
-				getAccountGuild(accountId, (guildData) => {
-					
-					let target = guildData.id;
+				getAccountGuildId(accountId, (guildId) => {
 					
 					let data = {
-						target : target,
+						target : guildId,
 						accountId : requesterId
 					};
 					
 					DPlayInventory.signData(data, (hash) => {
 						
 						sendToNode('denyGuildJoinRequest', {
-							target : target,
+							target : guildId,
 							accountId : requesterId,
 							hash : hash
 						});
@@ -406,17 +430,44 @@ global.DSide = OBJECT({
 			
 			DPlayInventory.getAccountId((accountId) => {
 				
-				getAccountGuild(accountId, (guildData) => {
+				getAccountGuildId(accountId, (guildId) => {
 					
-					guildData.memberIds.push(requesterId);
-					guildData.lastUpdateTime = getNodeTime(new Date());
+					let data = {
+						target : guildId,
+						createTime : new Date()
+					};
 					
-					DPlayInventory.signData(guildData, (hash) => {
+					DPlayInventory.signData(data, (hash) => {
 						
-						sendToNode('updateGuild', {
-							data : guildData,
+						sendToNode('acceptGuildJoinRequest', {
+							target : guildId,
+							id : requesterId,
+							data : data,
 							hash : hash
-						}, callback);
+						});
+						
+						callback();
+					});
+				});
+			});
+		});
+		
+		// 길드에서 탈퇴합니다.
+		inner.on('leaveGuild', (notUsing, callback) => {
+			
+			DPlayInventory.getAccountId((accountId) => {
+				
+				getAccountGuildId(accountId, (guildId) => {
+					
+					DPlayInventory.signText(accountId, (hash) => {
+						
+						sendToNode('leaveGuild', {
+							target : guildId,
+							id : accountId,
+							hash : hash
+						});
+						
+						callback();
 					});
 				});
 			});
