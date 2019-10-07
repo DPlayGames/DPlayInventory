@@ -180,6 +180,15 @@ DPlayInventory.Core = OBJECT({
 						retry();
 					}
 					
+					// 트랜잭선 오류 발생
+					else if (result.status === '0x0') {
+						if (errorHandler !== undefined) {
+							errorHandler('Transaction Error');
+						} else {
+							SHOW_ERROR(methodInfo.name, 'Transaction Error', params);
+						}
+					}
+					
 					// 트랜잭션 완료
 					else {
 						callback();

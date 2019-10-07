@@ -289,6 +289,13 @@ global.DPlayInventory = OBJECT({
 						retry();
 					}
 					
+					// 트랜잭선 오류 발생
+					else if (result.status === '0x0') {
+						callback({
+							errorMsg : 'Transaction Error'
+						});
+					}
+					
 					// 트랜잭션 완료
 					else {
 						callback({});
