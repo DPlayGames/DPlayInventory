@@ -28,7 +28,9 @@ global.DPlayInventory = OBJECT({
 			Rinkeby : 'wss://rinkeby.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b'
 		};
 		
-		let networkName = 'Mainnet';
+		let networkStore = STORE('__NETWORK_STORE');
+		
+		let networkName = networkStore.get('networkName') !== undefined ? networkStore.get('networkName') : 'Mainnet';
 		
 		let getNetworkName = self.getNetworkName = () => {
 			return networkName;
@@ -56,37 +58,57 @@ global.DPlayInventory = OBJECT({
 			
 			networkName = _networkName;
 			
+			networkStore.save({
+				name : 'networkName',
+				value : networkName
+			});
+			
 			web3 = new Web3(getProvider(NETWORK_ADDRESSES[networkName]));
 			web3WS = new Web3(getWebSocketProvider(NETWORK_WS_ADDRESSES[networkName]));
 			
-			DELAY(() => {
-				
-				DPlayCoinContract.init();
-				DPlayStoreContract.init();
-				DPlayStoreSearchContract.init();
-				
-				if (callback !== undefined) {
-					callback();
-				}
-			});
+			DPlaySmartContract.initAll(callback);
 		}
+		
+		let popupId;
+		
+		let openPopup = (params) => {
+			
+			if (popupId !== undefined) {
+				browser.windows.remove(popupId);
+			}
+			
+			params.type = 'popup';
+			params.left = 20;
+			params.top = 20;
+			
+			browser.windows.create(params, (win) => {
+				popupId = win.id;
+			});
+		};
+		
+		let changeNetworkName;
+		let changeNetworkCallback;
 		
 		// 네트워크를 변경합니다.
 		inner.on('changeNetwork', (networkName, callback) => {
 			
-			chrome.windows.create({
+			changeNetworkName = networkName;
+			changeNetworkCallback = callback;
+			
+			openPopup({
 				url : 'changenetwork.html',
-				type : 'popup',
 				width : 340 + 16,
-				height : 240 + 35,
-				left : 20,
-				top : 20
+				height : 240 + 35
 			});
-			
-			//TODO:
-			return;
-			
-			changeNetwork(networkName, callback);
+		});
+		
+		// 네트워크 변경 콜백을 실행합니다.
+		inner.on('changeNetworkCallback', () => {
+			changeNetwork(changeNetworkName, changeNetworkCallback);
+		});
+		
+		inner.on('getChangeNetworkName', (notUsing, callback) => {
+			callback(changeNetworkName);
 		});
 		
 		changeNetwork(networkName);
@@ -110,33 +132,27 @@ global.DPlayInventory = OBJECT({
 				// 계정이 존재하지 않으면
 				if (result.accountId === undefined) {
 					
-					chrome.windows.create({
+					openPopup({
 						url : 'restoreaccount.html',
-						type : 'popup',
 						width : 374 + 16,
-						height : 554 + 35,
-						left : 20,
-						top : 20
+						height : 554 + 35
 					});
 				}
 				
 				// 로그인 화면
 				else {
 					
-					chrome.windows.create({
+					openPopup({
 						url : 'login.html',
-						type : 'popup',
 						width : 340 + 16,
-						height : 240 + 35,
-						left : 20,
-						top : 20
+						height : 240 + 35
 					});
 				}
 			});
 		});
 		
 		// 로그인 콜백을 실행합니다.
-		inner.on('loginCallback', (notUsing) => {
+		inner.on('loginCallback', () => {
 			
 			if (loginParams !== undefined && loginParams.url !== undefined) {
 				
@@ -145,13 +161,10 @@ global.DPlayInventory = OBJECT({
 					// 연동 화면
 					if (result['integrated-' + loginParams.url] !== true) {
 						
-						chrome.windows.create({
+						openPopup({
 							url : 'integrate.html',
-							type : 'popup',
 							width : 340 + 16,
-							height : 240 + 35,
-							left : 20,
-							top : 20
+							height : 240 + 35
 						});
 					}
 					
@@ -189,7 +202,7 @@ global.DPlayInventory = OBJECT({
 		let eventMap = {};
 		
 		let eventPorts = [];
-		chrome.runtime.onConnect.addListener((eventPort) => {
+		browser.runtime.onConnect.addListener((eventPort) => {
 			
 			if (eventPort.name === '__CONTRACT_EVENT') {
 				eventPorts.push(eventPort);
@@ -469,6 +482,9 @@ global.DPlayInventory = OBJECT({
 			}
 		};
 		
+		let runSmartContractMethodInfo;
+		let runSmartContractMethodCallback;
+		
 		let runSmartContractMethod = self.runSmartContractMethod = (_params, callback) => {
 			
 			let address = _params.address;
@@ -547,18 +563,6 @@ global.DPlayInventory = OBJECT({
 				// 트랜잭션이 필요한 함수인 경우
 				else {
 					
-					chrome.windows.create({
-						url : 'runmethod.html',
-						type : 'popup',
-						width : 374 + 16,
-						height : 554 + 35,
-						left : 20,
-						top : 20
-					});
-					
-					//TODO:
-					return;
-					
 					getAccountId((accountId) => {
 						
 						if (accountId !== undefined) {
@@ -598,45 +602,23 @@ global.DPlayInventory = OBJECT({
 												success : (gasPrices) => {
 													gasPrices = PARSE_STR(gasPrices);
 													
-													let transaction = new ethereumjs.Tx({
+													runSmartContractMethodInfo = {
+														title : _params.title,
+														favicon : _params.favicon,
+														address : address,
+														methodName : methodName,
+														params : params,
 														nonce : nonce,
-														gasPrice : web3.utils.toHex(web3.utils.toWei(new web3.utils.BN(gasPrices.fast / 10), 'gwei')),
-														gasLimit : gas,
-														to : address,
-														value : 0,
-														data : method.encodeABI()
-													});
+														gasPrice : gasPrices.fast / 10,
+														gas : gas
+													};
 													
-													getPrivateKey({
-														
-														error : (errorMsg) => {
-															callback({
-																errorMsg : errorMsg
-															});
-														},
-														
-														success : (privateKey) => {
-															
-															transaction.sign(ethereumjs.Buffer.Buffer.from(privateKey, 'hex'));
-															
-															// 함수 실행
-															web3.eth.sendSignedTransaction('0x' + transaction.serialize().toString('hex'), (error, transactionHash) => {
-																
-																// 계약 실행 오류 발생
-																if (error !== TO_DELETE) {
-																	callback({
-																		errorMsg : error.toString()
-																	});
-																}
-																
-																// 정상 작동
-																else {
-																	callback({
-																		transactionHash : transactionHash
-																	});
-																}
-															});
-														}
+													runSmartContractMethodCallback = callback;
+													
+													openPopup({
+														url : 'runmethod.html',
+														width : 374 + 16,
+														height : 554 + 35
 													});
 												}
 											});
@@ -652,6 +634,113 @@ global.DPlayInventory = OBJECT({
 		
 		// 스마트 계약의 메소드를 실행합니다.
 		inner.on('runSmartContractMethod', runSmartContractMethod);
+		
+		inner.on('getRunSmartContractMethodInfo', (notUsing, callback) => {
+			callback(runSmartContractMethodInfo);
+		});
+		
+		inner.on('runSmartContractMethodCallback', (gasPrice) => {
+			
+			let address = runSmartContractMethodInfo.address;
+			let methodName = runSmartContractMethodInfo.methodName;
+			let params = runSmartContractMethodInfo.params;
+			
+			let contract = contracts[address];
+			let methods = methodMap[address];
+			
+			if (contract !== undefined && methods !== undefined && methods[methodName] !== undefined) {
+				
+				let methodInfo = methods[methodName];
+				
+				let args = [];
+				
+				// 파라미터가 파라미터가 없거나 1개인 경우
+				if (methodInfo.payable !== true && methodInfo.inputs.length <= 1) {
+					if (methodInfo.inputs.length !== 0) {
+						args.push(params);
+					}
+				}
+				
+				// 파라미터가 여러개인 경우
+				else {
+					
+					let paramsArray = [];
+					EACH(params, (param) => {
+						paramsArray.push(param);
+					});
+					
+					EACH(methodInfo.inputs, (input, i) => {
+						if (input.name !== '') {
+							args.push(params[input.name]);
+						} else {
+							args.push(paramsArray[i]);
+						}
+					});
+				}
+				
+				// 파라미터가 파라미터가 없거나 1개인 경우
+				if (methodInfo.payable !== true && methodInfo.inputs.length <= 1) {
+					// ignore.
+				}
+				
+				// 파라미터가 여러개인 경우
+				else {
+					// ignore.
+				}
+				
+				// constant 함수인 경우
+				if (methodInfo.constant === true) {
+					// ignore.
+				}
+				
+				// 트랜잭션이 필요한 함수인 경우
+				else {
+					
+					let method = contract.methods[methodInfo.name].apply(contract.methods, args);
+					
+					let transaction = new ethereumjs.Tx({
+						nonce : runSmartContractMethodInfo.nonce,
+						gasPrice : web3.utils.toHex(web3.utils.toWei(new web3.utils.BN(gasPrice), 'gwei')),
+						gasLimit : runSmartContractMethodInfo.gas,
+						to : address,
+						value : 0,
+						data : method.encodeABI()
+					});
+					
+					getPrivateKey({
+						
+						error : (errorMsg) => {
+							runSmartContractMethodCallback({
+								errorMsg : errorMsg
+							});
+						},
+						
+						success : (privateKey) => {
+							
+							transaction.sign(ethereumjs.Buffer.Buffer.from(privateKey, 'hex'));
+							
+							// 함수 실행
+							web3.eth.sendSignedTransaction('0x' + transaction.serialize().toString('hex'), (error, transactionHash) => {
+								
+								// 계약 실행 오류 발생
+								if (error !== TO_DELETE) {
+									runSmartContractMethodCallback({
+										errorMsg : error.toString()
+									});
+								}
+								
+								// 정상 작동
+								else {
+									runSmartContractMethodCallback({
+										transactionHash : transactionHash
+									});
+								}
+							});
+						}
+					});
+				}
+			}
+		});
 		
 		inner.on('getEtherBalance', (notUsing, callback) => {
 			
@@ -942,24 +1031,20 @@ global.DPlayInventory = OBJECT({
 		// 문자열에 서명합니다.
 		inner.on('signText', (data, callback) => {
 			
-			chrome.windows.create({
+			openPopup({
 				url : 'signtext.html',
-				type : 'popup',
 				width : 340 + 16,
-				height : 240 + 35,
-				left : 20,
-				top : 20
+				height : 240 + 35
 			});
 			
 			//TODO:
-			return;
 			
-			signText(data, (signature) => {
+			/*signText(data, (signature) => {
 				
 				callback({
 					signature : signature
 				});
-			});
+			});*/
 		});
 		
 		// 초기화합니다.

@@ -312,7 +312,7 @@ global.DSide = OBJECT({
 			sendToNode('checkIsFriend', params, callback);
 		});
 		
-		// 친구들의 ID를 가져옵니다.
+		// 친구를 삭제합니다.
 		inner.on('removeFriend', (friendId, callback) => {
 			
 			DPlayInventory.signText(friendId, (hash) => {
@@ -478,6 +478,27 @@ global.DSide = OBJECT({
 			});
 		});
 		
+		// 길드에서 내쫒습니다.
+		inner.on('banGuildMember', (accountId, callback) => {
+			
+			DPlayInventory.getAccountId((signedAccountId) => {
+				
+				getAccountGuildId(signedAccountId, (guildId) => {
+					
+					DPlayInventory.signText(accountId, (hash) => {
+						
+						sendToNode('leaveGuild', {
+							target : guildId,
+							id : accountId,
+							hash : hash
+						});
+						
+						callback();
+					});
+				});
+			});
+		});
+		
 		let isAccountSigned = false;
 		
 		let login = (callback) => {
@@ -524,7 +545,7 @@ global.DSide = OBJECT({
 		});
 		
 		let eventPorts = {};
-		chrome.runtime.onConnect.addListener((eventPort) => {
+		browser.runtime.onConnect.addListener((eventPort) => {
 			eventPort.onMessage.addListener((clientId) => {
 				
 				if (eventPort.name === '__DSIDE_EVENT') {

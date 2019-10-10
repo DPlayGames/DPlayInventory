@@ -1,3 +1,8 @@
+// 크롬에서는 browser 객체가 없습니다.
+if (window.browser === undefined) {
+	window.browser = chrome;
+}
+
 // In Page Script 및 Background Script와 연결되는 커넥터
 window.Connector = (pack) => {
 	//REQUIRED: pack
@@ -81,7 +86,7 @@ window.Connector = (pack) => {
 		let methodName = params.methodName;
 		let data = params.data;
 		
-		chrome.runtime.sendMessage({
+		browser.runtime.sendMessage({
 			methodName : pack + '/' + methodName,
 			data : data
 		}, (result) => {
@@ -132,7 +137,7 @@ window.Connector = (pack) => {
 		sendKey += 1;
 	};
 	
-	chrome.runtime.onMessage.addListener((params, sender, ret) => {
+	browser.runtime.onMessage.addListener((params, sender, ret) => {
 		
 		let methodName = params.methodName;
 		let data = params.data;

@@ -31,8 +31,7 @@ window.DPlayInventory = (() => {
 		}, callback);
 	});
 	
-	// 스마트 계약의 메소드를 실행합니다.
-	inner.on('login', (notUsing, callback) => {
+	let getFaviconSrc = () => {
 		
 		let favicon;
 		let links = document.getElementsByTagName('link');
@@ -45,12 +44,18 @@ window.DPlayInventory = (() => {
 			}
 		}
 		
+		return favicon[0] === '/' ? location.origin + favicon : location.href + '/' + favicon;
+	};
+	
+	// 스마트 계약의 메소드를 실행합니다.
+	inner.on('login', (notUsing, callback) => {
+		
 		inner.sendToBackground({
 			methodName : 'login',
 			data : {
 				url : location.host,
 				title : document.title,
-				favicon : location.href + '/' + favicon
+				favicon : getFaviconSrc()
 			}
 		}, callback);
 	});
@@ -96,13 +101,17 @@ window.DPlayInventory = (() => {
 	
 	// 스마트 계약의 메소드를 실행합니다.
 	inner.on('runSmartContractMethod', (params, callback) => {
+		
+		params.title = document.title;
+		params.favicon = getFaviconSrc();
+		
 		inner.sendToBackground({
 			methodName : 'runSmartContractMethod',
 			data : params
 		}, callback);
 	});
 	
-	chrome.runtime.connect({
+	browser.runtime.connect({
 		name : '__CONTRACT_EVENT'
 	}).onMessage.addListener((data) => {
 		inner.sendToPage({

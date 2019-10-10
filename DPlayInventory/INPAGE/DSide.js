@@ -346,6 +346,17 @@ window.DSide = (() => {
 		}, callback);
 	};
 	
+	// 길드에서 내쫒습니다.
+	let banGuildMember = self.banGuildMember = (accountId, callback) => {
+		//REQUIRED: accountId
+		//REQUIRED: callback
+		
+		inner.send({
+			methodName : 'banGuildMember',
+			data : accountId
+		}, callback);
+	};
+	
 	// 대상에 참여합니다.
 	let joinTarget = self.joinTarget = (target) => {
 		//REQUIRED: target

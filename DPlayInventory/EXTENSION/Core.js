@@ -22,6 +22,20 @@ DPlayInventory.Core = OBJECT({
 			}, callback);
 		};
 		
+		let changeNetworkCallback = self.changeNetworkCallback = () => {
+			inner.send({
+				methodName : 'changeNetworkCallback'
+			});
+		};
+		
+		let getChangeNetworkName = self.getChangeNetworkName = (callback) => {
+			//REQUIRED: callback
+			
+			inner.send({
+				methodName : 'getChangeNetworkName'
+			}, callback);
+		};
+		
 		// 이더리움 네트워크 이름을 가져옵니다.
 		let getNetworkName = self.getNetworkName = (callback) => {
 			//REQUIRED: callback
@@ -99,6 +113,23 @@ DPlayInventory.Core = OBJECT({
 						callback();
 					}
 				}
+			});
+		};
+		
+		let getRunSmartContractMethodInfo = self.getRunSmartContractMethodInfo = (callback) => {
+			//REQUIRED: callback
+			
+			inner.send({
+				methodName : 'getRunSmartContractMethodInfo'
+			}, callback);
+		};
+		
+		let runSmartContractMethodCallback = self.runSmartContractMethodCallback = (gasPrice) => {
+			//REQUIRED: gasPrice
+			
+			inner.send({
+				methodName : 'runSmartContractMethodCallback',
+				data : gasPrice
 			});
 		};
 		

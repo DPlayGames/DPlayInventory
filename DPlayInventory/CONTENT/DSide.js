@@ -175,6 +175,14 @@ window.DSide = (() => {
 		}, callback);
 	});
 	
+	// 길드에서 내쫒습니다.
+	inner.on('banGuildMember', (accountId, callback) => {
+		inner.sendToBackground({
+			methodName : 'banGuildMember',
+			data : accountId
+		}, callback);
+	});
+	
 	const CLIENT_ID = UUID();
 	
 	// 대상에 참여합니다.
@@ -227,7 +235,7 @@ window.DSide = (() => {
 		});
 	});
 	
-	let eventPort = chrome.runtime.connect({
+	let eventPort = browser.runtime.connect({
 		name : '__DSIDE_EVENT'
 	});
 	eventPort.postMessage(CLIENT_ID);

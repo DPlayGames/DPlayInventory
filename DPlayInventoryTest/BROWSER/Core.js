@@ -3,7 +3,6 @@ DPlayInventory.Core = OBJECT({
 	init : (inner, self) => {
 		
 		const NETWORK_ADDRESSES = {
-			Mainnet : 'wss://mainnet.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
 			Kovan : 'wss://kovan.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
 			Ropsten : 'wss://ropsten.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b',
 			Rinkeby : 'wss://rinkeby.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b'
@@ -14,8 +13,7 @@ DPlayInventory.Core = OBJECT({
 		
 		let networkStore = DPlayInventory.SESSION_STORE('__NETWORK_STORE');
 		
-		//let networkName = networkStore.get('networkName') !== undefined ? networkStore.get('networkName') : 'Mainnet';
-		let networkName = 'Kovan';
+		let networkName = networkStore.get('networkName') !== undefined ? networkStore.get('networkName') : 'Kovan';
 		
 		let getProvider = () => {
 			
@@ -34,6 +32,11 @@ DPlayInventory.Core = OBJECT({
 			//REQUIRED: networkName
 			//OPTIONAL: callback
 			
+			// 테스트에서는 메인넷 금지
+			if (_networkName === 'Mainnet') {
+				_networkName = 'Kovan';
+			}
+			
 			networkName = _networkName;
 			
 			networkStore.save({
@@ -43,16 +46,7 @@ DPlayInventory.Core = OBJECT({
 			
 			web3 = new Web3(getProvider());
 			
-			DELAY(() => {
-				
-				DPlayCoinContract.init();
-				DPlayStoreContract.init();
-				DPlayStoreSearchContract.init();
-				
-				if (callback !== undefined) {
-					callback();
-				}
-			});
+			DPlaySmartContract.initAll(callback);
 		};
 		
 		changeNetwork(networkName);
