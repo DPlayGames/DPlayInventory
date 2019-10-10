@@ -122,7 +122,7 @@ DPlayInventory.Item = CLASS({
 					}
 					
 					EACH(ids, (id) => {
-						addItem('ERC721', itemInfo.addresses, gameName, itemName, itemInfo.image.replace(/{id}/g, id), id);
+						addItem('ERC721', itemInfo.addresses, gameName, itemName, itemInfo.image.replace(/{id}/g, id), undefined, id);
 					});
 				});
 			});

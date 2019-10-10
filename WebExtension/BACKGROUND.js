@@ -26357,8 +26357,7 @@ global.DPlayInventory = OBJECT({
 			Rinkeby : 'wss://rinkeby.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b'
 		};
 		
-		//let networkName = 'Mainnet';
-		let networkName = 'Kovan';
+		let networkName = 'Mainnet';
 		
 		let getNetworkName = self.getNetworkName = () => {
 			return networkName;
@@ -26382,10 +26381,7 @@ global.DPlayInventory = OBJECT({
 			return provider;
 		};
 		
-		let changeNetwork;
-		
-		// 네트워크를 변경합니다.
-		inner.on('changeNetwork', changeNetwork = (_networkName, callback) => {
+		let changeNetwork = (_networkName, callback) => {
 			
 			networkName = _networkName;
 			
@@ -26402,6 +26398,24 @@ global.DPlayInventory = OBJECT({
 					callback();
 				}
 			});
+		}
+		
+		// 네트워크를 변경합니다.
+		inner.on('changeNetwork', (networkName, callback) => {
+			
+			chrome.windows.create({
+				url : 'changenetwork.html',
+				type : 'popup',
+				width : 340 + 16,
+				height : 240 + 35,
+				left : 20,
+				top : 20
+			});
+			
+			//TODO:
+			return;
+			
+			changeNetwork(networkName, callback);
 		});
 		
 		changeNetwork(networkName);
@@ -26529,8 +26543,6 @@ global.DPlayInventory = OBJECT({
 			// 계약의 이벤트 핸들링
 			contractWS.events.allEvents((error, info) => {
 				
-				console.log(error, info);
-				
 				if (error === TO_DELETE) {
 					
 					let args = info.returnValues;
@@ -26603,6 +26615,13 @@ global.DPlayInventory = OBJECT({
 					// 아무런 값이 없으면 재시도
 					else if (result === TO_DELETE || result.blockHash === TO_DELETE) {
 						retry();
+					}
+					
+					// 트랜잭선 오류 발생
+					else if (result.status === '0x0') {
+						callback({
+							errorMsg : 'Transaction Error'
+						});
 					}
 					
 					// 트랜잭션 완료
@@ -26856,6 +26875,18 @@ global.DPlayInventory = OBJECT({
 				
 				// 트랜잭션이 필요한 함수인 경우
 				else {
+					
+					chrome.windows.create({
+						url : 'runmethod.html',
+						type : 'popup',
+						width : 374 + 16,
+						height : 554 + 35,
+						left : 20,
+						top : 20
+					});
+					
+					//TODO:
+					return;
 					
 					getAccountId((accountId) => {
 						
@@ -27239,6 +27270,18 @@ global.DPlayInventory = OBJECT({
 		
 		// 문자열에 서명합니다.
 		inner.on('signText', (data, callback) => {
+			
+			chrome.windows.create({
+				url : 'signtext.html',
+				type : 'popup',
+				width : 340 + 16,
+				height : 240 + 35,
+				left : 20,
+				top : 20
+			});
+			
+			//TODO:
+			return;
 			
 			signText(data, (signature) => {
 				
@@ -27760,9 +27803,26 @@ global.DSide = OBJECT({
 			sendToNode('getFriendIds', accountId, callback);
 		});
 		
-		// 길드 목록을 가져옵니다.
-		inner.on('getGuildList', (notUsing, callback) => {
-			sendToNode('getGuildList', undefined, callback);
+		// 두 유저가 친구인지 확인합니다.
+		inner.on('checkIsFriend', (params, callback) => {
+			sendToNode('checkIsFriend', params, callback);
+		});
+		
+		// 친구들의 ID를 가져옵니다.
+		inner.on('removeFriend', (friendId, callback) => {
+			
+			DPlayInventory.signText(friendId, (hash) => {
+				
+				sendToNode('removeFriend', {
+					friendId : friendId,
+					hash : hash
+				}, callback);
+			});
+		});
+		
+		// 회원수 순으로 길드 ID들을 가져옵니다.
+		inner.on('getGuildIdsByMemberCount', (notUsing, callback) => {
+			sendToNode('getGuildIdsByMemberCount', undefined, callback);
 		});
 		
 		// 이름으로 길드를 찾습니다.
@@ -27785,9 +27845,23 @@ global.DSide = OBJECT({
 			sendToNode('updateGuild', params, callback);
 		});
 		
-		// 특정 계정이 가입한 길드 정보를 가져옵니다.
-		inner.on('getAccountGuild', (accountId, callback) => {
-			sendToNode('getAccountGuild', accountId, callback);
+		let getAccountGuildId = (accountId, callback) => {
+			sendToNode('getAccountGuildId', accountId, callback);
+		};
+		
+		// 특정 계정이 가입한 길드 ID를 가져옵니다.
+		inner.on('getAccountGuildId', getAccountGuildId);
+		
+		let getGuild = (guildId, callback) => {
+			sendToNode('getGuild', guildId, callback);
+		};
+		
+		// 특정 길드 정보를 가져옵니다.
+		inner.on('getGuild', getGuild);
+		
+		// 길드를 폐쇄합니다.
+		inner.on('removeGuild', (params, callback) => {
+			sendToNode('removeGuild', params, callback);
 		});
 		
 		// 길드 가입 신청합니다.
@@ -27821,24 +27895,27 @@ global.DSide = OBJECT({
 			sendToNode('getGuildJoinRequesterIds', guildId, callback);
 		});
 		
+		// 길드원들의 ID들을 가져옵니다.
+		inner.on('getGuildMemberIds', (guildId, callback) => {
+			sendToNode('getGuildMemberIds', guildId, callback);
+		});
+		
 		// 길드 가입 신청을 거절합니다.
 		inner.on('denyGuildJoinRequest', (requesterId, callback) => {
 			
 			DPlayInventory.getAccountId((accountId) => {
 				
-				getAccountGuild(accountId, (guildData) => {
-					
-					let target = guildData.id;
+				getAccountGuildId(accountId, (guildId) => {
 					
 					let data = {
-						target : target,
+						target : guildId,
 						accountId : requesterId
 					};
 					
 					DPlayInventory.signData(data, (hash) => {
 						
 						sendToNode('denyGuildJoinRequest', {
-							target : target,
+							target : guildId,
 							accountId : requesterId,
 							hash : hash
 						});
@@ -27854,17 +27931,44 @@ global.DSide = OBJECT({
 			
 			DPlayInventory.getAccountId((accountId) => {
 				
-				getAccountGuild(accountId, (guildData) => {
+				getAccountGuildId(accountId, (guildId) => {
 					
-					guildData.memberIds.push(requesterId);
-					guildData.lastUpdateTime = getNodeTime(new Date());
+					let data = {
+						target : guildId,
+						createTime : new Date()
+					};
 					
-					DPlayInventory.signData(guildData, (hash) => {
+					DPlayInventory.signData(data, (hash) => {
 						
-						sendToNode('updateGuild', {
-							data : guildData,
+						sendToNode('acceptGuildJoinRequest', {
+							target : guildId,
+							id : requesterId,
+							data : data,
 							hash : hash
-						}, callback);
+						});
+						
+						callback();
+					});
+				});
+			});
+		});
+		
+		// 길드에서 탈퇴합니다.
+		inner.on('leaveGuild', (notUsing, callback) => {
+			
+			DPlayInventory.getAccountId((accountId) => {
+				
+				getAccountGuildId(accountId, (guildId) => {
+					
+					DPlayInventory.signText(accountId, (hash) => {
+						
+						sendToNode('leaveGuild', {
+							target : guildId,
+							id : accountId,
+							hash : hash
+						});
+						
+						callback();
 					});
 				});
 			});
@@ -28039,7 +28143,10 @@ global.DPlayCoinContract = OBJECT({
 			abi : [{"constant":true,"inputs":[{"name":"interfaceID","type":"bytes4"}],"name":"supportsInterface","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"amount","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"from","type":"address"},{"name":"to","type":"address"},{"name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"addr","type":"address"}],"name":"setDPlayTradingPostOnce","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"user","type":"address"}],"name":"getPower","outputs":[{"name":"power","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"network","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"user","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"to","type":"address"},{"name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"amount","type":"uint256"}],"name":"createDCForTest","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"addr","type":"address"}],"name":"setDPlayStoreOnce","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"dplayStore","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"user","type":"address"},{"name":"spender","type":"address"}],"name":"allowance","outputs":[{"name":"remaining","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"dplayTradingPost","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}],
 			
 			addresses : {
-				Kovan : '0xD49bc1247d25FBDF2bB25F5A3333b15198FbA544'
+				Mainnet : '0x92c5387aCE61F5c505BF2c2D4c84120F0A813d4B',
+				Kovan : '0xb53A87bC4E5443a3e7BdaB0FAb53fd5661573036',
+				Ropsten : '0x1ab85da3f07D66C4465929b8B8C1C8C47b531d5a',
+				Rinkeby : '0xBDC07353d7D0CBeD081cA08933a1ACA0d9c82a38'
 			}
 		};
 	},
@@ -28069,7 +28176,10 @@ global.DPlayStoreContract = OBJECT({
 			abi : [{"constant":false,"inputs":[{"name":"to","type":"address"},{"name":"gameId","type":"uint256"}],"name":"transferGame","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"addr","type":"address"},{"name":"gameId","type":"uint256"}],"name":"checkIsPublisher","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"buyer","type":"address"}],"name":"getBoughtGameIds","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"price","type":"uint256"},{"name":"gameURL","type":"string"},{"name":"isWebGame","type":"bool"},{"name":"defaultLanguage","type":"string"}],"name":"newGame","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"gameId","type":"uint256"}],"name":"release","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"gameId","type":"uint256"}],"name":"getGameInfo","outputs":[{"name":"publisher","type":"address"},{"name":"isReleased","type":"bool"},{"name":"price","type":"uint256"},{"name":"gameURL","type":"string"},{"name":"isWebGame","type":"bool"},{"name":"defaultLanguage","type":"string"},{"name":"createTime","type":"uint256"},{"name":"lastUpdateTime","type":"uint256"},{"name":"releaseTime","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"gameId","type":"uint256"},{"name":"gameURL","type":"string"},{"name":"isWebGame","type":"bool"},{"name":"defaultLanguage","type":"string"}],"name":"changeGameInfo","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"gameId","type":"uint256"}],"name":"unrelease","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"network","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"publisher","type":"address"}],"name":"getPublishedGameIds","outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"gameId","type":"uint256"},{"name":"language","type":"string"}],"name":"getGameDetails","outputs":[{"name":"title","type":"string"},{"name":"summary","type":"string"},{"name":"description","type":"string"},{"name":"titleImageURL","type":"string"},{"name":"bannerImageURL","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"addr","type":"address"},{"name":"gameId","type":"uint256"}],"name":"checkIsBuyer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"gameId","type":"uint256"},{"name":"price","type":"uint256"}],"name":"changePrice","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"gameId","type":"uint256"},{"name":"language","type":"string"},{"name":"title","type":"string"},{"name":"summary","type":"string"},{"name":"description","type":"string"},{"name":"titleImageURL","type":"string"},{"name":"bannerImageURL","type":"string"}],"name":"setGameDetails","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"gameId","type":"uint256"}],"name":"buy","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"getGameCount","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"gameId","type":"uint256"},{"indexed":false,"name":"price","type":"uint256"}],"name":"ChangePrice","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"gameId","type":"uint256"},{"indexed":false,"name":"gameURL","type":"string"},{"indexed":false,"name":"isWebGame","type":"bool"},{"indexed":false,"name":"defaultLanguage","type":"string"}],"name":"ChangeGameInfo","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"gameId","type":"uint256"}],"name":"Release","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"gameId","type":"uint256"}],"name":"Unrelease","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"gameId","type":"uint256"},{"indexed":true,"name":"buyer","type":"address"}],"name":"Buy","type":"event"}],
 			
 			addresses : {
-				Kovan : '0x26B675F794bEe5C3a7Ef0880Ca249102c58f59E7'
+				Mainnet : '0x6AbD63da2f98dD181B30eedd0377e74DF503e55B',
+				Kovan : '0x8C2E9938DBd456ac12329fC9cC566bCF0D6269B8',
+				Ropsten : '0x81Eba90B7765fda1AF6aEA03db2491cff4a243Cf',
+				Rinkeby : '0x01DA6dAdCE4662ecB32A544D8dD6f2796Ae986a6'
 			}
 		};
 	}

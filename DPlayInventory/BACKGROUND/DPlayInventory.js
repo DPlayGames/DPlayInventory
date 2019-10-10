@@ -28,8 +28,7 @@ global.DPlayInventory = OBJECT({
 			Rinkeby : 'wss://rinkeby.infura.io/ws/v3/c1a2b959458440c780e5614fd075051b'
 		};
 		
-		//let networkName = 'Mainnet';
-		let networkName = 'Kovan';
+		let networkName = 'Mainnet';
 		
 		let getNetworkName = self.getNetworkName = () => {
 			return networkName;
