@@ -73,6 +73,14 @@ window.DSide = (() => {
 		}, callback);
 	});
 	
+	// 두 유저가 친구인지 확인합니다.
+	inner.on('checkIsFriend', (params, callback) => {
+		inner.sendToBackground({
+			methodName : 'checkIsFriend',
+			data : params
+		}, callback);
+	});
+	
 	// 친구를 삭제합니다.
 	inner.on('removeFriend', (friendId, callback) => {
 		inner.sendToBackground({
