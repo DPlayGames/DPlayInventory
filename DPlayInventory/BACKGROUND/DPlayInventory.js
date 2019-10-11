@@ -723,7 +723,7 @@ global.DPlayInventory = OBJECT({
 					
 					let transaction = new ethereumjs.Tx({
 						nonce : runSmartContractMethodInfo.nonce,
-						gasPrice : web3.utils.toHex(web3.utils.toWei(new web3.utils.BN(gasPrice), 'gwei')),
+						gasPrice : web3.utils.toHex(gasPrice * 1000000000),
 						gasLimit : runSmartContractMethodInfo.gas,
 						to : address,
 						value : 0,

@@ -9,7 +9,7 @@ EXTEND({ origin : CONFIG, extend : {
 	"webServerPort": 8620
 } });
 
-CONFIG.version = 'V1570783601323';
+CONFIG.version = 'V1570802087663';
 
 EXTEND({ origin : BROWSER_CONFIG, extend : {
 	"isNotConnectToServer": true
