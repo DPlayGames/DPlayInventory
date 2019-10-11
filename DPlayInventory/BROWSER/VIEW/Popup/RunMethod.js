@@ -191,7 +191,7 @@ DPlayInventory('Popup').RunMethod = CLASS({
 				c : MSG('RUN_METHOD_GAS_INTRODUCE_BUTTON'),
 				on : {
 					tap : () => {
-						DPlayInventory.openGasCartoon();
+						DPlayInventory.Core.openGasCartoon();
 					}
 				}
 			}),
@@ -236,9 +236,9 @@ DPlayInventory('Popup').RunMethod = CLASS({
 			gasPriceAverage = info.gasPriceAverage;
 			gasPriceFast = info.gasPriceFast;
 			
-			gasPrice = gasPriceAverage + (gasPriceFast - gasPriceAverage) / 3;
+			gasPrice = gasPriceAverage + (gasPriceFast - gasPriceAverage) / 10;
 			
-			gasPanel.append(MSG('RUN_METHOD_GAS') + ' : ' + (gas * gasPrice / 1000000000) + ' Ether');
+			gasPanel.append(MSG('RUN_METHOD_GAS') + ' : ' + (+(gas * gasPrice / 1000000000).toFixed(11)) + ' Ether');
 		});
 		
 		inner.on('close', () => {

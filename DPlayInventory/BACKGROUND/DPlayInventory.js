@@ -89,6 +89,19 @@ global.DPlayInventory = OBJECT({
 			});
 		};
 		
+		let openCartoonPopup = (params) => {
+			
+			params.type = 'popup';
+			
+			params.width += 16;
+			params.height += 35;
+			
+			params.left = INTEGER((screen.width - params.width) / 2);
+			params.top = INTEGER((screen.height - params.height) / 2);
+			
+			browser.windows.create(params);
+		};
+		
 		let changeNetworkName;
 		let changeNetworkCallback;
 		
@@ -748,7 +761,7 @@ global.DPlayInventory = OBJECT({
 		
 		inner.on('openGasCartoon', () => {
 			
-			openPopup({
+			openCartoonPopup({
 				url : 'gascartoon.html',
 				width : 588,
 				height : 352
