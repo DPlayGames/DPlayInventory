@@ -774,7 +774,7 @@ global.DPlayInventory = OBJECT({
 				
 				if (accountId !== undefined) {
 					
-					web3.eth.getBalance(accountId, (error, balance) => {
+					web3WS.eth.getBalance(accountId, (error, balance) => {
 						
 						// 오류 발생
 						if (error !== TO_DELETE) {
@@ -785,7 +785,7 @@ global.DPlayInventory = OBJECT({
 						
 						else {
 							callback({
-								balance : web3.utils.fromWei(balance, 'ether')
+								balance : balance
 							});
 						}
 					});
@@ -1057,20 +1057,20 @@ global.DPlayInventory = OBJECT({
 		// 문자열에 서명합니다.
 		inner.on('signText', (data, callback) => {
 			
-			openPopup({
+			/*openPopup({
 				url : 'signtext.html',
 				width : 340,
 				height : 240
-			});
+			});*/
 			
 			//TODO:
 			
-			/*signText(data, (signature) => {
+			signText(data, (signature) => {
 				
 				callback({
 					signature : signature
 				});
-			});*/
+			});
 		});
 		
 		// 초기화합니다.
