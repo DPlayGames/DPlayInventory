@@ -535,4 +535,4 @@ window.DSide = (() => {
 	
 	return self;
 })();
-if(window.MAIN!==undefined){window.MAIN();}
+RUN(()=>{INIT_OBJECTS();if(global.MAIN!==undefined){global.MAIN();}});

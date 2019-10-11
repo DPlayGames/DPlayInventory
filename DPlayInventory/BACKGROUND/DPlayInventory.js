@@ -1047,6 +1047,8 @@ global.DPlayInventory = OBJECT({
 		});
 		
 		let signText = self.signText = (text, callback) => {
+			//REQUIRED: text
+			//REQUIRED: callback
 			
 			getPrivateKey((privateKey) => {
 				
@@ -1058,6 +1060,18 @@ global.DPlayInventory = OBJECT({
 				
 				callback(ethereumjs.Util.toRpcSig(signedMessage.v, signedMessage.r, signedMessage.s).toString('hex'));
 			});
+		};
+		
+		let signData = self.signData = (data, callback) => {
+			//REQUIRED: data
+			//REQUIRED: callback
+			
+			let sortedData = {};
+			Object.keys(data).sort().forEach((key) => {
+				sortedData[key] = data[key];
+			});
+			
+			signText(STRINGIFY(sortedData), callback);
 		};
 		
 		// 문자열에 서명합니다.
