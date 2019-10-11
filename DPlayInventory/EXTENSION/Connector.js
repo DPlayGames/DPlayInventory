@@ -69,13 +69,12 @@ global.Connector = CLASS(() => {
 					data : data
 				}, (result) => {
 					
-					if (callback !== undefined) {
-						
-						if (result === TO_DELETE) {
-							result = undefined;
-						}
-						
-						callback(result);
+					if (result === TO_DELETE) {
+						result = undefined;
+					}
+					
+					if (result !== undefined && callback !== undefined) {
+						callback(result.returnData);
 					}
 				});
 			};
@@ -89,7 +88,11 @@ global.Connector = CLASS(() => {
 		
 				if (methods !== undefined) {
 					methods.forEach((method) => {
-						method(data, ret);
+						method(data, (returnData) => {
+							ret({
+								returnData : returnData
+							});
+						});
 					});
 				}
 				

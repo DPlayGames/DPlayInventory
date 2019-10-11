@@ -71,6 +71,12 @@ global.DPlayInventory = OBJECT({
 		
 		let popupId;
 		
+		browser.windows.onRemoved.addListener((_popupId) => {
+			if (popupId === _popupId) {
+				popupId = undefined;
+			}
+		});
+		
 		let openPopup = (params) => {
 			
 			if (popupId !== undefined) {

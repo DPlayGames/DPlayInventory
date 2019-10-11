@@ -91,13 +91,12 @@ window.Connector = (pack) => {
 			data : data
 		}, (result) => {
 			
-			if (callback !== undefined) {
-				
-				if (result === TO_DELETE) {
-					result = undefined;
-				}
-				
-				callback(result);
+			if (result === TO_DELETE) {
+				result = undefined;
+			}
+			
+			if (result !== undefined && callback !== undefined) {
+				callback(result.returnData);
 			}
 		});
 	};
@@ -142,7 +141,11 @@ window.Connector = (pack) => {
 		let methodName = params.methodName;
 		let data = params.data;
 		
-		runMethods(methodName, data, ret);
+		runMethods(methodName, data, (returnData) => {
+			ret({
+				returnData : returnData
+			});
+		});
 		
 		return true;
 	});
