@@ -125,6 +125,11 @@ DPlayInventory.MAIN = METHOD({
 				uri : 'popup/runmethod',
 				target : DPlayInventory.Popup.RunMethod
 			});
+			
+			DPlayInventory.MATCH_VIEW({
+				uri : 'popup/gascartoon',
+				target : DPlayInventory.Popup.GasCartoon
+			});
 		});
 	}
 });

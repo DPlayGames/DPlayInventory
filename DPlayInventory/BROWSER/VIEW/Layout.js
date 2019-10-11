@@ -167,10 +167,10 @@ DPlayInventory.Layout = CLASS((cls) => {
 				}, {
 					title : MSG('MENU_CHANGE_NETWORK'),
 					uri : 'changenetwork'
-				}, {
+				}/*, {
 					title : MSG('TRANSACTION_HISTORY_BUTTON'),
 					uri : 'transactionhistory'
-				}], (menuInfo, index) => {
+				}*/], (menuInfo, index) => {
 					
 					menu.append(LI({
 						style : {

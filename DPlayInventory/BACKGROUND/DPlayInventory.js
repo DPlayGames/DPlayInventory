@@ -81,6 +81,9 @@ global.DPlayInventory = OBJECT({
 			params.left = 20;
 			params.top = 20;
 			
+			params.width += 16;
+			params.height += 35;
+			
 			browser.windows.create(params, (win) => {
 				popupId = win.id;
 			});
@@ -97,8 +100,8 @@ global.DPlayInventory = OBJECT({
 			
 			openPopup({
 				url : 'changenetwork.html',
-				width : 340 + 16,
-				height : 240 + 35
+				width : 340,
+				height : 240
 			});
 		});
 		
@@ -134,8 +137,8 @@ global.DPlayInventory = OBJECT({
 					
 					openPopup({
 						url : 'restoreaccount.html',
-						width : 374 + 16,
-						height : 554 + 35
+						width : 374,
+						height : 554
 					});
 				}
 				
@@ -144,8 +147,8 @@ global.DPlayInventory = OBJECT({
 					
 					openPopup({
 						url : 'login.html',
-						width : 340 + 16,
-						height : 240 + 35
+						width : 340,
+						height : 240
 					});
 				}
 			});
@@ -163,8 +166,8 @@ global.DPlayInventory = OBJECT({
 						
 						openPopup({
 							url : 'integrate.html',
-							width : 340 + 16,
-							height : 240 + 35
+							width : 340,
+							height : 240
 						});
 					}
 					
@@ -609,7 +612,8 @@ global.DPlayInventory = OBJECT({
 														methodName : methodName,
 														params : params,
 														nonce : nonce,
-														gasPrice : gasPrices.fast / 10,
+														gasPriceAverage : gasPrices.average / 10,
+														gasPriceFast : gasPrices.fast / 10,
 														gas : gas
 													};
 													
@@ -617,8 +621,8 @@ global.DPlayInventory = OBJECT({
 													
 													openPopup({
 														url : 'runmethod.html',
-														width : 374 + 16,
-														height : 554 + 35
+														width : 374,
+														height : 554
 													});
 												}
 											});
@@ -740,6 +744,15 @@ global.DPlayInventory = OBJECT({
 					});
 				}
 			}
+		});
+		
+		inner.on('openGasCartoon', () => {
+			
+			openPopup({
+				url : 'gascartoon.html',
+				width : 588,
+				height : 352
+			});
 		});
 		
 		inner.on('getEtherBalance', (notUsing, callback) => {
@@ -1033,8 +1046,8 @@ global.DPlayInventory = OBJECT({
 			
 			openPopup({
 				url : 'signtext.html',
-				width : 340 + 16,
-				height : 240 + 35
+				width : 340,
+				height : 240
 			});
 			
 			//TODO:

@@ -51,6 +51,12 @@ DPlayInventory.Core = OBJECT({
 		
 		changeNetwork(networkName);
 		
+		let getChangeNetworkName = self.getChangeNetworkName = (callback) => {
+			//REQUIRED: callback
+			
+			callback(networkName);
+		};
+		
 		// 이더리움 네트워크 이름을 가져옵니다.
 		let getNetworkName = self.getNetworkName = (callback) => {
 			//REQUIRED: callback
@@ -556,6 +562,30 @@ DPlayInventory.Core = OBJECT({
 					});
 				}
 			}
+		};
+		
+		let getRunSmartContractMethodInfo = self.getRunSmartContractMethodInfo = (callback) => {
+			//REQUIRED: callback
+			
+			callback({
+				title : 'TEST GAME',
+				favicon : 'http://delight.game/Delight/R/favicon.ico',
+				address : '0xddD4afA1a399099BA6D8841dbbDC57085420c098',
+				methodName : 'runOrderQueue',
+				params : {
+					accountId: "0xEcCFaA737a5A80bE37e4E70130628E692413cB36",
+					orderIds: ["4f67693e-a96f-4da8-a6c4-6814751ae64b"],
+					orders: [8],
+					params1: [12],
+					params2: [6],
+					params3: [15],
+					params4: [6]
+				},
+				nonce : 2773,
+				gasPriceAverage : 1,
+				gasPriceFast : 10,
+				gas : 383600
+			});
 		};
 		
 		let getEtherBalance = self.getEtherBalance = (callbackOrHandlers) => {

@@ -1,7 +1,7 @@
-DPlayInventory.Alert = CLASS({
+DPlayInventory.Prompt = CLASS({
 
 	preset : () => {
-		return UUI.ALERT;
+		return UUI.PROMPT;
 	},
 
 	params : () => {
@@ -16,16 +16,33 @@ DPlayInventory.Alert = CLASS({
 				boxShadow : '0 0 10px #000'
 			},
 			
-			buttonStyle : {
+			inputStyle : {
+				margin : 'auto',
+				width : 318,
+				border : '1px solid #abacad',
+				backgroundColor : '#e6e2dd'
+			},
+			
+			okButtonStyle : {
 				position : 'absolute',
-				bottom : 8,
-				left : '50%',
-				marginLeft : -137.5,
-				width : 275,
+				bottom : 5,
+				left : 5,
+				width : 163,
 				height : 27,
 				paddingTop : 6,
 				fontWeight : 'bold',
-				backgroundImage : DPlayInventory.R('dialogue/button.png')
+				backgroundImage : DPlayInventory.R('dialogue/okbutton.png')
+			},
+			
+			cancelButtonStyle : {
+				position : 'absolute',
+				bottom : 5,
+				right : 5,
+				width : 163,
+				height : 27,
+				paddingTop : 6,
+				fontWeight : 'bold',
+				backgroundImage : DPlayInventory.R('dialogue/cancelbutton.png')
 			}
 		};
 	},
@@ -43,12 +60,12 @@ DPlayInventory.Alert = CLASS({
 				padding : 2,
 				fontWeight : 'bold'
 			},
-			c : title === undefined ? MSG('ALERT_TITLE') : title
+			c : title === undefined ? MSG('PROMPT_TITLE') : title
 		}));
 		
 		self.append(UUI.V_CENTER({
 			style : {
-				height : 170
+				height : 144
 			},
 			c : P({
 				style : {

@@ -133,6 +133,12 @@ DPlayInventory.Core = OBJECT({
 			});
 		};
 		
+		let openGasCartoon = self.openGasCartoon = () => {
+			inner.send({
+				methodName : 'openGasCartoon'
+			});
+		};
+		
 		let getEtherBalance = self.getEtherBalance = (callbackOrHandlers) => {
 			//REQUIRED: callbackOrHandlers
 			//OPTIONAL: callbackOrHandlers.error
