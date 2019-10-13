@@ -193,6 +193,80 @@ global.DPlayInventory = OBJECT({
 			callback();
 		};
 		
+		let cleanArg = (type, arg) => {
+			
+			// 배열인 경우
+			if (type.substring(type.length - 2) === '[]') {
+				
+				let array = [];
+				EACH(arg, (value, i) => {
+					
+					// 숫자인 경우
+					if (type.indexOf('int') !== -1) {
+						array.push(String(value));
+					}
+					
+					// 주소인 경우
+					else if (type.substring(0, type.length - 2) === 'address') {
+						array.push(web3.utils.toChecksumAddress(value));
+					}
+					
+					// 기타
+					else {
+						array.push(value);
+					}
+				});
+				
+				return array;
+			}
+			
+			// 숫자인 경우
+			else if (type.indexOf('int') !== -1) {
+				return String(arg);
+			}
+			
+			// 주소인 경우
+			else if (type === 'address') {
+				return web3.utils.toChecksumAddress(arg);
+			}
+			
+			// 기타
+			else {
+				return arg;
+			}
+		};
+		
+		let cleanArgs = (methodInfo, params) => {
+			
+			let args = [];
+			
+			// 파라미터가 파라미터가 없거나 1개인 경우
+			if (methodInfo.payable !== true && methodInfo.inputs.length <= 1) {
+				if (methodInfo.inputs.length !== 0) {
+					args.push(cleanArg(methodInfo.inputs[0].type, params));
+				}
+			}
+			
+			// 파라미터가 여러개인 경우
+			else {
+				
+				let paramsArray = [];
+				EACH(params, (param) => {
+					paramsArray.push(param);
+				});
+				
+				EACH(methodInfo.inputs, (input, i) => {
+					if (input.name !== '') {
+						args.push(cleanArg(input.type, params[input.name]));
+					} else {
+						args.push(cleanArg(input.type, paramsArray[i]));
+					}
+				});
+			}
+			
+			return args;
+		};
+		
 		// 결과를 정돈합니다.
 		let cleanResult = (outputs, result) => {
 			
@@ -372,31 +446,7 @@ global.DPlayInventory = OBJECT({
 				
 				let methodInfo = methods[methodName];
 				
-				let args = [];
-				
-				// 파라미터가 파라미터가 없거나 1개인 경우
-				if (methodInfo.payable !== true && methodInfo.inputs.length <= 1) {
-					if (methodInfo.inputs.length !== 0) {
-						args.push(params !== undefined && methodInfo.inputs[0].type.indexOf('int') !== -1 ? String(params) : params);
-					}
-				}
-				
-				// 파라미터가 여러개인 경우
-				else {
-					
-					let paramsArray = [];
-					EACH(params, (param) => {
-						paramsArray.push(param);
-					});
-					
-					EACH(methodInfo.inputs, (input, i) => {
-						if (input.name !== '') {
-							args.push(params[input.name] !== undefined && input.type.indexOf('int') !== -1 ? String(params[input.name]) : params[input.name]);
-						} else {
-							args.push(paramsArray[i] !== undefined && input.type.indexOf('int') !== -1 ? String(paramsArray[i]) : paramsArray[i]);
-						}
-					});
-				}
+				let args = cleanArgs(methodInfo, params);
 				
 				// constant 함수인 경우
 				if (methodInfo.constant === true) {
@@ -747,31 +797,7 @@ global.DPlayInventory = OBJECT({
 					
 					let methodInfo = methods[methodName];
 					
-					let args = [];
-					
-					// 파라미터가 파라미터가 없거나 1개인 경우
-					if (methodInfo.payable !== true && methodInfo.inputs.length <= 1) {
-						if (methodInfo.inputs.length !== 0) {
-							args.push(params !== undefined && methodInfo.inputs[0].type.indexOf('int') !== -1 ? String(params) : params);
-						}
-					}
-					
-					// 파라미터가 여러개인 경우
-					else {
-						
-						let paramsArray = [];
-						EACH(params, (param) => {
-							paramsArray.push(param);
-						});
-						
-						EACH(methodInfo.inputs, (input, i) => {
-							if (input.name !== '') {
-								args.push(params[input.name] !== undefined && input.type.indexOf('int') !== -1 ? String(params[input.name]) : params[input.name]);
-							} else {
-								args.push(paramsArray[i] !== undefined && input.type.indexOf('int') !== -1 ? String(paramsArray[i]) : paramsArray[i]);
-							}
-						});
-					}
+					let args = cleanArgs(methodInfo, params);
 					
 					// 파라미터가 파라미터가 없거나 1개인 경우
 					if (methodInfo.payable !== true && methodInfo.inputs.length <= 1) {
