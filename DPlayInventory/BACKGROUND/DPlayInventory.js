@@ -589,7 +589,7 @@ global.DPlayInventory = OBJECT({
 						
 						if (accountId !== undefined) {
 							
-							web3.eth.getTransactionCount(accountId, (error, nonce) => {
+							web3.eth.getTransactionCount(accountId, 'pending', (error, nonce) => {
 								
 								if (error !== TO_DELETE) {
 									callback({
@@ -723,7 +723,7 @@ global.DPlayInventory = OBJECT({
 					
 					let transaction = new ethereumjs.Tx({
 						nonce : runSmartContractMethodInfo.nonce,
-						gasPrice : web3.utils.toHex(gasPrice * 1000000000),
+						gasPrice : web3.utils.toHex(INTEGER(gasPrice * 1000000000)),
 						gasLimit : runSmartContractMethodInfo.gas,
 						to : address,
 						value : 0,

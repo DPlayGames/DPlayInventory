@@ -468,7 +468,7 @@ DPlayInventory.Core = OBJECT({
 					
 					getAccountId((accountId) => {
 						
-						web3.eth.getTransactionCount(accountId, (error, nonce) => {
+						web3.eth.getTransactionCount(accountId, 'pending', (error, nonce) => {
 							
 							if (error !== TO_DELETE) {
 								if (errorHandler !== undefined) {
