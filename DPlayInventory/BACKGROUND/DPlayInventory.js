@@ -1,15 +1,5 @@
 global.DPlayInventory = OBJECT({
-
-	preset : () => {
-		return Connector;
-	},
 	
-	params : () => {
-		return {
-			pack : 'DPlayInventory'
-		};
-	},
-
 	init : (inner, self) => {
 		
 		// 가져오는 속도는 HTTP가 Web Socket보다 빠릅니다.
@@ -69,6 +59,8 @@ global.DPlayInventory = OBJECT({
 			DPlaySmartContract.initAll(callback);
 		}
 		
+		changeNetwork(networkName);
+		
 		let popupId;
 		
 		browser.windows.onRemoved.addListener((_popupId) => {
@@ -108,115 +100,6 @@ global.DPlayInventory = OBJECT({
 			browser.windows.create(params);
 		};
 		
-		let changeNetworkName;
-		let changeNetworkCallback;
-		
-		// 네트워크를 변경합니다.
-		inner.on('changeNetwork', (networkName, callback) => {
-			
-			changeNetworkName = networkName;
-			changeNetworkCallback = callback;
-			
-			openPopup({
-				url : 'changenetwork.html',
-				width : 340,
-				height : 240
-			});
-		});
-		
-		// 네트워크 변경 콜백을 실행합니다.
-		inner.on('changeNetworkCallback', () => {
-			changeNetwork(changeNetworkName, changeNetworkCallback);
-		});
-		
-		inner.on('getChangeNetworkName', (notUsing, callback) => {
-			callback(changeNetworkName);
-		});
-		
-		changeNetwork(networkName);
-		
-		// 이더리움 네트워크 이름을 가져옵니다.
-		inner.on('getNetworkName', (notUsing, callback) => {
-			callback(networkName);
-		});
-		
-		let loginParams;
-		let loginCallback;
-		
-		// 로그인 창을 엽니다.
-		inner.on('login', (params, callback) => {
-			
-			loginParams = params;
-			loginCallback = callback;
-			
-			browser.storage.local.get(['accountId'], (result) => {
-				
-				// 계정이 존재하지 않으면
-				if (result.accountId === undefined) {
-					
-					openPopup({
-						url : 'restoreaccount.html',
-						width : 374,
-						height : 554
-					});
-				}
-				
-				// 로그인 화면
-				else {
-					
-					openPopup({
-						url : 'login.html',
-						width : 340,
-						height : 240
-					});
-				}
-			});
-		});
-		
-		// 로그인 콜백을 실행합니다.
-		inner.on('loginCallback', () => {
-			
-			if (loginParams !== undefined && loginParams.url !== undefined) {
-				
-				browser.storage.local.get(['integrated-' + loginParams.url], (result) => {
-					
-					// 연동 화면
-					if (result['integrated-' + loginParams.url] !== true) {
-						
-						openPopup({
-							url : 'integrate.html',
-							width : 340,
-							height : 240
-						});
-					}
-					
-					else {
-						loginCallback(true);
-						loginCallback = undefined;
-					}
-				});
-			}
-		});
-		
-		inner.on('getLoginParams', (notUsing, callback) => {
-			callback(loginParams);
-		});
-		
-		// 서비스와 연동합니다.
-		inner.on('integrate', (notUsing) => {
-			
-			if (loginParams !== undefined && loginParams.url !== undefined) {
-				
-				let data = {};
-				data['integrated-' + loginParams.url] = true;
-				
-				browser.storage.local.set(data, () => {
-					loginCallback(true);
-					loginCallback = undefined;
-				});
-			}
-		});
-		
 		let contracts = {};
 		let contractsWS = {};
 		
@@ -236,6 +119,17 @@ global.DPlayInventory = OBJECT({
 				});
 			}
 		});
+		
+		let changeNetworkName;
+		let changeNetworkCallback;
+		
+		let loginParams;
+		let loginCallback;
+		
+		let runSmartContractMethodInfo;
+		let runSmartContractMethodCallback;
+		
+		let password;
 		
 		let createSmartContractInterface = self.createSmartContractInterface = (params, callback) => {
 			
@@ -270,7 +164,7 @@ global.DPlayInventory = OBJECT({
 						
 						// 주소인 경우
 						else if (type === 'address') {
-							args[name] = web3.toChecksumAddress(value);
+							args[name] = web3.utils.toChecksumAddress(value);
 						}
 					});
 					
@@ -298,45 +192,6 @@ global.DPlayInventory = OBJECT({
 			
 			callback();
 		};
-		
-		// 스마트 계약 인터페이스를 생성합니다.
-		inner.on('createSmartContractInterface', createSmartContractInterface);
-		
-		// 트랜잭션이 완료될 때 까지 확인합니다.
-		inner.on('watchTransaction', (transactionHash, callback) => {
-			//REQUIRED: transactionHash
-			//REQUIRED: callback
-			
-			let retry = RAR(() => {
-				
-				web3.eth.getTransactionReceipt(transactionHash, (error, result) => {
-					
-					// 트랜잭선 오류 발생
-					if (error !== TO_DELETE) {
-						callback({
-							errorMsg : error.toString()
-						});
-					}
-					
-					// 아무런 값이 없으면 재시도
-					else if (result === TO_DELETE || result.blockHash === TO_DELETE) {
-						retry();
-					}
-					
-					// 트랜잭선 오류 발생
-					else if (result.status === '0x0') {
-						callback({
-							errorMsg : 'Transaction Error'
-						});
-					}
-					
-					// 트랜잭션 완료
-					else {
-						callback({});
-					}
-				});
-			});
-		});
 		
 		// 결과를 정돈합니다.
 		let cleanResult = (outputs, result) => {
@@ -504,9 +359,6 @@ global.DPlayInventory = OBJECT({
 			}
 		};
 		
-		let runSmartContractMethodInfo;
-		let runSmartContractMethodCallback;
-		
 		let runSmartContractMethod = self.runSmartContractMethod = (_params, callback) => {
 			
 			let address = _params.address;
@@ -525,7 +377,7 @@ global.DPlayInventory = OBJECT({
 				// 파라미터가 파라미터가 없거나 1개인 경우
 				if (methodInfo.payable !== true && methodInfo.inputs.length <= 1) {
 					if (methodInfo.inputs.length !== 0) {
-						args.push(params);
+						args.push(params !== undefined && methodInfo.inputs[0].type.indexOf('int') !== -1 ? String(params) : params);
 					}
 				}
 				
@@ -539,9 +391,9 @@ global.DPlayInventory = OBJECT({
 					
 					EACH(methodInfo.inputs, (input, i) => {
 						if (input.name !== '') {
-							args.push(params[input.name]);
+							args.push(params[input.name] !== undefined && input.type.indexOf('int') !== -1 ? String(params[input.name]) : params[input.name]);
 						} else {
-							args.push(paramsArray[i]);
+							args.push(paramsArray[i] !== undefined && input.type.indexOf('int') !== -1 ? String(paramsArray[i]) : paramsArray[i]);
 						}
 					});
 				}
@@ -655,277 +507,6 @@ global.DPlayInventory = OBJECT({
 			}
 		};
 		
-		// 스마트 계약의 메소드를 실행합니다.
-		inner.on('runSmartContractMethod', runSmartContractMethod);
-		
-		inner.on('getRunSmartContractMethodInfo', (notUsing, callback) => {
-			callback(runSmartContractMethodInfo);
-		});
-		
-		inner.on('runSmartContractMethodCallback', (gasPrice) => {
-			
-			let address = runSmartContractMethodInfo.address;
-			let methodName = runSmartContractMethodInfo.methodName;
-			let params = runSmartContractMethodInfo.params;
-			
-			let contract = contracts[address];
-			let methods = methodMap[address];
-			
-			if (contract !== undefined && methods !== undefined && methods[methodName] !== undefined) {
-				
-				let methodInfo = methods[methodName];
-				
-				let args = [];
-				
-				// 파라미터가 파라미터가 없거나 1개인 경우
-				if (methodInfo.payable !== true && methodInfo.inputs.length <= 1) {
-					if (methodInfo.inputs.length !== 0) {
-						args.push(params);
-					}
-				}
-				
-				// 파라미터가 여러개인 경우
-				else {
-					
-					let paramsArray = [];
-					EACH(params, (param) => {
-						paramsArray.push(param);
-					});
-					
-					EACH(methodInfo.inputs, (input, i) => {
-						if (input.name !== '') {
-							args.push(params[input.name]);
-						} else {
-							args.push(paramsArray[i]);
-						}
-					});
-				}
-				
-				// 파라미터가 파라미터가 없거나 1개인 경우
-				if (methodInfo.payable !== true && methodInfo.inputs.length <= 1) {
-					// ignore.
-				}
-				
-				// 파라미터가 여러개인 경우
-				else {
-					// ignore.
-				}
-				
-				// constant 함수인 경우
-				if (methodInfo.constant === true) {
-					// ignore.
-				}
-				
-				// 트랜잭션이 필요한 함수인 경우
-				else {
-					
-					let method = contract.methods[methodInfo.name].apply(contract.methods, args);
-					
-					let transaction = new ethereumjs.Tx({
-						nonce : runSmartContractMethodInfo.nonce,
-						gasPrice : web3.utils.toHex(INTEGER(gasPrice * 1000000000)),
-						gasLimit : runSmartContractMethodInfo.gas,
-						to : address,
-						value : 0,
-						data : method.encodeABI()
-					});
-					
-					getPrivateKey({
-						
-						error : (errorMsg) => {
-							runSmartContractMethodCallback({
-								errorMsg : errorMsg
-							});
-						},
-						
-						success : (privateKey) => {
-							
-							transaction.sign(ethereumjs.Buffer.Buffer.from(privateKey, 'hex'));
-							
-							// 함수 실행
-							web3.eth.sendSignedTransaction('0x' + transaction.serialize().toString('hex'), (error, transactionHash) => {
-								
-								// 계약 실행 오류 발생
-								if (error !== TO_DELETE) {
-									runSmartContractMethodCallback({
-										errorMsg : error.toString()
-									});
-								}
-								
-								// 정상 작동
-								else {
-									runSmartContractMethodCallback({
-										transactionHash : transactionHash
-									});
-								}
-							});
-						}
-					});
-				}
-			}
-		});
-		
-		inner.on('openGasCartoon', () => {
-			
-			openCartoonPopup({
-				url : 'gascartoon.html',
-				width : 588,
-				height : 352
-			});
-		});
-		
-		inner.on('getEtherBalance', (notUsing, callback) => {
-			
-			getAccountId((accountId) => {
-				
-				if (accountId !== undefined) {
-					
-					web3WS.eth.getBalance(accountId, (error, balance) => {
-						
-						// 오류 발생
-						if (error !== TO_DELETE) {
-							callback({
-								errorMsg : error.toString()
-							});
-						}
-						
-						else {
-							callback({
-								balance : balance
-							});
-						}
-					});
-				}
-			});
-		});
-		
-		inner.on('getERC20Balance', (addresses, callback) => {
-			
-			let erc20 = OBJECT({
-				preset : () => {
-					return DPlaySmartContract;
-				},
-				params : () => {
-					return {
-						abi : [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"remaining","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}],
-						addresses : addresses
-					};
-				}
-			});
-			erc20.init();
-			
-			getAccountId((accountId) => {
-				
-				if (accountId !== undefined) {
-					
-					erc20.decimals((decimals) => {
-						erc20.balanceOf(accountId, (balance) => {
-							erc20.getAddress((address) => {
-							
-								callback({
-									balance : +(balance / Math.pow(10, decimals)).toFixed(11),
-									address : address
-								});
-							});
-						});
-					});
-				}
-			});
-		});
-		
-		inner.on('getERC721Ids', (params, callback) => {
-			
-			let addresses = params.addresses;
-			let getItemIdsName = params.getItemIdsName;
-			
-			let erc721 = OBJECT({
-				preset : () => {
-					return DPlaySmartContract;
-				},
-				params : () => {
-					
-					let abi = [{"constant":true,"inputs":[{"name":"_tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_approved","type":"address"},{"name":"_tokenId","type":"uint256"}],"name":"approve","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_operator","type":"address"},{"name":"_approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_tokenId","type":"uint256"},{"name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":true,"name":"_tokenId","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_approved","type":"address"},{"indexed":true,"name":"_tokenId","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_operator","type":"address"},{"indexed":false,"name":"_approved","type":"bool"}],"name":"ApprovalForAll","type":"event"}];
-					
-					abi.push({"constant":true,"inputs":[{"name":"owner","type":"address"}],"name":getItemIdsName,"outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"});
-					
-					return {
-						abi : abi,
-						addresses : addresses
-					};
-				}
-			});
-			erc721.init();
-			
-			getAccountId((accountId) => {
-				
-				if (accountId !== undefined) {
-					
-					erc721[getItemIdsName](accountId, (ids) => {
-						
-						erc721.getAddress((address) => {
-							
-							callback({
-								ids : ids,
-								address : address
-							});
-						});
-					});
-				}
-			});
-		});
-		
-		let password;
-		
-		// 비밀번호를 지정합니다.
-		inner.on('setPassword', (_password, callback) => {
-			password = _password;
-			callback();
-		});
-		
-		// 비밀번호가 존재하는지 확인합니다.
-		inner.on('checkPasswordExists', (notUsing, callback) => {
-			callback(password !== undefined);
-		});
-		
-		// 비밀번호를 삭제합니다.
-		inner.on('removePassword', (notUsing, callback) => {
-			password = undefined;
-			callback();
-		});
-		
-		// 계정 ID를 저장합니다.
-		inner.on('saveAccountId', (accountId, callback) => {
-			
-			Crypto.encrypt({
-				text : accountId,
-				password : password
-			}, {
-				error : (errorMsg) => {
-					callback({
-						errorMsg : errorMsg
-					});
-				},
-				success : (encryptedAccountId) => {
-					
-					browser.storage.local.set({
-						accountId : encryptedAccountId
-					}, () => {
-						callback({
-							isDone : true
-						});
-					});
-				}
-			});
-		});
-		
-		// 저장된 갑 주소가 존재하는지 확인합니다.
-		inner.on('checkAccountIdExists', (notUsing, callback) => {
-			
-			browser.storage.local.get(['accountId'], (result) => {
-				callback(result.accountId !== undefined);
-			});
-		});
-		
 		let getAccountId = self.getAccountId = (callback) => {
 			
 			browser.storage.local.get(['accountId'], (result) => {
@@ -948,54 +529,6 @@ global.DPlayInventory = OBJECT({
 				}
 			});
 		};
-		
-		// 계정 ID를 반환합니다.
-		inner.on('getAccountId', (url, callback) => {
-			
-			if (url !== undefined) {
-				
-				browser.storage.local.get(['integrated-' + url], (result) => {
-					
-					// 연동 필요
-					if (result['integrated-' + url] !== true) {
-						callback(undefined);
-					}
-					
-					else {
-						getAccountId(callback);
-					}
-				});
-			}
-			
-			else {
-				getAccountId(callback);
-			}
-		});
-		
-		// 비밀키를 저장합니다.
-		inner.on('savePrivateKey', (privateKey, callback) => {
-			
-			Crypto.encrypt({
-				text : privateKey,
-				password : password
-			}, {
-				error : (errorMsg) => {
-					callback({
-						errorMsg : errorMsg
-					});
-				},
-				success : (encryptedPrivateKey) => {
-					
-					browser.storage.local.set({
-						privateKey : encryptedPrivateKey
-					}, () => {
-						callback({
-							isDone : true
-						});
-					});
-				}
-			});
-		});
 		
 		let getPrivateKey = (callbackOrHandlers) => {
 			//REQUIRED: callbackOrHandlers
@@ -1023,28 +556,6 @@ global.DPlayInventory = OBJECT({
 				});
 			});
 		};
-		
-		// 트랜잭션에 서명합니다.
-		inner.on('signTransaction', (transactionData, callback) => {
-			
-			getPrivateKey((privateKey) => {
-				
-				web3.eth.accounts.signTransaction(transactionData, '0x' + privateKey, (error, result) => {
-					
-					if (error !== TO_DELETE) {
-						callback({
-							errorMsg : error.toString()
-						});
-					}
-					
-					else {
-						callback({
-							rawTransaction : result.rawTransaction
-						});
-					}
-				});
-			});
-		});
 		
 		let signText = self.signText = (text, callback) => {
 			//REQUIRED: text
@@ -1074,33 +585,514 @@ global.DPlayInventory = OBJECT({
 			signText(STRINGIFY(sortedData), callback);
 		};
 		
-		// 문자열에 서명합니다.
-		inner.on('signText', (data, callback) => {
+		Connector('DPlayInventory', (on, off, send) => {
 			
-			/*openPopup({
-				url : 'signtext.html',
-				width : 340,
-				height : 240
-			});*/
-			
-			//TODO:
-			
-			signText(data, (signature) => {
+			// 네트워크를 변경합니다.
+			on('changeNetwork', (networkName, callback) => {
 				
-				callback({
-					signature : signature
+				changeNetworkName = networkName;
+				changeNetworkCallback = callback;
+				
+				openPopup({
+					url : 'changenetwork.html',
+					width : 340,
+					height : 240
 				});
 			});
-		});
-		
-		// 초기화합니다.
-		inner.on('clear', (notUsing, callback) => {
 			
-			password = undefined;
+			// 네트워크 변경 콜백을 실행합니다.
+			on('changeNetworkCallback', () => {
+				changeNetwork(changeNetworkName, changeNetworkCallback);
+			});
 			
-			browser.storage.local.clear(() => {
+			on('getChangeNetworkName', (notUsing, callback) => {
+				callback(changeNetworkName);
+			});
+			
+			// 이더리움 네트워크 이름을 가져옵니다.
+			on('getNetworkName', (notUsing, callback) => {
+				callback(networkName);
+			});
+			
+			// 로그인 창을 엽니다.
+			on('login', (params, callback) => {
 				
+				loginParams = params;
+				loginCallback = callback;
+				
+				browser.storage.local.get(['accountId'], (result) => {
+					
+					// 계정이 존재하지 않으면
+					if (result.accountId === undefined) {
+						
+						openPopup({
+							url : 'restoreaccount.html',
+							width : 374,
+							height : 554
+						});
+					}
+					
+					// 로그인 화면
+					else {
+						
+						openPopup({
+							url : 'login.html',
+							width : 340,
+							height : 240
+						});
+					}
+				});
+			});
+			
+			// 로그인 콜백을 실행합니다.
+			on('loginCallback', () => {
+				
+				if (loginParams !== undefined && loginParams.url !== undefined) {
+					
+					browser.storage.local.get(['integrated-' + loginParams.url], (result) => {
+						
+						// 연동 화면
+						if (result['integrated-' + loginParams.url] !== true) {
+							
+							openPopup({
+								url : 'integrate.html',
+								width : 340,
+								height : 240
+							});
+						}
+						
+						else {
+							loginCallback(true);
+							loginCallback = undefined;
+						}
+					});
+				}
+			});
+			
+			on('getLoginParams', (notUsing, callback) => {
+				callback(loginParams);
+			});
+			
+			// 서비스와 연동합니다.
+			on('integrate', (notUsing) => {
+				
+				if (loginParams !== undefined && loginParams.url !== undefined) {
+					
+					let data = {};
+					data['integrated-' + loginParams.url] = true;
+					
+					browser.storage.local.set(data, () => {
+						loginCallback(true);
+						loginCallback = undefined;
+					});
+				}
+			});
+			
+			// 스마트 계약 인터페이스를 생성합니다.
+			on('createSmartContractInterface', createSmartContractInterface);
+			
+			// 트랜잭션이 완료될 때 까지 확인합니다.
+			on('watchTransaction', (transactionHash, callback) => {
+				//REQUIRED: transactionHash
+				//REQUIRED: callback
+				
+				let retry = RAR(() => {
+					
+					web3.eth.getTransactionReceipt(transactionHash, (error, result) => {
+						
+						// 트랜잭선 오류 발생
+						if (error !== TO_DELETE) {
+							callback({
+								errorMsg : error.toString()
+							});
+						}
+						
+						// 아무런 값이 없으면 재시도
+						else if (result === TO_DELETE || result.blockHash === TO_DELETE) {
+							retry();
+						}
+						
+						// 트랜잭선 오류 발생
+						else if (result.status === '0x0') {
+							callback({
+								errorMsg : 'Transaction Error'
+							});
+						}
+						
+						// 트랜잭션 완료
+						else {
+							callback({});
+						}
+					});
+				});
+			});
+			
+			// 스마트 계약의 메소드를 실행합니다.
+			on('runSmartContractMethod', runSmartContractMethod);
+			
+			on('getRunSmartContractMethodInfo', (notUsing, callback) => {
+				callback(runSmartContractMethodInfo);
+			});
+			
+			on('runSmartContractMethodCallback', (gasPrice) => {
+				
+				let address = runSmartContractMethodInfo.address;
+				let methodName = runSmartContractMethodInfo.methodName;
+				let params = runSmartContractMethodInfo.params;
+				
+				let contract = contracts[address];
+				let methods = methodMap[address];
+				
+				if (contract !== undefined && methods !== undefined && methods[methodName] !== undefined) {
+					
+					let methodInfo = methods[methodName];
+					
+					let args = [];
+					
+					// 파라미터가 파라미터가 없거나 1개인 경우
+					if (methodInfo.payable !== true && methodInfo.inputs.length <= 1) {
+						if (methodInfo.inputs.length !== 0) {
+							args.push(params !== undefined && methodInfo.inputs[0].type.indexOf('int') !== -1 ? String(params) : params);
+						}
+					}
+					
+					// 파라미터가 여러개인 경우
+					else {
+						
+						let paramsArray = [];
+						EACH(params, (param) => {
+							paramsArray.push(param);
+						});
+						
+						EACH(methodInfo.inputs, (input, i) => {
+							if (input.name !== '') {
+								args.push(params[input.name] !== undefined && input.type.indexOf('int') !== -1 ? String(params[input.name]) : params[input.name]);
+							} else {
+								args.push(paramsArray[i] !== undefined && input.type.indexOf('int') !== -1 ? String(paramsArray[i]) : paramsArray[i]);
+							}
+						});
+					}
+					
+					// 파라미터가 파라미터가 없거나 1개인 경우
+					if (methodInfo.payable !== true && methodInfo.inputs.length <= 1) {
+						// ignore.
+					}
+					
+					// 파라미터가 여러개인 경우
+					else {
+						// ignore.
+					}
+					
+					// constant 함수인 경우
+					if (methodInfo.constant === true) {
+						// ignore.
+					}
+					
+					// 트랜잭션이 필요한 함수인 경우
+					else {
+						
+						let method = contract.methods[methodInfo.name].apply(contract.methods, args);
+						
+						let transaction = new ethereumjs.Tx({
+							nonce : runSmartContractMethodInfo.nonce,
+							gasPrice : web3.utils.toHex(INTEGER(gasPrice * 1000000000)),
+							gasLimit : runSmartContractMethodInfo.gas,
+							to : address,
+							value : 0,
+							data : method.encodeABI()
+						});
+						
+						getPrivateKey({
+							
+							error : (errorMsg) => {
+								runSmartContractMethodCallback({
+									errorMsg : errorMsg
+								});
+							},
+							
+							success : (privateKey) => {
+								
+								transaction.sign(ethereumjs.Buffer.Buffer.from(privateKey, 'hex'));
+								
+								// 함수 실행
+								web3.eth.sendSignedTransaction('0x' + transaction.serialize().toString('hex'), (error, transactionHash) => {
+									
+									// 계약 실행 오류 발생
+									if (error !== TO_DELETE) {
+										runSmartContractMethodCallback({
+											errorMsg : error.toString()
+										});
+									}
+									
+									// 정상 작동
+									else {
+										runSmartContractMethodCallback({
+											transactionHash : transactionHash
+										});
+									}
+								});
+							}
+						});
+					}
+				}
+			});
+			
+			on('openGasCartoon', () => {
+				
+				openCartoonPopup({
+					url : 'gascartoon.html',
+					width : 588,
+					height : 352
+				});
+			});
+			
+			on('getEtherBalance', (notUsing, callback) => {
+				
+				getAccountId((accountId) => {
+					
+					if (accountId !== undefined) {
+						
+						web3WS.eth.getBalance(accountId, (error, balance) => {
+							
+							// 오류 발생
+							if (error !== TO_DELETE) {
+								callback({
+									errorMsg : error.toString()
+								});
+							}
+							
+							else {
+								callback({
+									balance : balance
+								});
+							}
+						});
+					}
+				});
+			});
+			
+			on('getERC20Balance', (addresses, callback) => {
+				
+				let erc20 = OBJECT({
+					preset : () => {
+						return DPlaySmartContract;
+					},
+					params : () => {
+						return {
+							abi : [{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"remaining","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_spender","type":"address"},{"indexed":false,"name":"_value","type":"uint256"}],"name":"Approval","type":"event"}],
+							addresses : addresses
+						};
+					}
+				});
+				erc20.init();
+				
+				getAccountId((accountId) => {
+					
+					if (accountId !== undefined) {
+						
+						erc20.decimals((decimals) => {
+							erc20.balanceOf(accountId, (balance) => {
+								erc20.getAddress((address) => {
+								
+									callback({
+										balance : +(balance / Math.pow(10, decimals)).toFixed(11),
+										address : address
+									});
+								});
+							});
+						});
+					}
+				});
+			});
+			
+			on('getERC721Ids', (params, callback) => {
+				
+				let addresses = params.addresses;
+				let getItemIdsName = params.getItemIdsName;
+				
+				let erc721 = OBJECT({
+					preset : () => {
+						return DPlaySmartContract;
+					},
+					params : () => {
+						
+						let abi = [{"constant":true,"inputs":[{"name":"_tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_approved","type":"address"},{"name":"_tokenId","type":"uint256"}],"name":"approve","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_operator","type":"address"},{"name":"_approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_tokenId","type":"uint256"},{"name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_from","type":"address"},{"indexed":true,"name":"_to","type":"address"},{"indexed":true,"name":"_tokenId","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_approved","type":"address"},{"indexed":true,"name":"_tokenId","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"_owner","type":"address"},{"indexed":true,"name":"_operator","type":"address"},{"indexed":false,"name":"_approved","type":"bool"}],"name":"ApprovalForAll","type":"event"}];
+						
+						abi.push({"constant":true,"inputs":[{"name":"owner","type":"address"}],"name":getItemIdsName,"outputs":[{"name":"","type":"uint256[]"}],"payable":false,"stateMutability":"view","type":"function"});
+						
+						return {
+							abi : abi,
+							addresses : addresses
+						};
+					}
+				});
+				erc721.init();
+				
+				getAccountId((accountId) => {
+					
+					if (accountId !== undefined) {
+						
+						erc721[getItemIdsName](accountId, (ids) => {
+							
+							erc721.getAddress((address) => {
+								
+								callback({
+									ids : ids,
+									address : address
+								});
+							});
+						});
+					}
+				});
+			});
+			// 비밀번호를 지정합니다.
+			on('setPassword', (_password, callback) => {
+				password = _password;
 				callback();
+			});
+			
+			// 비밀번호가 존재하는지 확인합니다.
+			on('checkPasswordExists', (notUsing, callback) => {
+				callback(password !== undefined);
+			});
+			
+			// 비밀번호를 삭제합니다.
+			on('removePassword', (notUsing, callback) => {
+				password = undefined;
+				callback();
+			});
+			
+			// 계정 ID를 저장합니다.
+			on('saveAccountId', (accountId, callback) => {
+				
+				Crypto.encrypt({
+					text : accountId,
+					password : password
+				}, {
+					error : (errorMsg) => {
+						callback({
+							errorMsg : errorMsg
+						});
+					},
+					success : (encryptedAccountId) => {
+						
+						browser.storage.local.set({
+							accountId : encryptedAccountId
+						}, () => {
+							callback({
+								isDone : true
+							});
+						});
+					}
+				});
+			});
+			
+			// 저장된 갑 주소가 존재하는지 확인합니다.
+			on('checkAccountIdExists', (notUsing, callback) => {
+				
+				browser.storage.local.get(['accountId'], (result) => {
+					callback(result.accountId !== undefined);
+				});
+			});
+			
+			// 계정 ID를 반환합니다.
+			on('getAccountId', (url, callback) => {
+				
+				if (url !== undefined) {
+					
+					browser.storage.local.get(['integrated-' + url], (result) => {
+						
+						// 연동 필요
+						if (result['integrated-' + url] !== true) {
+							callback(undefined);
+						}
+						
+						else {
+							getAccountId(callback);
+						}
+					});
+				}
+				
+				else {
+					getAccountId(callback);
+				}
+			});
+			
+			// 비밀키를 저장합니다.
+			on('savePrivateKey', (privateKey, callback) => {
+				
+				Crypto.encrypt({
+					text : privateKey,
+					password : password
+				}, {
+					error : (errorMsg) => {
+						callback({
+							errorMsg : errorMsg
+						});
+					},
+					success : (encryptedPrivateKey) => {
+						
+						browser.storage.local.set({
+							privateKey : encryptedPrivateKey
+						}, () => {
+							callback({
+								isDone : true
+							});
+						});
+					}
+				});
+			});
+			
+			// 트랜잭션에 서명합니다.
+			on('signTransaction', (transactionData, callback) => {
+				
+				getPrivateKey((privateKey) => {
+					
+					web3.eth.accounts.signTransaction(transactionData, '0x' + privateKey, (error, result) => {
+						
+						if (error !== TO_DELETE) {
+							callback({
+								errorMsg : error.toString()
+							});
+						}
+						
+						else {
+							callback({
+								rawTransaction : result.rawTransaction
+							});
+						}
+					});
+				});
+			});
+			
+			// 문자열에 서명합니다.
+			on('signText', (data, callback) => {
+				
+				/*openPopup({
+					url : 'signtext.html',
+					width : 340,
+					height : 240
+				});*/
+				
+				//TODO:
+				
+				signText(data, (signature) => {
+					
+					callback({
+						signature : signature
+					});
+				});
+			});
+			
+			// 초기화합니다.
+			on('clear', (notUsing, callback) => {
+				
+				password = undefined;
+				
+				browser.storage.local.clear(() => {
+					
+					callback();
+				});
 			});
 		});
 	}

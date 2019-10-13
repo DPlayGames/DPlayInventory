@@ -1,28 +1,21 @@
 global.DPlayCoin = OBJECT({
-
-	preset : () => {
-		return Connector;
-	},
 	
-	params : () => {
-		return {
-			pack : 'DPlayCoin'
-		};
-	},
-
 	init : (inner, self) => {
 		
-		inner.on('getBalance', (notUsing, callback) => {
+		Connector('DPlayCoin', (on, off, send) => {
 			
-			DPlayInventory.getAccountId((accountId) => {
+			on('getBalance', (notUsing, callback) => {
 				
-				if (accountId !== undefined) {
+				DPlayInventory.getAccountId((accountId) => {
 					
-					DPlayCoinContract.balanceOf(accountId, (balance) => {
+					if (accountId !== undefined) {
 						
-						callback(balance);
-					});
-				}
+						DPlayCoinContract.balanceOf(accountId, (balance) => {
+							
+							callback(balance);
+						});
+					}
+				});
 			});
 		});
 	}

@@ -17,6 +17,10 @@ global.Connector = CLASS(() => {
 			let methodMap = {};
 			let sendKey = 0;
 			
+			let port = browser.runtime.connect({
+				name : pack
+			});
+			
 			let on = inner.on = (methodName, method) => {
 				//REQUIRED: methodName
 				//REQUIRED: method
@@ -28,7 +32,7 @@ global.Connector = CLASS(() => {
 				if (methods === undefined) {
 					methods = methodMap[realMethodName] = [];
 				}
-		
+				
 				methods.push(method);
 			};
 			
@@ -64,39 +68,51 @@ global.Connector = CLASS(() => {
 				let methodName = params.methodName;
 				let data = params.data;
 				
-				browser.runtime.sendMessage({
+				let callbackName;
+				
+				port.postMessage({
 					methodName : pack + '/' + methodName,
-					data : data
-				}, (result) => {
-					
-					if (result === TO_DELETE) {
-						result = undefined;
-					}
-					
-					if (result !== undefined && callback !== undefined) {
-						callback(result.returnData);
-					}
+					data : data,
+					sendKey : sendKey
 				});
+				
+				if (callback !== undefined) {
+					
+					callbackName = '__CALLBACK_' + sendKey;
+		
+					// on callback.
+					on(callbackName, (data) => {
+		
+						// run callback.
+						callback(data);
+		
+						// off callback.
+						off(callbackName);
+					});
+				}
+		
+				sendKey += 1;
 			};
 			
-			browser.runtime.onMessage.addListener((params, sender, ret) => {
+			port.onMessage.addListener((params) => {
 				
 				let methodName = params.methodName;
 				let data = params.data;
+				let sendKey = params.sendKey;
 				
 				let methods = methodMap[methodName];
-		
+				
 				if (methods !== undefined) {
 					methods.forEach((method) => {
-						method(data, (returnData) => {
-							ret({
-								returnData : returnData
+						method(data, (retData) => {
+							
+							send({
+								methodName : '__CALLBACK_' + sendKey,
+								data : retData
 							});
 						});
 					});
 				}
-				
-				return true;
 			});
 		}
 	};

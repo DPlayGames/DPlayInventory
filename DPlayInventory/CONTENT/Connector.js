@@ -9,58 +9,33 @@ window.Connector = (pack) => {
 	
 	let inner = {};
 	
-	let methodMap = {};
+	let pageMethodMap = {};
+	let backgroundMethodMap = {};
+	
 	let sendKey = 0;
 	
-	let runMethods = (methodName, data, send, sendKey) => {
-
-		let methods = methodMap[methodName];
-
-		if (methods !== undefined) {
-
-			methods.forEach((method) => {
-
-				// run method.
-				method(data,
-
-				// ret.
-				(retData) => {
-
-					// send to background
-					if (sendKey === undefined) {
-						send(retData);
-					}
-					
-					// send to page
-					else {
-						send({
-							methodName : '__CALLBACK_' + sendKey,
-							data : retData
-						});
-					}
-				});
-			});
-		}
-	};
+	let port = browser.runtime.connect({
+		name : pack
+	});
 	
-	let on = inner.on = (methodName, method) => {
+	let onFromPage = inner.onFromPage = (methodName, method) => {
 		
 		let realMethodName = pack + '/' + methodName;
 
-		let methods = methodMap[realMethodName];
+		let methods = pageMethodMap[realMethodName];
 
 		if (methods === undefined) {
-			methods = methodMap[realMethodName] = [];
+			methods = pageMethodMap[realMethodName] = [];
 		}
 
 		methods.push(method);
 	};
 	
-	let off = inner.off = (methodName, method) => {
+	let offFromPage = inner.offFromPage = (methodName, method) => {
 		
 		let realMethodName = pack + '/' + methodName;
 		
-		let methods = methodMap[realMethodName];
+		let methods = pageMethodMap[realMethodName];
 
 		if (methods !== undefined) {
 
@@ -72,7 +47,41 @@ window.Connector = (pack) => {
 				}
 
 			} else {
-				delete methodMap[realMethodName];
+				delete pageMethodMap[realMethodName];
+			}
+		}
+	};
+	
+	let onFromBackground = inner.onFromBackground = (methodName, method) => {
+		
+		let realMethodName = pack + '/' + methodName;
+
+		let methods = backgroundMethodMap[realMethodName];
+
+		if (methods === undefined) {
+			methods = backgroundMethodMap[realMethodName] = [];
+		}
+
+		methods.push(method);
+	};
+	
+	let offFromBackground= inner.offFromBackground = (methodName, method) => {
+		
+		let realMethodName = pack + '/' + methodName;
+		
+		let methods = backgroundMethodMap[realMethodName];
+
+		if (methods !== undefined) {
+
+			if (method !== undefined) {
+				
+				let index = methods.indexOf(method);
+				if (index !== -1) {
+					methods.splice(index, 1);
+				}
+
+			} else {
+				delete backgroundMethodMap[realMethodName];
 			}
 		}
 	};
@@ -86,19 +95,30 @@ window.Connector = (pack) => {
 		let methodName = params.methodName;
 		let data = params.data;
 		
-		browser.runtime.sendMessage({
+		let callbackName;
+		
+		port.postMessage({
 			methodName : pack + '/' + methodName,
-			data : data
-		}, (result) => {
-			
-			if (result === TO_DELETE) {
-				result = undefined;
-			}
-			
-			if (result !== undefined && callback !== undefined) {
-				callback(result.returnData);
-			}
+			data : data,
+			sendKey : sendKey
 		});
+		
+		if (callback !== undefined) {
+			
+			callbackName = '__CALLBACK_' + sendKey;
+
+			// on callback.
+			onFromBackground(callbackName, (data) => {
+				
+				// run callback.
+				callback(data);
+
+				// off callback.
+				offFromBackground(callbackName);
+			});
+		}
+
+		sendKey += 1;
 	};
 	
 	let sendToPage = inner.sendToPage = (params, callback) => {
@@ -123,31 +143,38 @@ window.Connector = (pack) => {
 			callbackName = '__CALLBACK_' + sendKey;
 
 			// on callback.
-			on(callbackName, (data) => {
+			onFromPage(callbackName, (data) => {
 
 				// run callback.
 				callback(data);
 
 				// off callback.
-				off(callbackName);
+				offFromPage(callbackName);
 			});
 		}
 
 		sendKey += 1;
 	};
 	
-	browser.runtime.onMessage.addListener((params, sender, ret) => {
+	port.onMessage.addListener((params) => {
 		
 		let methodName = params.methodName;
 		let data = params.data;
+		let sendKey = params.sendKey;
 		
-		runMethods(methodName, data, (returnData) => {
-			ret({
-				returnData : returnData
+		let methods = backgroundMethodMap[methodName];
+		
+		if (methods !== undefined) {
+			methods.forEach((method) => {
+				method(data, (retData) => {
+					
+					sendToBackground({
+						methodName : '__CALLBACK_' + sendKey,
+						data : retData
+					});
+				});
 			});
-		});
-		
-		return true;
+		}
 	});
 	
 	window.addEventListener('message', (e) => {
@@ -157,7 +184,19 @@ window.Connector = (pack) => {
 			let data = e.data.data;
 			let sendKey = e.data.sendKey;
 			
-			runMethods(methodName, data, sendToPage, sendKey);
+			let methods = pageMethodMap[methodName];
+			
+			if (methods !== undefined) {
+				methods.forEach((method) => {
+					method(data, (retData) => {
+						
+						sendToPage({
+							methodName : '__CALLBACK_' + sendKey,
+							data : retData
+						});
+					});
+				});
+			}
 		}
 	}, false);
 	

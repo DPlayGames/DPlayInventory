@@ -3,14 +3,14 @@ window.DSide = (() => {
 	let inner = Connector('DSide');
 	let self = {};
 	
-	inner.on('getTimeDiffWithNode', (notUsing, callback) => {
+	inner.onFromPage('getTimeDiffWithNode', (notUsing, callback) => {
 		inner.sendToBackground({
 			methodName : 'getTimeDiffWithNode'
 		}, callback);
 	});
 	
 	// 계정의 세부 정보를 가져옵니다.
-	inner.on('getAccountDetail', (accountId, callback) => {
+	inner.onFromPage('getAccountDetail', (accountId, callback) => {
 		inner.sendToBackground({
 			methodName : 'getAccountDetail',
 			data : accountId
@@ -18,7 +18,7 @@ window.DSide = (() => {
 	});
 	
 	// 이름으로 계정을 찾습니다.
-	inner.on('findAccounts', (nameQuery, callback) => {
+	inner.onFromPage('findAccounts', (nameQuery, callback) => {
 		inner.sendToBackground({
 			methodName : 'findAccounts',
 			data : nameQuery
@@ -26,7 +26,7 @@ window.DSide = (() => {
 	});
 	
 	// 친구 신청합니다.
-	inner.on('requestFriend', (targetAccountId, callback) => {
+	inner.onFromPage('requestFriend', (targetAccountId, callback) => {
 		inner.sendToBackground({
 			methodName : 'requestFriend',
 			data : targetAccountId
@@ -34,7 +34,7 @@ window.DSide = (() => {
 	});
 	
 	// 이미 친구 신청했는지 확인합니다.
-	inner.on('checkFriendRequested', (params, callback) => {
+	inner.onFromPage('checkFriendRequested', (params, callback) => {
 		inner.sendToBackground({
 			methodName : 'checkFriendRequested',
 			data : params
@@ -42,7 +42,7 @@ window.DSide = (() => {
 	});
 	
 	// 친구 신청자들의 ID를 가져옵니다.
-	inner.on('getFriendRequesterIds', (accountId, callback) => {
+	inner.onFromPage('getFriendRequesterIds', (accountId, callback) => {
 		inner.sendToBackground({
 			methodName : 'getFriendRequesterIds',
 			data : accountId
@@ -50,7 +50,7 @@ window.DSide = (() => {
 	});
 	
 	// 친구 요청을 거절합니다.
-	inner.on('denyFriendRequest', (requesterId, callback) => {
+	inner.onFromPage('denyFriendRequest', (requesterId, callback) => {
 		inner.sendToBackground({
 			methodName : 'denyFriendRequest',
 			data : requesterId
@@ -58,7 +58,7 @@ window.DSide = (() => {
 	});
 	
 	// 친구 요청을 수락합니다.
-	inner.on('acceptFriendRequest', (requesterId, callback) => {
+	inner.onFromPage('acceptFriendRequest', (requesterId, callback) => {
 		inner.sendToBackground({
 			methodName : 'acceptFriendRequest',
 			data : requesterId
@@ -66,7 +66,7 @@ window.DSide = (() => {
 	});
 	
 	// 친구들의 ID를 가져옵니다.
-	inner.on('getFriendIds', (accountId, callback) => {
+	inner.onFromPage('getFriendIds', (accountId, callback) => {
 		inner.sendToBackground({
 			methodName : 'getFriendIds',
 			data : accountId
@@ -74,7 +74,7 @@ window.DSide = (() => {
 	});
 	
 	// 두 유저가 친구인지 확인합니다.
-	inner.on('checkIsFriend', (params, callback) => {
+	inner.onFromPage('checkIsFriend', (params, callback) => {
 		inner.sendToBackground({
 			methodName : 'checkIsFriend',
 			data : params
@@ -82,7 +82,7 @@ window.DSide = (() => {
 	});
 	
 	// 친구를 삭제합니다.
-	inner.on('removeFriend', (friendId, callback) => {
+	inner.onFromPage('removeFriend', (friendId, callback) => {
 		inner.sendToBackground({
 			methodName : 'removeFriend',
 			data : friendId
@@ -90,14 +90,14 @@ window.DSide = (() => {
 	});
 	
 	// 회원수 순으로 길드 ID들을 가져옵니다.
-	inner.on('getGuildIdsByMemberCount', (notUsing, callback) => {
+	inner.onFromPage('getGuildIdsByMemberCount', (notUsing, callback) => {
 		inner.sendToBackground({
 			methodName : 'getGuildIdsByMemberCount'
 		}, callback);
 	});
 	
 	// 특정 유저가 가입한 길드 ID를 가져옵니다.
-	inner.on('getAccountGuildId', (accountId, callback) => {
+	inner.onFromPage('getAccountGuildId', (accountId, callback) => {
 		inner.sendToBackground({
 			methodName : 'getAccountGuildId',
 			data : accountId
@@ -105,7 +105,7 @@ window.DSide = (() => {
 	});
 	
 	// 특정 길드 정보를 가져옵니다.
-	inner.on('getGuild', (guildId, callback) => {
+	inner.onFromPage('getGuild', (guildId, callback) => {
 		inner.sendToBackground({
 			methodName : 'getGuild',
 			data : guildId
@@ -113,7 +113,7 @@ window.DSide = (() => {
 	});
 	
 	// 이름으로 길드를 찾습니다.
-	inner.on('findGuilds', (nameQuery, callback) => {
+	inner.onFromPage('findGuilds', (nameQuery, callback) => {
 		inner.sendToBackground({
 			methodName : 'findGuilds',
 			data : nameQuery
@@ -121,7 +121,7 @@ window.DSide = (() => {
 	});
 	
 	// 길드 가입 신청합니다.
-	inner.on('requestGuildJoin', (targetGuildId, callback) => {
+	inner.onFromPage('requestGuildJoin', (targetGuildId, callback) => {
 		inner.sendToBackground({
 			methodName : 'requestGuildJoin',
 			data : targetGuildId
@@ -129,7 +129,7 @@ window.DSide = (() => {
 	});
 	
 	// 이미 길드 가입 신청했는지 확인합니다.
-	inner.on('checkGuildJoinRequested', (params, callback) => {
+	inner.onFromPage('checkGuildJoinRequested', (params, callback) => {
 		inner.sendToBackground({
 			methodName : 'checkGuildJoinRequested',
 			data : params
@@ -137,7 +137,7 @@ window.DSide = (() => {
 	});
 	
 	// 길드 가입 신청자들의 ID를 가져옵니다.
-	inner.on('getGuildJoinRequesterIds', (guildId, callback) => {
+	inner.onFromPage('getGuildJoinRequesterIds', (guildId, callback) => {
 		inner.sendToBackground({
 			methodName : 'getGuildJoinRequesterIds',
 			data : guildId
@@ -145,7 +145,7 @@ window.DSide = (() => {
 	});
 	
 	// 길드원들의 ID들을 가져옵니다.
-	inner.on('getGuildMemberIds', (guildId, callback) => {
+	inner.onFromPage('getGuildMemberIds', (guildId, callback) => {
 		inner.sendToBackground({
 			methodName : 'getGuildMemberIds',
 			data : guildId
@@ -153,7 +153,7 @@ window.DSide = (() => {
 	});
 	
 	// 길드 가입 신청을 거절합니다.
-	inner.on('denyGuildJoinRequest', (requesterId, callback) => {
+	inner.onFromPage('denyGuildJoinRequest', (requesterId, callback) => {
 		inner.sendToBackground({
 			methodName : 'denyGuildJoinRequest',
 			data : requesterId
@@ -161,7 +161,7 @@ window.DSide = (() => {
 	});
 	
 	// 길드 가입 신청을 수락합니다.
-	inner.on('acceptGuildJoinRequest', (requesterId, callback) => {
+	inner.onFromPage('acceptGuildJoinRequest', (requesterId, callback) => {
 		inner.sendToBackground({
 			methodName : 'acceptGuildJoinRequest',
 			data : requesterId
@@ -169,14 +169,14 @@ window.DSide = (() => {
 	});
 	
 	// 길드에서 탈퇴합니다.
-	inner.on('leaveGuild', (notUsing, callback) => {
+	inner.onFromPage('leaveGuild', (notUsing, callback) => {
 		inner.sendToBackground({
 			methodName : 'leaveGuild'
 		}, callback);
 	});
 	
 	// 길드에서 내쫒습니다.
-	inner.on('banGuildMember', (accountId, callback) => {
+	inner.onFromPage('banGuildMember', (accountId, callback) => {
 		inner.sendToBackground({
 			methodName : 'banGuildMember',
 			data : accountId
@@ -186,7 +186,7 @@ window.DSide = (() => {
 	const CLIENT_ID = UUID();
 	
 	// 대상에 참여합니다.
-	inner.on('joinTarget', (target) => {
+	inner.onFromPage('joinTarget', (target) => {
 		inner.sendToBackground({
 			methodName : 'joinTarget',
 			data : {
@@ -197,7 +197,7 @@ window.DSide = (() => {
 	});
 	
 	// 대상에서 나옵니다.
-	inner.on('exitTarget', (target) => {
+	inner.onFromPage('exitTarget', (target) => {
 		inner.sendToBackground({
 			methodName : 'exitTarget',
 			data : {
@@ -207,28 +207,28 @@ window.DSide = (() => {
 		});
 	});
 	
-	inner.on('getChatMessages', (target, callback) => {
+	inner.onFromPage('getChatMessages', (target, callback) => {
 		inner.sendToBackground({
 			methodName : 'getChatMessages',
 			data : target
 		}, callback);
 	});
 	
-	inner.on('sendChatMessage', (params) => {
+	inner.onFromPage('sendChatMessage', (params) => {
 		inner.sendToBackground({
 			methodName : 'sendChatMessage',
 			data : params
 		});
 	});
 	
-	inner.on('getPendingTransactions', (target, callback) => {
+	inner.onFromPage('getPendingTransactions', (target, callback) => {
 		inner.sendToBackground({
 			methodName : 'getPendingTransactions',
 			data : target
 		}, callback);
 	});
 	
-	inner.on('sendPendingTransaction', (params) => {
+	inner.onFromPage('sendPendingTransaction', (params) => {
 		inner.sendToBackground({
 			methodName : 'sendPendingTransaction',
 			data : params
