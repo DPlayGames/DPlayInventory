@@ -203,7 +203,9 @@ global.DPlayInventory = OBJECT({
 					
 					// 숫자인 경우
 					if (type.indexOf('int') !== -1) {
-						array.push(String(value));
+						array.push(value.toLocaleString('fullwide', {
+							useGrouping : false
+						}));
 					}
 					
 					// 주소인 경우
@@ -222,7 +224,9 @@ global.DPlayInventory = OBJECT({
 			
 			// 숫자인 경우
 			else if (type.indexOf('int') !== -1) {
-				return String(arg);
+				return arg.toLocaleString('fullwide', {
+					useGrouping : false
+				});
 			}
 			
 			// 주소인 경우

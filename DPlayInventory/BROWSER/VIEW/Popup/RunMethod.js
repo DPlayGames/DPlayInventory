@@ -100,9 +100,13 @@ DPlayInventory('Popup').RunMethod = CLASS({
 							}
 						});
 						
-						EACH(methodParams, (value, name) => {
-							content.append(name + ' : ' + JSON.stringify(value) + '\n');
-						});
+						if (CHECK_IS_DATA(methodParams) !== true) {
+							content.append(JSON.stringify(methodParams));
+						} else {
+							EACH(methodParams, (value, name) => {
+								content.append(name + ' : ' + JSON.stringify(value) + '\n');
+							});
+						}
 						
 						DPlayInventory.Alert({
 							title : MSG('RUN_METHOD_PARAMETER_TITLE'),
@@ -214,8 +218,25 @@ DPlayInventory('Popup').RunMethod = CLASS({
 				on : {
 					tap : () => {
 						
-						DPlayInventory.Core.runSmartContractMethodCallback(gasPrice);
-						close();
+						DPlayInventory.Core.getEtherBalance((balance) => {
+							
+							console.log(gas * gasPrice * 1000000000, balance);
+							
+							if (gas * gasPrice * 1000000000 <= balance) {
+								DPlayInventory.Core.runSmartContractMethodCallback(gasPrice);
+								close();
+							}
+							
+							else {
+								
+								DPlayInventory.Confirm({
+									content : MSG('NOT_ENOUGH_ETHER_CONFIRM')
+								}, () => {
+									open('http://chargeether.dplay.games');
+									close();
+								});
+							}
+						});
 					}
 				}
 			})]

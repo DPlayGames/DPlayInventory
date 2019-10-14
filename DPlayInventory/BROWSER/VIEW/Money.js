@@ -47,7 +47,7 @@ DPlayInventory.Money = CLASS({
 						open('http://chargedc.dplay.games');
 					}
 				}
-			}), UUI.V_CENTER({
+			})/*, UUI.V_CENTER({
 				style : {
 					position : 'absolute',
 					top : 130,
@@ -64,7 +64,7 @@ DPlayInventory.Money = CLASS({
 						//TODO:
 					}
 				}
-			}),
+			})*/,
 			
 			etherPanel = DIV({
 				style : {
@@ -92,7 +92,7 @@ DPlayInventory.Money = CLASS({
 						open('http://chargeether.dplay.games');
 					}
 				}
-			}), UUI.V_CENTER({
+			})/*, UUI.V_CENTER({
 				style : {
 					position : 'absolute',
 					top : 233,
@@ -109,7 +109,7 @@ DPlayInventory.Money = CLASS({
 						//TODO:
 					}
 				}
-			}),
+			})*/,
 			
 			dPanel = DIV({
 				style : {
@@ -160,7 +160,7 @@ DPlayInventory.Money = CLASS({
 						});
 					}
 				}
-			}), UUI.V_CENTER({
+			})/*, UUI.V_CENTER({
 				style : {
 					position : 'absolute',
 					top : 335,
@@ -177,7 +177,7 @@ DPlayInventory.Money = CLASS({
 						//TODO:
 					}
 				}
-			})]
+			})*/]
 		});
 		
 		DPlayInventory.DPlayCoin.getBalance((balance) => {
