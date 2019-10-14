@@ -323,18 +323,14 @@ window.DSide = (() => {
 	};
 	
 	// 길드 가입 신청을 수락합니다.
-	let acceptGuildJoinRequest = self.acceptGuildJoinRequest = (requesterId, callbackOrHandlers) => {
+	let acceptGuildJoinRequest = self.acceptGuildJoinRequest = (requesterId, callback) => {
 		//REQUIRED: requesterId
-		//REQUIRED: callbackOrHandlers
-		//OPTIONAL: callbackOrHandlers.notValid
-		//OPTIONAL: callbackOrHandlers.notVerified
-		//OPTIONAL: callbackOrHandlers.notEnoughD
-		//REQUIRED: callbackOrHandlers.success
+		//REQUIRED: callback
 		
 		inner.send({
 			methodName : 'acceptGuildJoinRequest',
 			data : requesterId
-		}, seperateHandler(callbackOrHandlers));
+		}, callback);
 	};
 	
 	// 길드에서 탈퇴합니다.
