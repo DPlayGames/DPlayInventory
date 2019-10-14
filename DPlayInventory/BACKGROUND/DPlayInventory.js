@@ -38,7 +38,7 @@ global.DPlayInventory = OBJECT({
 			let provider = new Web3.providers.WebsocketProvider(NETWORK_WS_ADDRESSES[networkName]);
 			provider.on('end', (e) => {
 				SHOW_ERROR('SmartContract', 'WebsocketProvider의 접속이 끊어졌습니다. 재접속합니다.');
-				weweb3WSb3.setProvider(getProvider());
+				web3WS.setProvider(getProvider());
 			});
 			
 			return provider;
