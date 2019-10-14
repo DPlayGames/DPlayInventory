@@ -207,12 +207,12 @@ window.DPlayInventory = (() => {
 	};
 	
 	let login = self.login = (callback) => {
-		//REQUIRED: callback
+		//OPTIONAL: callback
 		
 		inner.send({
 			methodName : 'login'
 		}, (result) => {
-			if (result === true) {
+			if (callback !== undefined && result === true) {
 				callback();
 			}
 		});

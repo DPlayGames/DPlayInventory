@@ -44,7 +44,7 @@ window.DPlayInventory = (() => {
 			}
 		}
 		
-		return favicon[0] === '/' ? location.origin + favicon : location.href + '/' + favicon;
+		return favicon === undefined ? undefined : (favicon[0] === '/' ? location.origin + favicon : location.href + '/' + favicon);
 	};
 	
 	// 스마트 계약의 메소드를 실행합니다.
