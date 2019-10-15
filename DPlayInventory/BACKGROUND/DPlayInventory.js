@@ -27,6 +27,7 @@ global.DPlayInventory = OBJECT({
 		};
 		
 		let web3;
+		let web3Old;
 		let web3WS;
 		
 		let getProvider = () => {
@@ -54,6 +55,7 @@ global.DPlayInventory = OBJECT({
 			});
 			
 			web3 = new Web3(getProvider(NETWORK_ADDRESSES[networkName]));
+			web3Old = new Web3Old(getProvider(NETWORK_ADDRESSES[networkName]));
 			web3WS = new Web3(getWebSocketProvider(NETWORK_WS_ADDRESSES[networkName]));
 			
 			DPlaySmartContract.initAll(callback);
@@ -101,6 +103,7 @@ global.DPlayInventory = OBJECT({
 		};
 		
 		let contracts = {};
+		let contractsOld = {};
 		let contractsWS = {};
 		
 		let methodMap = {};
@@ -137,6 +140,7 @@ global.DPlayInventory = OBJECT({
 			let address = params.address;
 			
 			contracts[address] = new web3.eth.Contract(abi, address);
+			contractsOld[address] = new web3Old.eth.Contract(abi, address);
 			
 			let contractWS = contractsWS[address] = new web3WS.eth.Contract(abi, address);
 			
@@ -443,7 +447,7 @@ global.DPlayInventory = OBJECT({
 			let methodName = _params.methodName;
 			let params = _params.params;
 			
-			let contract = contracts[address];
+			let contract = contractsOld[address];
 			let methods = methodMap[address];
 			
 			if (contract !== undefined && methods !== undefined && methods[methodName] !== undefined) {
@@ -794,7 +798,7 @@ global.DPlayInventory = OBJECT({
 				let methodName = runSmartContractMethodInfo.methodName;
 				let params = runSmartContractMethodInfo.params;
 				
-				let contract = contracts[address];
+				let contract = contractsOld[address];
 				let methods = methodMap[address];
 				
 				if (contract !== undefined && methods !== undefined && methods[methodName] !== undefined) {
